@@ -1,4 +1,30 @@
-This is free and unencumbered software released into the public domain.
+The BREXX distribution (ftp://ftp.gwdg.de/pub/languages/rexx/brexx/brexx/README)
+has the following notices by Vasilis N. Vlachoudis (Vasilis.Vlachoudis@cern.ch).
+
+How much does it cost
+
+This is a FREEWARE program, as long as it is used for NON COMMERCIAL
+purpose. But any generous contribution is well accepted :) to help
+keeping this project alive. It is still FREEWARE if it is included
+as a part (macro language) for another FREEWARE product.
+
+For commercial use the registration fee is $50 (for version 2.0
+and above). Furthermore, if you want to include it as a macro
+language in one of your shareware/commercial program you have to
+contact the author Vasilis.Vlachoudis@cern.ch. For more
+informations please contact me by e-mail on one of the above addresses.
+
+DISCLAIMER
+
+THE SOFTWARE  REFERENCED  IS MADE  AVAILABLE AS - IS. THE AUTHOR
+MAKES NO WARRANTY ABOUT THE  SOFTWARE AND ITS CONFORMITY TO ANY
+APPLICATION. THE AUTHOR IS NOT RESPONSIBLE FOR ANY DAMAGE, LOSS OF
+DATA, OR LOSS OF MONEY CAUSED BY THIS PROGRAM.
+
+-----------
+
+With respect to this port / repository, any additions and changes are 
+free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
 distribute this software, either in source code form or as a compiled
