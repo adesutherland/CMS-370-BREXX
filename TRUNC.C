@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: trunc.c,v 1.6 2008/07/15 07:40:54 bnv Exp $
  * $Log: trunc.c,v $
@@ -27,6 +28,9 @@
 void __CDECL
 Ltrunc( const PLstr to, const PLstr from, long n)
 {
+#ifdef __CMS__
+ Lformat(to, from, -1, n, 0, 0);
+#else
 #ifdef WCE
  char *snum, *s;
  int decp, sign;
@@ -70,4 +74,5 @@ Ltrunc( const PLstr to, const PLstr from, long n)
   LTYPE(*to) = LSTRING_TY;
   LLEN(*to)  = STRLEN(LSTR(*to));
  }
+#endif
 } /* R_trunc */

@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: interpre.c,v 1.22 2009/06/02 09:41:27 bnv Exp $
  * $Log: interpre.c,v $
@@ -603,7 +604,11 @@ I_CallFunction( void )
     Lstrcat(&cmd,RxStck[st++]);
     Lcat(&cmd,"\"");
    }
+#ifndef __CMS__
    RxRedirectCmd(&cmd,FALSE,TRUE,res);
+#else
+   printf("I_CallFuncation in Interpre.c would have called RxRedirectCmd...\n");
+#endif
    LFREESTR(cmd);
    RxStckTop -= realarg;
 #else
@@ -719,7 +724,6 @@ I_ReturnProc( void )
  Rx_id = _proc[_rx_proc].id;
  VarScope = _proc[_rx_proc].scope;
  lNumericDigits = _proc[_rx_proc].digits;
- 
  if (_proc[_rx_proc].trace & (normal_trace | off_trace | error_trace))
    _trace = FALSE;
  else
@@ -882,9 +886,9 @@ RxInterpret( void )
 #ifdef WCE
  int event_count = 0;
 #endif
+ 
  rxReturnCode = 0;
  Rx_id  = _proc[_rx_proc].id;
- 
  Rxcodestart = (CIPTYPE*)LSTR(*_code);
  VarScope = _proc[_rx_proc].scope;
  Rxcip   = (CIPTYPE*)((byte huge *)Rxcodestart + _proc[_rx_proc].ip);
@@ -898,8 +902,7 @@ RxInterpret( void )
  SIGNAL(SIGINT,RxHaltTrap);
  
  if ((jc=setjmp(_error_trap))!=0) {
-   CIPTYPE *tmp_Rxcip;
- 
+  CIPTYPE *tmp_Rxcip;
   if (jc==JMP_EXIT) {
    RxStckTop = -1;
    goto interpreter_fin;

@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: address.c,v 1.15 2009/06/02 09:41:27 bnv Exp $
  * $Log: address.c,v $
@@ -47,6 +48,9 @@
  
 #include <string.h>
 #include <stdlib.h>
+#ifdef __CMS__
+#include <cmssys.h>
+#endif
  
 #include "lstring.h"
 #include "rexx.h"
@@ -93,6 +97,7 @@
 #define LOW_STDIN 0
 #define LOW_STDOUT 1
  
+#ifndef __CMS__
 /* ---------------------- chkcmd4stack ---------------------- */
 static void
 chkcmd4stack(PLstr cmd, int *in, int *out )
@@ -131,6 +136,7 @@ chkcmd4stack(PLstr cmd, int *in, int *out )
  if (*out==STACK)
   *out = FIFO;
 } /* chkcmd4stack */
+#endif
  
 #if !defined(__CMS__) && !defined(__MVS__)
 /* -------------------- mkfntemp -------------------- */
@@ -152,16 +158,11 @@ mkfntemp(char *fn, size_t length)
  STRCAT(fn,"OXXXXXX");
  MKTEMP(fn);
 } /* mkfntemp */
-#endif
  
 /* ------------------ RxRedirectCmd ----------------- */
 int __CDECL
 RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
 {
-#ifdef __CMS__
-/* stuff for VM commands will go here */
-#elif defined(__MVS__)
-#else
  char fnin[250], fnout[250];
  int old_stdin=0, old_stdout=0;
  int filein, fileout;
@@ -250,90 +251,36 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
  }
  
  return rxReturnCode;
-#endif
 } /* RxRedirectCmd */
 #endif
  
+/* ------------------ RxExecuteCmd ----------------- */
+int __CDECL
+RxExecuteCmd( PLstr cmd, PLstr env )
+{
 #if defined(__CMS__)
-/* ------------------ RxExecuteCmd ----------------- */
-int __CDECL
-RxExecuteCmd( PLstr cmd, PLstr env )
-{
- /*dw printf(" In RxExecuteCmd <%s> <%s> \n",LSTR(*cmd),LSTR(*env)); */
- char svcbuff [120],statbf[40],*parm;
- int parmcnt,code,parmn,nlcnt;
+ int how;
  
- /* Set prmcnt = 1 to save first 8 bytes for CP and EXEC */
+LASCIIZ(* env);
+ // Right now we support the CMS and COMMAND environments.
+ if (!Lcmp(env, "CMS")) how = CMS_CONSOLE;
+ else how = CMS_COMMAND;
+ rxReturnCode = CMScommand(LSTR(* cmd), how);                                 // execute the command
  
- parmcnt = 1;
- parm = strtok(LSTR(*cmd)," ");
- while (parm != NULL) {
-  /* printf(" %s \n ", parm); */
-  nlcnt=parmcnt*8;
-  memcpy( &svcbuff[nlcnt] , "        " , 8);
-  memcpy( &svcbuff[nlcnt] , parm,(strlen(parm)>8)?8:strlen(parm));
- 
-  ++parmcnt;
-  parm = strtok(NULL," ");
- }
- 
- for (nlcnt = 0; nlcnt < 8; ++nlcnt)
-  svcbuff[parmcnt*8 + nlcnt] = 0xff;
- 
- /* if ENV = "COMMAND" just issue command */
- if (strcmp(LSTR(*env) , "COMMAND") == 0) {
-  __SVC202 ( &svcbuff[8], &parmn, &code);
-  /*printf(" Return from SVC202 = <%d> \n", code);*/
-  rxReturnCode = code;
-  RxSetSpecialVar(RCVAR,rxReturnCode);
-  return code;
- } else {
-  /* we need to try EXEC, no args, CP */
-  /* first see if there is an EXEC */
-  memcpy (&statbf[0] , "STATE   ", 8);
-  memcpy (&statbf[8] , &svcbuff[8], 8);
-  memcpy (&statbf[16] , "EXEC    ", 8);
-  memcpy (&statbf[24] , "*       ", 8);
-  for (nlcnt = 0; nlcnt < 8; ++nlcnt)
-   svcbuff[32 + nlcnt]=0xff;
-  __SVC202 ( statbf , &parmn, &code);
-  /* printf(" Return from STATE  = <%d> \n", code); */
-  if( code == 0 ) { /* there is an EXEC */
-   memcpy ( &svcbuff[0] , "EXEC    ", 8);
-   __SVC202 ( svcbuff, &parmn, &code);
-   /* dw printf(" Return from EXEC - SVC202 = <%d> \n", code); */
-   rxReturnCode = code;
-   RxSetSpecialVar(RCVAR,rxReturnCode);
-  } else {   /* NO EXEC try CMS then CP */
-   __SVC202 ( &svcbuff[8], &parmn, &code);
-   /* dwprintf(" Return from PLAIN  SVC202 = <%d> \n", code); */
-   if(code == -1) { /* command not found try CP */
-    memcpy ( &svcbuff[0] , "CP      ", 8);
-    __SVC202 ( svcbuff, &parmn, &code);
-    /* dw   printf(" Return from CP - SVC202 = <%d> \n", code); */
-   }
+ RxSetSpecialVar(RCVAR,rxReturnCode);                                 // set the returncode variable
+ if (rxReturnCode && !(_proc[_rx_proc].trace & off_trace)) {       // do the right thing for tracing
+  if (_proc[_rx_proc].trace & (error_trace | normal_trace)) {
+   TraceCurline(NULL,TRUE);
+   fprintf(STDERR,"       +++ RC(%d) +++\n",rxReturnCode);
+   if (_proc[_rx_proc].interactive_trace)
+    TraceInteractive(FALSE);
   }
-  rxReturnCode = code;
-  RxSetSpecialVar(RCVAR,rxReturnCode);
+  if (_proc[_rx_proc].condition & SC_ERROR)
+   RxSignalCondition(SC_ERROR);
  }
- return code;
-} /* RxExecuteCmd */
- 
 #elif defined(__MVS__)
- 
-/* ------------------ RxExecuteCmd ----------------- */
-int __CDECL
-RxExecuteCmd( PLstr cmd, PLstr env )
-{
- return (system(LSTR(*cmd)));
-} /* RxExecuteCmd */
- 
+ rxReturnCode = system(LSTR(* cmd));
 #else
- 
-/* ------------------ RxExecuteCmd ----------------- */
-int __CDECL
-RxExecuteCmd( PLstr cmd, PLstr env )
-{
 #ifndef WIN
  int in,out;
  Lstr cmdN;
@@ -415,6 +362,7 @@ RxExecuteCmd( PLstr cmd, PLstr env )
  FREE(uArgs);
  LFREESTR(file);
  LFREESTR(args);
+#endif
 #endif
  return rxReturnCode;
 } /* RxExecuteCmd */

@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: stack.c,v 1.9 2009/02/02 09:26:23 bnv Exp $
  * $Log: stack.c,v $
@@ -32,12 +33,17 @@
  
 #define __STACK_C__
  
+#ifdef __CMS__
+#include <cmssys.h>
+#endif
+ 
 #include "lerror.h"
 #include "lstring.h"
 #include "stack.h"
  
 #include "rexx.h"
  
+#ifndef __CMS__
 /* ----------------- CreateStack ----------------------- */
 void __CDECL
 CreateStack( void )
@@ -58,14 +64,15 @@ DeleteStack( void )
  DQFlush(stck,_Lfree);
  FREE(stck);
 } /* DeleteStack */
+#endif
  
 /* ----------------- Queue2Stack ----------------------- */
 void __CDECL
 Queue2Stack( PLstr str )
 {
 #ifdef __CMS__
- int atln = LLEN(*str);
- __ATTN__(LSTR(*str) , &atln , "FIFO"); /* dw */
+LSTR(* str)[LLEN(* str)] = '\0';                                       // rpo: add a null terminator
+CMSstackLine(LSTR(*str), CMS_STACKFIFO);
 #else
  DQueue *stck;
  stck = DQPEEK(&rxStackList);
@@ -78,8 +85,8 @@ void __CDECL
 Push2Stack( PLstr str )
 {
 #ifdef __CMS__
- int atln = LLEN(*str);
- __ATTN__(LSTR(*str) , &atln , "LIFO"); /* dw */
+LSTR(* str)[LLEN(* str)] = '\0';                                       // rpo: add a null terminator
+CMSstackLine(LSTR(* str), CMS_STACKLIFO);
 #else
  DQueue *stck;
  stck = DQPEEK(&rxStackList);
@@ -91,9 +98,18 @@ Push2Stack( PLstr str )
 PLstr __CDECL
 PullFromStack( )
 {
+#ifdef __CMS__
+PLstr str;
+ 
+Lfx(str, 131);
+CMSconsoleRead(str);
+printf("Stack: pulling [%s].\n", str);
+return str;
+#else
  DQueue *stck;
  stck = DQPEEK(&rxStackList);
  return (PLstr)DQPop(stck);
+#endif
 } /* PullFromStack */
  
 /* ----------------- StackQueued ----------------------- */
@@ -103,9 +119,8 @@ StackQueued( void )
 #ifdef __CMS__
  int items;
  long retval;
- __STACKN(&items);
+ items = (long) CMSstackQuery();
  retval = items;
- /* dw printf(" In StackQueued -  Items  = %d \d", items); */
  return items;
 #else
  DQueue *stck;

@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: variable.c,v 1.12 2008/07/15 07:40:25 bnv Exp $
  * $Log: variable.c,v $
@@ -999,7 +1000,9 @@ SystemPoolSet(PLstr name, PLstr value)
   Lcat(&str,"=");
   Lstrcpy(&str,value);
   LASCIIZ(str);
+#ifndef __CMS__
   rc = putenv(LSTR(str));
+#endif
   LFREESTR(str);
   return rc;
  }

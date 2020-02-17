@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: print.c,v 1.12 2009/06/02 09:40:53 bnv Exp $
  * $Log: print.c,v $
@@ -60,6 +61,11 @@ Lprint( FILEP f, const PLstr str )
  char *c;
  char s[64];
  
+#ifdef __CMS__
+   Lstr tmp;
+   LINITSTR(tmp);
+#endif
+ 
 #ifndef WIN
  if (str==NULL) {
   ANSI_FPUTS(f,"<NULL>");
@@ -101,12 +107,18 @@ Lprint( FILEP f, const PLstr str )
    break;
  
   case LREAL_TY:
+#ifdef __CMS__
+   Lformat(&tmp, str, -1, -1, 0, 0);
+   fputs(LSTR(tmp), f);
+   LFREESTR(tmp);
+#else
    GCVT(LREAL(*str),lNumericDigits,s);
 #ifdef WIN
    FPUTS(GCVT(LREAL(*str),lNumericDigits,s), f);
 #else
    ANSI_FPUTS(f, s);
 //   ANSI_FPRINTF(f, lFormatStringToReal, LREAL(*str));
+#endif
 #endif
    break;
  }

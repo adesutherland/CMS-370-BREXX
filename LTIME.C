@@ -1,3 +1,5 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
+/* Renamed to ltime.c to avoid conflict with GCCLIB.            */
 /*
  * $Id: time.c,v 1.11 2009/06/02 09:40:53 bnv Exp $
  * $Log: time.c,v $

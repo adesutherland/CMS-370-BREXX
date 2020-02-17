@@ -1,3 +1,5 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
+ 
 /*
  * $Id: rxmath.c,v 1.8 2008/07/15 07:40:25 bnv Exp $
  * $Log: rxmath.c,v $
@@ -60,6 +62,8 @@ R_math( const int func )
  L2REAL(ARG1);
  Lstrcpy(ARGR,ARG1);
  switch (func) {
+#ifndef __CMS__
+ 
   case f_acos:
    LREAL(*ARGR) = acos(LREAL(*ARGR));
    break;
@@ -103,10 +107,12 @@ R_math( const int func )
   case f_sinh:
    LREAL(*ARGR) = sinh(LREAL(*ARGR));
    break;
+#endif
  
   case f_sqrt:
    LREAL(*ARGR) = sqrt(LREAL(*ARGR));
    break;
+#ifndef __CMS__
  
   case f_tan :
    LREAL(*ARGR) =  tan(LREAL(*ARGR));
@@ -115,12 +121,14 @@ R_math( const int func )
   case f_tanh:
    LREAL(*ARGR) = tanh(LREAL(*ARGR));
    break;
+#endif
  
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_math */
  
+#ifndef __CMS__
 /* --------------------------------------------------------------- */
 /*  ATAN2(x,y)                                                     */
 /* --------------------------------------------------------------- */
@@ -138,6 +146,7 @@ R_atanpow( const int func )
  else
   LREAL(*ARGR) = pow(LREAL(*ARGR),LREAL(*ARG2));
 } /* R_atanpow */
+#endif
  
 /* --------------------------------------------------------------- */
 /*  AND(a,b)                                                       */

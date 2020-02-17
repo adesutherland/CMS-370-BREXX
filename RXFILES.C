@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: rxfiles.c,v 1.13 2008/07/15 07:40:25 bnv Exp $
  * $Log: rxfiles.c,v $
@@ -216,7 +217,6 @@ open_file( const PLstr fn, const char *mode )
  Lstr str;
  
  i = find_empty();
- 
  LINITSTR(str); Lfx(&str,LLEN(*fn));
  Lstrcpy(&str,fn);
  
@@ -249,6 +249,7 @@ close_file( const int f )
  return r;
 } /* close_file */
  
+#ifndef __CMS__
 /* --------------------------------------------------------------- */
 /*  OPEN( file, mode )                                             */
 /* --------------------------------------------------------------- */
@@ -424,6 +425,7 @@ R_stream( )
    Lerror(ERR_INCORRECT_CALL, 0);
  }
 } /* R_stream */
+#endif
  
 /* --------------------------------------------------------------- */
 /*  CHARS((file))                                                  */
@@ -440,7 +442,11 @@ R_charslines( const int func )
  i = FSTDIN;
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
+#ifdef __CMS__
+ if (i==-1) i = open_file(ARG1,"r");
+#else
  if (i==-1) i = open_file(ARG1,"r+");
+#endif
  if (i==-1)
   Lerror(ERR_CANT_OPEN_FILE,0);
  
@@ -467,7 +473,11 @@ R_charlinein( const int func )
  i = FSTDIN;
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
+#ifdef __CMS__
+ if (i==-1) i = open_file(ARG1,"r");
+#else
  if (i==-1) i = open_file(ARG1,"r+");
+#endif
  if (i==-1)
   Lerror(ERR_CANT_OPEN_FILE,0);
  get_oiv(2,start,LSTARTPOS);
@@ -498,8 +508,13 @@ R_charlineout( const int func )
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
  if (i==-1) {
+#ifdef __CMS__
+// For now we will wriet to the end (append) of the file in text mode.
+  i = open_file(ARG1, "a");
+#else
   i = open_file(ARG1,"r+");
   if (i==-1) i = open_file(ARG1,"w+");
+#endif
  }
  if (i==-1)
   Lerror(ERR_CANT_OPEN_FILE,0);
@@ -508,9 +523,20 @@ R_charlineout( const int func )
   L2STR(ARG2);
   str = ARG2;
  } else
+#ifdef __CMS__
+  {
+  close_file(i);                             // LINEOUT with only the file specified closes the file
+  return;
+  }
+#else
   str = &(nullStr->key);
+#endif
  
+#ifdef __CMS__
+ start = 0;                                              // we don't yet support the start parameter
+#else
  get_oiv(3,start,LSTARTPOS);
+#endif
  
  if (func == f_charout) {
   Lcharout(file[i].f,str,start);
@@ -521,6 +547,7 @@ R_charlineout( const int func )
  FFLUSH(file[i].f);
 } /* R_charlineout */
  
+#ifndef __CMS__
 /* --------------------------------------------------------------- */
 /*  WRITE( (file)(, string(,)))                                    */
 /* --------------------------------------------------------------- */
@@ -641,3 +668,4 @@ R_seek( )
  }
  Licpy(ARGR, FTELL(file[i].f));
 } /* R_seek */
+#endif

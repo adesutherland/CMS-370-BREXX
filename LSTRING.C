@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: lstring.c,v 1.11 2009/06/02 09:40:53 bnv Exp $
  * $Log: lstring.c,v $
@@ -521,6 +522,9 @@ L2str( const PLstr s )
 #endif
   LLEN(*s) = STRLEN(LSTR(*s));
  } else { /* LREAL_TY */
+#ifdef __CMS__
+  Lformat(s, s, -1, -1, 0, 0);
+#else
   /* There is a problem with the Windows CE */
   char str[50];
   size_t len;
@@ -534,6 +538,7 @@ L2str( const PLstr s )
   if (len>=LMAXLEN(*s)) Lfx(s,len);
   MEMCPY(LSTR(*s),str,len);
   LLEN(*s) = len;
+#endif
  }
  LTYPE(*s) = LSTRING_TY;
 } /* L2str */

@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: rxstr.c,v 1.9 2008/07/15 07:40:25 bnv Exp $
  * $Log: rxstr.c,v $
@@ -195,7 +196,7 @@ R_S( const int func )
    Lc2x(ARGR,ARG1);
    break;
  
-#ifndef WCE
+#if !defined(WCE) && !defined(__CMS__)
   case f_getenv:
    {
     char *env;
@@ -276,10 +277,12 @@ R_S( const int func )
    Licpy(ARGR,Lhashvalue(ARG1));
    break;
  
+#ifndef __CMS__
   case f_load:
   case f_import:
    Licpy(ARGR,RxLoadLibrary(ARG1,func==f_import));
    break;
+#endif
  
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
@@ -461,12 +464,12 @@ R_translate( )
  
  if (exist(2))
   tableo = ARG2;
- else 
+ else
   tableo = NULL;
  
  if (exist(3))
   tablei = ARG3;
- else 
+ else
   tablei = NULL;
  
  get_pad(4,pad);
@@ -527,7 +530,9 @@ R_SS( int type )
   Lcat(&str,"=");
   Lstrcpy(&str,ARG2);
   LASCIIZ(str);
+#ifndef __CMS__
   Licpy(ARGR,putenv(LSTR(str)));
+#endif
   LFREESTR(str);
   }
 # endif

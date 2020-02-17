@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: rexx.c,v 1.12 2009/06/30 13:51:40 bnv Exp bnv $
  * $Log: rexx.c,v $
@@ -61,6 +62,10 @@
 # include <winfunc.h>
 #endif
  
+#ifdef __CMS__
+#include <cmssys.h>                                                                           // rpo
+#endif
+ 
 /* ----------- Function prototypes ------------ */
 void __CDECL Rerror(const int,const int,...);
 void    __CDECL RxInitFiles(void);
@@ -90,6 +95,14 @@ RxInitialize( char *prorgram_name )
  
  LINITSTR(str);
  
+#ifdef __CMS__
+// We repeat the initialization of static variables in lstring.h to here because when BREXX is
+// loaded as a resident program in CMS the static initializatino is not refreshed at each
+// invocation.
+lLastScannedNumber = 0.0;
+ lNumericDigits = 9;
+#endif
+ 
  /* do the basic initialisation */
  Linit(Rerror);  /* initialise with Lstderr as error function */
  LINITSTR(symbolstr);
@@ -103,8 +116,10 @@ RxInitialize( char *prorgram_name )
  
  _procidcnt = 1;  /* Program id counter */
  
+#ifndef __CMS__
  DQINIT(rxStackList); /* initialise stacks */
  CreateStack();  /* create first stack */
+#endif
  rxFileList = NULL; /* intialise rexx files */
  LPMALLOC(_code);
  CompileClause = NULL;
@@ -130,7 +145,11 @@ RxInitialize( char *prorgram_name )
   Lscpy(&str,"SIGL"); siglStr   = _Add2Lits( &str, FALSE );
   Lscpy(&str,"RC"); RCStr     = _Add2Lits( &str, FALSE );
   Lscpy(&str,"SYNTAX"); syntaxStr = _Add2Lits( &str, FALSE );
+#ifdef __CMS__
+  Lscpy(&str,"CMS"); systemStr = _Add2Lits( &str, FALSE );         // CMS is the default environment
+#else
   Lscpy(&str,"SYSTEM"); systemStr = _Add2Lits( &str, FALSE );
+#endif
  
  LFREESTR(str);
 } /* RxInitialize */
@@ -143,7 +162,9 @@ RxFinalize( void )
  LFREESTR(errmsg); /* delete error msg str */
  RxDoneInterpret();
  FREE(_proc);  /* free prg list */
+#ifndef __CMS__
  while (rxStackList.items>0) DeleteStack();
+#endif
  LPFREE(_code); _code = NULL;
  
  RxDoneFiles();  /* close all files */
@@ -213,7 +234,26 @@ int __CDECL
 RxFileLoad( RxFile *rxf )
 {
  FILEP f;
+ 
+#ifdef __CMS__
+/* Build the CMS fileid of the file we are to interpret.  In the SixPack we are invoked from      */
+/* DMSEXC, which already knows the exact file.  But for now, let's figure it out for ourselves.   */
+char fileid[28];
+CMSFILEINFO * fst;
+ 
+strcpy(fileid, "        EXEC    * ");
+strncpy(fileid, LSTR(rxf->name), strlen(LSTR(rxf->name)));
+CMSfileState(fileid, &fst);                           // determine on which disk the program resides
+strncpy(fileid, fst->filename, 8);
+fileid[8] = ' ';
+strncpy(fileid + 9, fst->filetype, 8);
+fileid[17] = ' ';
+strncpy(fileid + 18, fst->filemode, 2);
+fileid[20] = 0;
+if ((f=FOPEN(fileid, "r")) == NULL)
+#else
  if ((f=FOPEN(LSTR(rxf->name),"r"))==NULL)
+#endif
   return FALSE;
  Lread(f,&(rxf->file), LREADFILE);
  FCLOSE(f);
@@ -433,7 +473,11 @@ RxRun( char *filename, PLstr programstr,
   Lscpy(pr->env,environment);
  else
   Lstrcpy(pr->env,&(systemStr->key));
+#ifdef __CMS__
+ pr->digits = 9;
+#else
  pr->digits = LMAXNUMERICDIGITS;
+#endif
  pr->fuzz = 0;
  pr->form = SCIENTIFIC;
  pr->condition = 0;

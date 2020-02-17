@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: lineout.c,v 1.6 2008/07/15 07:40:54 bnv Exp $
  * $Log: lineout.c,v $
@@ -29,6 +30,7 @@ Llineout( FILEP f, const PLstr line, long *curline, long start )
 {
  int ch,prev='\n';
  
+#ifndef __CMS__
  /* find current line */
  if (start>=0) {
   if (*curline>start) {
@@ -49,7 +51,7 @@ Llineout( FILEP f, const PLstr line, long *curline, long start )
    (*curline)++;
   }
  }
- 
+#endif
  Lwrite(f,line,TRUE);
  (*curline)++;
  return 0;  /* if everything ok */

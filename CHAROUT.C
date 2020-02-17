@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: charout.c,v 1.5 2008/07/15 07:40:54 bnv Exp $
  * $Log: charout.c,v $
@@ -24,8 +25,10 @@
 void __CDECL
 Lcharout( FILEP f, const PLstr line, const long start )
 {
+#ifndef __CMS__
  if (start>=0)
   FSEEK(f,start,SEEK_SET);
+#endif
  
  Lwrite(f,line,FALSE);
 } /* Lcharout */

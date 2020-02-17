@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: builtin.c,v 1.12 2009/06/02 09:41:27 bnv Exp $
  * $Log: builtin.c,v $
@@ -108,6 +109,7 @@ R_O( const int func )
     Lstrcpy(ARGR,_proc[_rx_proc].env);
    break;
  
+#ifndef __CMS__
   case f_desbuf:
    items = 0;
    while (1) {
@@ -121,6 +123,7 @@ R_O( const int func )
    }
    Licpy(ARGR,items);
    break;
+#endif
  
   case f_digits:
    Licpy(ARGR,_proc[_rx_proc].digits);
@@ -137,10 +140,13 @@ R_O( const int func )
    Licpy(ARGR,_proc[_rx_proc].fuzz);
    break;
  
+#ifndef __CMS__
   case f_makebuf:
    CreateStack();
    Licpy(ARGR,rxStackList.items);
    break;
+#endif
+ 
 #ifdef WIN
   case f_lasterror:
    Licpy(ARGR,GetLastError());
@@ -485,6 +491,7 @@ R_datatype( )
  Licpy(ARGR,Ldatatype(ARG1,type));
 } /* R_datatype */
  
+#ifndef __CMS__
 /* -------------------------------------------------------------- */
 /*  DROPBUF((num))                                                */
 /* -------------------------------------------------------------- */
@@ -513,6 +520,7 @@ R_dropbuf( )
   Licpy(ARGR,items);
  }
 } /* R_dropbuf */
+#endif
  
 /* -------------------------------------------------------------- */
 /*  ERRORTEXT(n)                                                  */
@@ -741,11 +749,11 @@ R_storage( )
 # if defined(__BORLANDC__) && !defined(__WIN32__)
   Licpy(ARGR,farcoreleft()); /* return the free memory left */
 # else
-#  if __CMS__
+#ifdef __CMS__
   CMSSTORE(ARGR);
-#  else
+#else
   Licpy(ARGR,0);
-#  endif
+#endif
 # endif
 #else
   STORE_INFORMATION si;

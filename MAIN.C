@@ -81,6 +81,7 @@ main(int ac, char *av[])
  LINITSTR(file);
  
  if (ac<2) {
+#ifndef __CMS__
   puts("\nsyntax: rexx [-[trace]|-F|-a] <filename> <args>...\n");
   puts("options:");
   puts("\t-\tto use stdin");
@@ -90,6 +91,7 @@ main(int ac, char *av[])
   puts(VERSIONSTR);
   puts("Author: "AUTHOR);
   puts("Please report bugs, errors or comments to the above address.\n");
+#endif
   return 0;
  }
 #ifdef __DEBUG__
