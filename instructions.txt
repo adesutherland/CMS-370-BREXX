@@ -1,0 +1,61 @@
+Release Instructions
+====================
+
+Branches
+--------
+- master - Main Branch - only the release manager should merge into it after checking quality
+- develop - Main development branch. Trivial changes done here, or squash commits from a feature branch
+- feature/fnnnn - Feature Branches - where development happens
+
+
+History
+-------
+Added to file changelog.txt
+
+Pull Requests (GitHub)
+----------------------
+TBC
+
+Dev Workflow
+------------
+0. Prelude
+git fetch
+git status
+
+1. Create a feature branch
+git checkout develop
+git checkout -b feature/f000n
+
+2. Changes / debugging
+git fetch
+git status
+git add *
+git commit -m "blah blah"
+etc.
+
+3. Tested and ready to get it into develop as one simple commit
+git checkout develop
+git merge --squash feature/f00xx
+git commit -m "f00xx"
+git push
+
+4. Delete Unwanted feature branch (i.e. AFTER merge to develop)
+git branch -d feature/f00xx
+git push origin --delete feature/f00xx
+
+5. Tag a pre-release (will cause a release build draft in github)
+git tag f000n
+git push origin f000n
+
+6. Delete Tag
+git tag -d f00xx
+git push --delete origin f00xx
+
+7. Merge into master
+git checkout master
+git merge develop
+git push
+
+8. Tag a release
+git tag v1.x.y
+git push origin v1.x.y
