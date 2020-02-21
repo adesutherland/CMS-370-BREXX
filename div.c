@@ -14,16 +14,16 @@
  * Initial Version
  *
  */
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 /* ------------------- Ldiv ----------------- */
 void __CDECL
 Ldiv( const PLstr to, const PLstr A, const PLstr B )
 {
  double b;
- 
+
  b = Lrdreal(B);
  if (b == 0) Lerror(ERR_ARITH_OVERFLOW,0);
  LREAL(*to) = Lrdreal(A) / b;

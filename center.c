@@ -14,25 +14,25 @@
  * Initial revision
  *
  */
- 
+
 #include <string.h>
 #include "lstring.h"
- 
+
 /* ------------------ Lcenter ----------------- */
 void __CDECL
 Lcenter( const PLstr to, const PLstr from, const long length, const char pad)
 {
  long i,a;
- 
+
  if (length<=0) {
   LZEROSTR(*to);
   return;
  }
- 
+
  L2STR(to);
  L2STR(from);
  i = length - LLEN(*from);
- 
+
  if (!i) Lstrcpy(to,from);
  else
   if (i < 0) {

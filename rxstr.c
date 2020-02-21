@@ -31,20 +31,20 @@
  * Initial revision
  *
  */
- 
+
 #ifdef __BORLANDC__
 # include <dos.h>
 #endif
 #include <stdlib.h>
 #include <string.h>
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "rxdefs.h"
 #include "interpre.h"
- 
+
 /* --------------------------------------------------------------- */
 /*  ABBREV(information,info[,length])                              */
 /* --------------------------------------------------------------- */
@@ -62,43 +62,43 @@ void __CDECL
 R_SSoI( const int func )
 {
  long l;
- 
+
  if (!IN_RANGE(2,ARGN,3))
   Lerror(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2);
  get_oi0(3,l);
- 
+
  switch (func) {
   case f_abbrev:
    Licpy(ARGR,Labbrev(ARG1,ARG2,l));
    break;
- 
+
   case f_index:
    Licpy(ARGR,Lindex(ARG1,ARG2,l));
    break;
- 
+
   case f_find:
    Licpy(ARGR,Lfind(ARG1,ARG2,l));
    break;
- 
+
   case f_lastpos:
    Licpy(ARGR,Llastpos(ARG1,ARG2,l));
    break;
- 
+
   case f_pos:
    Licpy(ARGR,Lpos(ARG1,ARG2,l));
    break;
- 
+
   case f_wordpos:
    Licpy(ARGR,Lwordpos(ARG1,ARG2,l));
    break;
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SSoI */
- 
+
 /* --------------------------------------------------------------- */
 /*  CENTRE(string,length[,pad])                                    */
 /*  CENTER(string,length[,pad])                                    */
@@ -114,36 +114,36 @@ R_SIoC( const int func )
 {
  long l;
  char pad;
- 
+
  if (!IN_RANGE(2,ARGN,3))
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  must_exist(1);
  get_i0(2,l);
  get_pad(3,pad);
- 
+
  switch (func) {
   case f_center:
    Lcenter(ARGR,ARG1,l,pad);
    break;
- 
+
   case f_justify:
    Ljustify(ARGR,ARG1,l,pad);
    break;
- 
+
   case f_left:
    Lleft(ARGR,ARG1,l,pad);
    break;
- 
+
   case f_right:
    Lright(ARGR,ARG1,l,pad);
    break;
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  } /* of switch */
 } /* R_SIoC */
- 
+
 /* --------------------------------------------------------------- */
 /*  B2X(string)                                                    */
 /* --------------------------------------------------------------- */
@@ -183,19 +183,19 @@ R_S( const int func )
 {
  Lstr str;
  int found;
- 
+
  if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
  L2STR(ARG1);
- 
+
  switch (func) {
   case f_b2x:
    Lb2x(ARGR,ARG1);
    break;
- 
+
   case f_c2x:
    Lc2x(ARGR,ARG1);
    break;
- 
+
 #if !defined(WCE) && !defined(__CMS__)
   case f_getenv:
    {
@@ -209,24 +209,24 @@ R_S( const int func )
    }
    break;
 #endif
- 
+
   case f_length:
    Licpy(ARGR, LLEN(*ARG1));
    break;
- 
+
   case f_words:
    Licpy(ARGR, Lwords(ARG1));
    break;
- 
+
   case f_reverse:
    Lstrcpy(ARGR,ARG1);
    Lreverse(ARGR);
    break;
- 
+
   case f_soundex:
    Lsoundex(ARGR,ARG1);
    break;
- 
+
   case f_symbol:
    if (Ldatatype(ARG1,'S')==0) {
     Lscpy(ARGR,"BAD");
@@ -242,15 +242,15 @@ R_S( const int func )
    else
     Lscpy(ARGR,"LIT");
    break;
- 
+
   case f_x2b:
    Lx2b(ARGR,ARG1);
    break;
- 
+
   case f_x2c:
    Lx2c(ARGR,ARG1);
    break;
- 
+
 #ifdef WCE
   case f_a2u:
    {
@@ -262,7 +262,7 @@ R_S( const int func )
     LTYPE(*ARGR) = LSTRING_TY;
    }
    break;
- 
+
   case f_u2a:
    {
     size_t len = LLEN(*ARG1)/2;
@@ -276,14 +276,14 @@ R_S( const int func )
   case f_hashvalue:
    Licpy(ARGR,Lhashvalue(ARG1));
    break;
- 
+
 #ifndef __CMS__
   case f_load:
   case f_import:
    Licpy(ARGR,RxLoadLibrary(ARG1,func==f_import));
    break;
 #endif
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
@@ -299,31 +299,31 @@ void __CDECL
 R_SIoI( const int func )
 {
  long n,l;
- 
+
  if (!IN_RANGE(2,ARGN,3))
   Lerror(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_i(2,n);
  get_oiv(3,l,-1);
- 
+
  switch (func) {
   case f_delstr:
    Ldelstr(ARGR,ARG1,n,l);
    break;
- 
+
   case f_delword:
    Ldelword(ARGR,ARG1,n,l);
    break;
- 
+
   case f_subword:
    Lsubword(ARGR,ARG1,n,l);
    break;
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SIoI */
- 
+
 /* --------------------------------------------------------------- */
 /*  INSERT(new,target[,[n][,[length][,pad]]])                      */
 /* --------------------------------------------------------------- */
@@ -334,7 +334,7 @@ R_SSoIoIoC( const int func )
 {
  long n,l;
  char pad;
- 
+
  if (!IN_RANGE(2,ARGN,5))
   Lerror(ERR_INCORRECT_CALL,0);
  must_exist(1);
@@ -342,21 +342,21 @@ R_SSoIoIoC( const int func )
  get_oi0(3,n);
  get_oiv(4,l,-1);
  get_pad(5,pad);
- 
+
  switch (func) {
   case f_insert:
    Linsert(ARGR,ARG1,ARG2,n,l,pad);
    break;
- 
+
   case f_overlay:
    Loverlay(ARGR,ARG1,ARG2,n,l,pad);
    break;
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SSoIoIoC */
- 
+
 /* --------------------------------------------------------------- */
 /*  CHANGESTR(searchstr,string,replacestr)                         */
 /* --------------------------------------------------------------- */
@@ -370,7 +370,7 @@ R_changestr( )
  must_exist(3);
  Lchangestr(ARGR,ARG1,ARG2,ARG3);
 } /* R_changestr */
- 
+
 /* --------------------------------------------------------------- */
 /*  COMPARE(string1,string2[,pad])                                 */
 /* --------------------------------------------------------------- */
@@ -378,16 +378,16 @@ void __CDECL
 R_compare( )
 {
  char pad;
- 
+
  if (!IN_RANGE(2,ARGN,3))
   Lerror(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2);
  get_pad(3,pad);
- 
+
  Licpy(ARGR, Lcompare(ARG1,ARG2,pad));
 } /* R_compare */
- 
+
 /* --------------------------------------------------------------- */
 /*  COPIES(string,n)                                               */
 /* --------------------------------------------------------------- */
@@ -395,16 +395,16 @@ void __CDECL
 R_copies( )
 {
  long n;
- 
+
  if (ARGN != 2)
   Lerror(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2); n = Lrdint(ARG2);
  if (n<0) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  Lcopies(ARGR,ARG1,n);
 } /* R_copies */
- 
+
 /* --------------------------------------------------------------- */
 /*  SUBSTR(string,n[,[length][,pad]])                              */
 /* --------------------------------------------------------------- */
@@ -413,17 +413,17 @@ R_substr( )
 {
  long n,l;
  char pad;
- 
+
  if (!IN_RANGE(2,ARGN,4))
   Lerror(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_i(2,n);
  get_oiv(3,l,-1);
  get_pad(4,pad);
- 
+
  Lsubstr(ARGR,ARG1,n,l,pad);
 } /* R_substr */
- 
+
 /* --------------------------------------------------------------- */
 /*  STRIP(string[,[<"L"|"T"|"B">][,char]])                         */
 /* --------------------------------------------------------------- */
@@ -432,16 +432,16 @@ R_strip( )
 {
  char action='B';
  char pad;
- 
+
  if (!IN_RANGE(1,ARGN,3))
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  must_exist(1);
  if (exist(2)) { L2STR(ARG2); action = l2u[(byte)LSTR(*ARG2)[0]]; }
  get_pad(3,pad);
  Lstrip(ARGR,ARG1,action,pad);
 } /* R_strip */
- 
+
 /* --------------------------------------------------------------- */
 /*  TRANSLATE(string(,(tableo)(,(tablei)(,pad))))                  */
 /* --------------------------------------------------------------- */
@@ -450,33 +450,33 @@ R_translate( )
 {
  char pad;
  PLstr tableo,tablei;
- 
+
  if (!IN_RANGE(1,ARGN,4))
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  must_exist(1);
- 
+
  if (ARGN==1) {
   Lstrcpy(ARGR,ARG1);
   Lupper(ARGR);
   return;
  }
- 
+
  if (exist(2))
   tableo = ARG2;
  else
   tableo = NULL;
- 
+
  if (exist(3))
   tablei = ARG3;
  else
   tablei = NULL;
- 
+
  get_pad(4,pad);
- 
+
  Ltranslate(ARGR,ARG1,tableo,tablei,pad);
 } /* R_translate */
- 
+
 /* --------------------------------------------------------------- */
 /*  VERIFY(string,reference[,[option][,start]])                    */
 /* --------------------------------------------------------------- */
@@ -485,10 +485,10 @@ R_verify( )
 {
  bool match=FALSE;
  long start;
- 
+
  if (!IN_RANGE(2,ARGN,4))
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  must_exist(1);
  must_exist(2);
  if (exist(3)) {
@@ -498,7 +498,7 @@ R_verify( )
  get_oi(4,start);
  Licpy(ARGR,Lverify(ARG1,ARG2,match,start));
 } /* R_verify */
- 
+
 /* --------------------------------------------------------------- */
 /*  COUNTSTR(target,string)                                        */
 /* --------------------------------------------------------------- */
@@ -509,7 +509,7 @@ R_SS( int type )
 {
  if (ARGN!=2)
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  must_exist(1);
  must_exist(2);
 #ifndef WCE

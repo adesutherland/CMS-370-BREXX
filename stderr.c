@@ -20,9 +20,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 #ifdef WCE
 # error "Lstderr: should not be included in the CE version"
 #endif
@@ -32,13 +32,13 @@ Lstderr( const int errno, const int subno, ... )
 {
  Lstr errmsg;
  va_list ap;
- 
+
  LINITSTR(errmsg);
- 
+
  va_start(ap,subno);
  Lerrortext(&errmsg,errno,subno,&ap);
  va_end(ap);
- 
+
  if (LLEN(errmsg)==0)
   fprintf(STDERR,"Ooops unknown error %d.%d!!!\n",errno,subno);
  else {
@@ -48,7 +48,7 @@ Lstderr( const int errno, const int subno, ... )
   else
    fprintf(STDERR,"Error %d.%d: %s\n",errno,subno,LSTR(errmsg));
  }
- 
+
  LFREESTR(errmsg);
  exit(errno);
 } /* Lstderr */

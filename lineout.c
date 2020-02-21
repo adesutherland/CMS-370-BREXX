@@ -21,15 +21,15 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ---------------- Llineout ------------------- */
 int __CDECL
 Llineout( FILEP f, const PLstr line, long *curline, long start )
 {
  int ch,prev='\n';
- 
+
 #ifndef __CMS__
  /* find current line */
  if (start>=0) {

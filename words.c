@@ -14,15 +14,15 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ----------------- Lwords ------------------ */
 long __CDECL
 Lwords( const PLstr from )
 {
  long i=0,r=0;
- 
+
  L2STR(from);
  for (;;) {
   LSKIPBLANKS(*from,i);

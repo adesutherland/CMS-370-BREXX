@@ -20,16 +20,16 @@
  * Initial revision
  *
  */
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 /* ------------------- Lbool ------------------ */
 int __CDECL
 Lbool( const PLstr num )
 {
  long i=0;
- 
+
  switch (LTYPE(*num)) {
   case LSTRING_TY:
    if (_Lisnum(num)==LSTRING_TY)

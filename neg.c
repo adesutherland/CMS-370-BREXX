@@ -14,15 +14,15 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------- Lneg ------------------ */
 void __CDECL
 Lneg( const PLstr to, const PLstr num )
 {
  L2NUM(num);
- 
+
  if (LTYPE(*num)==LINTEGER_TY) {
   LINT(*to)  = -LINT(*num);
   LTYPE(*to) = LINTEGER_TY;

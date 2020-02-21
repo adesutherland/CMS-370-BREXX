@@ -46,23 +46,23 @@
  */
 #include <stdio.h>
 #include <string.h>
- 
+
 #include "lstring.h"
 #include "rexx.h"
 #include "rxdefs.h"
 #if !defined(__CMS__) && !defined(__MVS__)
 # include <sys/stat.h>
 #endif
- 
+
 /* ------- Includes for any other external library ------- */
 #ifdef RXCONIO
 extern void __CDECL RxConIOInitialize();
 #endif
- 
+
 #ifdef RXMYSQLSTATIC
 # include "rxmysql.c"
 #endif
- 
+
 /* --------------------- main ---------------------- */
 int __CDECL
 main(int ac, char *av[])
@@ -74,12 +74,12 @@ main(int ac, char *av[])
  Lstr line;
  LINITSTR(line);
 #endif
- 
+
  input = loop_over_stdin = parse_args = FALSE;
  for (ia=0; ia<MAXARGS; ia++) LINITSTR(args[ia]);
  LINITSTR(tracestr);
  LINITSTR(file);
- 
+
  if (ac<2) {
 #ifndef __CMS__
   puts("\nsyntax: rexx [-[trace]|-F|-a] <filename> <args>...\n");
@@ -97,10 +97,10 @@ main(int ac, char *av[])
 #ifdef __DEBUG__
  __debug__ = FALSE;
 #endif
- 
+
  /* --- Initialise --- */
  RxInitialize(av[0]);
- 
+
  /* --- Register functions of external libraries --- */
 #ifdef RXMYSQLSTATIC
  RxMySQLInitialize();
@@ -108,7 +108,7 @@ main(int ac, char *av[])
 #ifdef RXCONIO
  RxConIOInitialize();
 #endif
- 
+
  /* --- scan arguments --- */
  ia = 1;
  if (av[ia][0]=='-') {
@@ -128,7 +128,7 @@ main(int ac, char *av[])
   Lscpy(&tracestr,av[ia]);
   ia++;
  }
- 
+
  /* --- let's read a normal file --- */
  if (!input && ia<ac) {
   /* prepare arguments for program */
@@ -178,7 +178,7 @@ main(int ac, char *av[])
   }
   RxRun(NULL,&file,args,&tracestr,NULL);
  }
- 
+
  /* --- Free everything --- */
  RxFinalize();
  for (ia=0; ia<MAXARGS; ia++) LFREESTR(args[ia]);
@@ -190,13 +190,13 @@ main(int ac, char *av[])
 #ifdef RXMYSQLSTATIC
  RxMySQLFinalize();
 #endif
- 
+
 #ifdef __DEBUG__
  if (mem_allocated()!=0) {
   fprintf(STDERR,"\nMemory left allocated: %ld\n",mem_allocated());
   mem_list();
  }
 #endif
- 
+
  return rxReturnCode;
 } /* main */

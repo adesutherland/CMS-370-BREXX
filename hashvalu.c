@@ -26,21 +26,21 @@
  * Initial Version
  *
  * Similar hash code like in Java
- *    hash = s[0]*31¬(n-1) + s[1]*31¬(n-2) + ... + s[n-1]
+ *    hash = s[0]*31?(n-1) + s[1]*31?(n-2) + ... + s[n-1]
  * The hash string of an empty string is zero
  */
- 
+
 #include "lstring.h"
- 
+
 /* --------------- Lhashvalue ------------------ */
 dword __CDECL
 Lhashvalue( const PLstr str )
 {
  dword value = 0;
  size_t i,l=0;
- 
+
  if (LISNULL(*str)) return 0;
- 
+
  switch (LTYPE(*str)) {
   case LINTEGER_TY: l = sizeof(long); break;
   case LREAL_TY:    l = sizeof(double); break;
@@ -50,7 +50,7 @@ Lhashvalue( const PLstr str )
   value = 31*value + LSTR(*str)[i];
 /* for (i=0; i<l; i+=4) {
   for (j=0; j<4 && i+j<l; j++)
-   value ¬= LSTR(*str)[i+j] << (8*j);
+   value ?= LSTR(*str)[i+j] << (8*j);
   value = (value>>3) | (value<<29);
  }
 */

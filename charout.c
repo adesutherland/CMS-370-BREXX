@@ -18,9 +18,9 @@
  * Initial revision
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ---------------- Lcharout ------------------- */
 void __CDECL
 Lcharout( FILEP f, const PLstr line, const long start )
@@ -29,6 +29,6 @@ Lcharout( FILEP f, const PLstr line, const long start )
  if (start>=0)
   FSEEK(f,start,SEEK_SET);
 #endif
- 
+
  Lwrite(f,line,FALSE);
 } /* Lcharout */

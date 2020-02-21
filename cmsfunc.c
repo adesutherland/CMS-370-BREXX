@@ -1,14 +1,14 @@
 /*
   These routines provide the CMS specific interfcaes for REXX
- 
+
   Dave Wade - 15-Jan-2006
- 
+
   Released into the Public Domain
- 
+
 */
 #include "lstring.h"
 #include "lerror.h"
- 
+
 /* following are C equivalents of flags in the NUCON macro */
 /*  CMS OPtions Byte */
 #define CMSOPT  0x5e0
@@ -18,7 +18,7 @@
 #define NOSTDSYN 0x20
 #define NOPAGREL 0x08
 #define NOVMREAD 0x04
- 
+
 /* MISC Flags */
 #define MISFLAGS 0x5e1
 #define KXSWITCH 0x80
@@ -29,7 +29,7 @@
 #define NODDISC  0x04
 #define NEGITS   0x02
 #define ATTNHIT  0x01
- 
+
 /* Message Flags */
 #define MSGFLAGS 0x5e2
 #define NOTYPOUT 0x80
@@ -40,30 +40,30 @@
 #define NOERRMSG 0x04
 #define NOERRTXT 0x02
 #define SPECCLF  0x01
- 
+
 /* EXECTRAC */
 #define EXECFLAGS 0x5e6
 #define EXECTRAC 0x80
- 
+
 /* CMS Protection flags */
 #define PROTFLAGS 0x5e7
 #define PRFPOFF 0x80
- 
+
 /* SUBSET Flags */
 #define SUBFLAGS 0x5e9
 #define SUBACT 0x01
- 
+
 /* DOS Flags */
 #define DOSFLAGS 0x4d8
 #define DOSMODE 0x80
- 
- 
+
+
 /*
  * Process the CMS Flag function
  *
  * Peek into the Nucleus
 */
- 
+
 /* ------------------ cmsflag ---------------- */
 void __CDECL
 CMSFLAG( const PLstr value, const PLstr flag )
@@ -71,9 +71,9 @@ CMSFLAG( const PLstr value, const PLstr flag )
  int optval;
 unsigned char *optptr,opbyte,misbyte,msgbyte,execbyte;
 unsigned char dosbyte,subbyte,protbyte;
- 
+
 char *sflag;
- 
+
      optptr = (unsigned char *) CMSOPT ;
      opbyte=optptr[0];
      misbyte=optptr[1];
@@ -83,7 +83,7 @@ char *sflag;
      subbyte=optptr[9];
      optptr = (unsigned char *) DOSFLAGS;
      dosbyte = optptr[0];
- 
+
      L2STR(flag);
      Lupper(flag);
      sflag=LSTR(*flag);
@@ -122,7 +122,7 @@ char *sflag;
 /*        fprintf(stderr,"Illegal CMS sflag %s\n",sflag); */
           Lerror(ERR_INCORRECT_CALL,0);
      }
- 
+
      Licpy(value,optval);
 } /* CMSFLAG */
 /*

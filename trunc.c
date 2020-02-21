@@ -21,9 +21,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ---------------- Ltrunc ----------------- */
 void __CDECL
 Ltrunc( const PLstr to, const PLstr from, long n)
@@ -36,7 +36,7 @@ Ltrunc( const PLstr to, const PLstr from, long n)
  int decp, sign;
 #endif
  if (n<0) n = 0;
- 
+
  if (!n) {
   Lstrcpy(to,from);
   L2REAL(to);

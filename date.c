@@ -23,7 +23,7 @@
  * Initial revision
  *
  */
- 
+
 #ifndef WCE
 # include <time.h>
 #endif
@@ -32,13 +32,13 @@
 #endif
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #ifdef WCE
 static BYTE month_days[12] = {
    31, 28, 31, 30, 31, 30,
    31, 31, 30, 31, 30, 31
   };
- 
+
 /* ---- day of year ---- */
 static int
 day_of_year(LPSYSTEMTIME time)
@@ -54,17 +54,17 @@ day_of_year(LPSYSTEMTIME time)
  return d+time->wDay;
 } /* day_of_year */
 #endif
- 
+
 static TCHAR *WeekDays[] = {
  TEXT("Sunday"), TEXT("Monday"), TEXT("Tuesday"), TEXT("Wednesday"),
  TEXT("Thursday"), TEXT("Friday"), TEXT("Saturday") };
- 
+
 static TCHAR *months[] = {
  TEXT("January"), TEXT("February"), TEXT("March"),
  TEXT("April"), TEXT("May"), TEXT("June"),
  TEXT("July"), TEXT("August"), TEXT("September"),
  TEXT("October"), TEXT("November"), TEXT("December") };
- 
+
 /* ----------------- Ldate ------------------ */
 void __CDECL
 Ldate( const PLstr datestr, char option )
@@ -73,7 +73,7 @@ Ldate( const PLstr datestr, char option )
  static TCHAR *iso = TEXT("%4d%02d%02d");
  long length;
  TCHAR *chptr;
- 
+
 #ifndef WCE
  time_t now ;
  struct tm *tmdata ;
@@ -81,17 +81,17 @@ Ldate( const PLstr datestr, char option )
  TCHAR buf[30];
  SYSTEMTIME time;
 #endif
- 
+
  option = l2u[(byte)option];
  Lfx(datestr,30); LZEROSTR(*datestr);
- 
+
 #ifndef WCE
  now = time(NULL);
  tmdata = localtime(&now) ;
 #else
  GetLocalTime(&time);
 #endif
- 
+
  switch (option) {
   case 'C':
 #ifndef WCE
@@ -104,7 +104,7 @@ Ldate( const PLstr datestr, char option )
    swprintf(buf,TEXT("%ld"),length) ;
 #endif
    break;
- 
+
   case 'D':
 #ifndef WCE
    sprintf(LSTR(*datestr), "%d", tmdata->tm_yday+1) ;
@@ -112,7 +112,7 @@ Ldate( const PLstr datestr, char option )
    swprintf(buf, TEXT("%d"), day_of_year(&time)) ;
 #endif
    break;
- 
+
   case 'E':
 #ifndef WCE
    sprintf(LSTR(*datestr), fmt, tmdata->tm_mday,
@@ -122,7 +122,7 @@ Ldate( const PLstr datestr, char option )
     time.wMonth, time.wYear%100) ;
 #endif
    break;
- 
+
   case 'J':
 #ifndef WCE
    sprintf(LSTR(*datestr),"%02d%03d",
@@ -132,7 +132,7 @@ Ldate( const PLstr datestr, char option )
     time.wYear%100, day_of_year(&time));
 #endif
    break;
- 
+
   case 'M':
 #ifndef WCE
    STRCPY(LSTR(*datestr),months[tmdata->tm_mon]);
@@ -140,7 +140,7 @@ Ldate( const PLstr datestr, char option )
    wcscpy(buf,months[time.wMonth-1]);
 #endif
    break;
- 
+
   case 'N':
 #ifndef WCE
    chptr = months[tmdata->tm_mon] ;
@@ -154,7 +154,7 @@ Ldate( const PLstr datestr, char option )
     chptr[2], time.wYear) ;
 #endif
    break;
- 
+
   case 'O':
 #ifndef WCE
    sprintf(LSTR(*datestr), fmt, tmdata->tm_year%100,
@@ -164,7 +164,7 @@ Ldate( const PLstr datestr, char option )
     time.wMonth, time.wDay);
 #endif
    break;
- 
+
   case 'S':
 #ifndef WCE
    sprintf(LSTR(*datestr), iso, tmdata->tm_year+1900,
@@ -174,7 +174,7 @@ Ldate( const PLstr datestr, char option )
     time.wMonth, time.wDay) ;
 #endif
    break;
- 
+
   case 'U':
 #ifndef WCE
    sprintf(LSTR(*datestr), fmt, tmdata->tm_mon+1,
@@ -184,7 +184,7 @@ Ldate( const PLstr datestr, char option )
     time.wDay, time.wYear%100 ) ;
 #endif
    break;
- 
+
   case 'W':
 #ifndef WCE
    STRCPY(LSTR(*datestr),WeekDays[tmdata->tm_wday]);
@@ -192,7 +192,7 @@ Ldate( const PLstr datestr, char option )
    wcscpy(buf, WeekDays[time.wDayOfWeek]);
 #endif
    break;
- 
+
   default:
    Lerror(ERR_INCORRECT_CALL,0);
  }

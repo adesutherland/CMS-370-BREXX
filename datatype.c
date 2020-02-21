@@ -17,10 +17,10 @@
  * Initial revision
  *
  */
- 
+
 #include <ctype.h>
 #include "lstring.h"
- 
+
 /* --------------- Ldatatype ----------------- */
 /* returns -1 on error type                    */
 int __CDECL
@@ -29,17 +29,17 @@ Ldatatype( const PLstr str, char type )
  Lstr ref;
  int t,j,digits;
  char *c;
- 
+
  type = l2u[(byte)type];
- 
+
  LINITSTR(ref);
- 
+
  if (type!='T' && type!='N') {
   L2STR(str);
   if (!LLEN(*str)) /* special type */
    return (type=='X') || (type=='B');
  }
- 
+
  switch (type) {
   case 'A':
    Lscpy(&ref,clower);

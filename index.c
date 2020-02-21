@@ -14,9 +14,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ----------------- Lindex ---------------------- */
 /* haystack   - Lstr where to search               *
  *  needle    - Lstr to search                     *
@@ -29,13 +29,13 @@ long __CDECL
 Lindex( const PLstr haystack, const PLstr needle, long p)
 {
  long n,lp;
- 
+
  p--;  /* for C string offset = 0, Rexx=1 */
  if (p<0) p = 0;
- 
+
  L2STR(haystack);
  L2STR(needle);
- 
+
  if (!LLEN(*needle)) {
   if (!LLEN(*haystack)) return LNOTFOUND;
   return p+1;

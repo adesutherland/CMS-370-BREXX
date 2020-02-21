@@ -32,20 +32,20 @@
  * Initial revision
  *
  */
- 
+
 #include <stdarg.h>
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "trace.h"
 #include "compile.h"
 #include "interpre.h"
 #include "variable.h"
 #include "nextsymb.h"
- 
+
 /* --- Global variable --- */
 Lstr errmsg;   /* initialise string from beggining  */
- 
+
 /* ---------------- RxHaltTrap ----------------- */
 void __CDECL
 RxHaltTrap( int cnd )
@@ -55,7 +55,7 @@ RxHaltTrap( int cnd )
  else
   Lerror(ERR_PROG_INTERRUPT,0);
 } /* RxHaltTrap */
- 
+
 /* ---------------- RxSignalCondition -------------- */
 void __CDECL
 RxSignalCondition( int cnd )
@@ -63,7 +63,7 @@ RxSignalCondition( int cnd )
  PBinLeaf leaf;
  RxFunc *func;
  PLstr cndstr;
- 
+
 /*///////// first we need to terminate all the interpret strings */
  switch (cnd) {
   case SC_ERROR:
@@ -93,7 +93,7 @@ RxSignalCondition( int cnd )
  Rxcip = (CIPTYPE*)((byte huge *)Rxcodestart + (size_t)(func->label));
  longjmp(_error_trap,JMP_CONTINUE);
 } /* RxSignalCondition */
- 
+
 /* ------------------ Rerror ------------------- */
 void __CDECL
 Rerror( const int errno, const int subno, ... )
@@ -103,7 +103,7 @@ Rerror( const int errno, const int subno, ... )
 #ifndef WIN
  va_list ap;
 #endif
- 
+
  if (_proc[_rx_proc].condition & SC_SYNTAX) {
   RxSetSpecialVar(RCVAR,errno);
   if (symbolptr==NULL) /* we are in intepret */
@@ -116,12 +116,12 @@ Rerror( const int errno, const int subno, ... )
   line = TraceCurline(&rxf,TRUE);
   if (symbolptr==NULL) /* we are in intepret */
    RxSetSpecialVar(SIGLVAR,line);
- 
+
 #ifndef WIN
   va_start(ap,subno);
   Lerrortext(&errmsg,errno,subno,&ap);
   va_end(ap);
- 
+
   if (LLEN(errmsg)==0)
    fprintf(STDERR," +++ Ooops unknown error %d.%d +++\n",errno,subno);
   else {

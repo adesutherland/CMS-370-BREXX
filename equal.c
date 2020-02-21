@@ -25,12 +25,12 @@
  * Initial Version
  *
  */
- 
+
 #include <math.h>
 #include <ctype.h>
 #include <string.h>
 #include "lstring.h"
- 
+
 /* -------------------- Lequal ----------------- */
 int __CDECL
 Lequal(const PLstr A, const PLstr B)
@@ -39,22 +39,22 @@ Lequal(const PLstr A, const PLstr B)
  byte *a, *b;  /* start position in string */
  byte *ae, *be; /* ending position in string */
  double ra, rb;
- 
+
  if (LTYPE(*A)==LSTRING_TY) {
   ta = _Lisnum(A);
- 
+
   /* check to see if the first argument is string? */
   if (ta == LSTRING_TY) {
    L2STR(B); /* make string and the second */
    goto eq_str; /* go and check strings  */
   }
- 
+
   ra = lLastScannedNumber;
  } else {
   ta = LTYPE(*A);
   ra = TOREAL(*A);
  }
- 
+
  if (LTYPE(*B)==LSTRING_TY) {
   tb = _Lisnum(B);
   rb = lLastScannedNumber;
@@ -62,7 +62,7 @@ Lequal(const PLstr A, const PLstr B)
   tb = LTYPE(*B);
   rb = TOREAL(*B);
  }
- 
+
  /* is B also a number */
  if (tb != LSTRING_TY) {
   if (fabs(ra-rb)<=1E-20)
@@ -73,23 +73,23 @@ Lequal(const PLstr A, const PLstr B)
   else
    return -1;
  }
- 
+
  /* nope it was a string */
  L2STR(A);  /* convert A string */
 eq_str:
  a = (byte*)LSTR(*A);
  ae = a + LLEN(*A);
  for(; (a<ae) && ISSPACE(*a); a++) ;
- 
+
  b = (byte*)LSTR(*B);
  be = b + LLEN(*B);
  for(; (b<be) && ISSPACE(*b); b++) ;
- 
+
  for(;(a<ae) && (b<be) && (*a==*b); a++,b++) ;
- 
+
  for(; (a<ae) && ISSPACE(*a);a++) ;
  for(; (b<be) && ISSPACE(*b);b++) ;
- 
+
  if (a==ae && b==be)
   return 0;
  else

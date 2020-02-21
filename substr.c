@@ -14,10 +14,10 @@
  * Initial Version
  *
  */
- 
+
 #include <string.h>
 #include "lstring.h"
- 
+
 /* --------------------------- Lsubstr -------------------------------- */
 /*    to       - Output Lstr                                            *
  *   from      - Input Lstr                                             *
@@ -32,12 +32,12 @@ Lsubstr(const PLstr to, const PLstr from,
  long start, long length, const char pad )
 {
  size_t l;
- 
+
  L2STR(from);
- 
+
  start--;
  if (start<0) start = 0;
- 
+
  if (length<=0) {
   if (length==0 || start>=LLEN(*from)) {
    LZEROSTR(*to);
@@ -45,9 +45,9 @@ Lsubstr(const PLstr to, const PLstr from,
   }
   length = LLEN(*from) - start;
  }
- 
+
  Lfx(to,(size_t)length);
- 
+
  if (start<LLEN(*from)) {
   if (length+start>LLEN(*from)) {
    l = LLEN(*from) - (size_t)start;
@@ -57,7 +57,7 @@ Lsubstr(const PLstr to, const PLstr from,
    MEMMOVE( LSTR(*to), LSTR(*from)+start, (size_t)length);
  } else
   MEMSET(LSTR(*to),pad,(size_t)length);
- 
+
  LTYPE(*to) = LSTRING_TY;
  LLEN(*to) = (size_t)length;
 } /* Lstrsub */

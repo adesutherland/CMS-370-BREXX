@@ -45,9 +45,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 #ifdef HAVE_LIBREADLINE
 # include <sys/stat.h>
 # if defined(HAVE_READLINE_READLINE_H)
@@ -60,7 +60,7 @@
 #else /* !defined(HAVE_READLINE_READLINE_H) */
  /* no readline */
 #endif /* HAVE_LIBREADLINE */
- 
+
 #ifdef HAVE_READLINE_HISTORY
 # if defined(HAVE_READLINE_HISTORY_H)
 #  include <readline/history.h>
@@ -73,7 +73,7 @@
 # endif /* defined(HAVE_READLINE_HISTORY_H) */
   /* no history */
 #endif /* HAVE_READLINE_HISTORY */
- 
+
 /* ---------------- Lread ------------------- */
 void __CDECL
 Lread( FILEP f, const PLstr line, long size )
@@ -81,7 +81,7 @@ Lread( FILEP f, const PLstr line, long size )
  long l;
  char *c;
  int ci;
- 
+
  /* We use the fgetc and not the fread to get rid of the 0x0D */
  if (size>0) {
   Lfx(line,(size_t)size);

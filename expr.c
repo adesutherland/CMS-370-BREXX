@@ -26,14 +26,14 @@
  * Initial revision
  *
  */
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "trace.h"
 #include "compile.h"
- 
+
 /*-----------------* local function prototypes *------------ */
 static void __CDECL Exp0( void );
 static void __CDECL Exp1( void );
@@ -45,11 +45,11 @@ static void __CDECL Exp6( void );
 static void __CDECL Exp7( void );
 static void __CDECL Exp8( void );
 static void __CDECL C_function( void );
- 
+
 /* ----------- local variables ----------- */
 static int exp_ct;
 static size_t exp_pos;
- 
+
 /* ========================= C_expr ========================== */
 /* return if it had exited with another code than OP_COPY */
 /* so something is left in stack */
@@ -59,7 +59,7 @@ C_expr( int calltype )
  exp_ct  = calltype;
  exp_pos = CompileCodeLen;
  Exp0();
- 
+
  /* If nothing was processed in the expr then push a Null string */
  if (exp_pos == CompileCodeLen) {
   _CodeAddByte(OP_PUSH);
@@ -70,21 +70,21 @@ C_expr( int calltype )
   case exp_assign:
    _CodeAddByte(OP_COPY);
    return FALSE;
- 
+
   case exp_tmp:
    _CodeAddByte(OP_COPY2TMP);
    break;
- 
+
   case exp_normal:
    /* do nothing */
    break;
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  }
  return TRUE;
 } /* C_expr */
- 
+
 /* ---------------- InsTmp ---------------- */
 static int __CDECL
 InsTmp( size_t pos, int pushtmp)
@@ -103,14 +103,14 @@ InsTmp( size_t pos, int pushtmp)
  }
  return FALSE;
 } /* InsTmp */
- 
+
 /* ----------------- Exp0 ----------------- */
 static void __CDECL
 Exp0( void )
 {
  enum mnemonic_type orxor;
  CTYPE pos, pos2;
- 
+
  pos = CompileCodeLen;
  Exp1();
  orxor = (symbol==xor_sy)? OP_XOR : OP_OR;
@@ -126,13 +126,13 @@ Exp0( void )
   orxor = (symbol==xor_sy)? OP_XOR : OP_OR;
  }
 } /* Exp0 */
- 
+
 /* ----------------- Exp1 ----------------- */
 static void __CDECL
 Exp1( void )
 {
  CTYPE pos, pos2;
- 
+
  pos = CompileCodeLen;
  Exp2();
  while (symbol == and_sy) { /* Logical AND  */
@@ -146,18 +146,18 @@ Exp1( void )
    TraceByte( operator_middle );
  }
 } /* Exp1 */
- 
+
 /* ----------------- Exp2 ----------------- */
 static void __CDECL
 Exp2( void )
 {
  enum  symboltype  _symbol;
  CTYPE pos, pos2;
- 
+
  pos = CompileCodeLen;
  Exp3();
  _symbol = symbol;
- 
+
  /* DO NOT CHANGE THE ORDER OF THIS SYMBOLS */
  if  ((symbol >= eq_sy)  && (symbol <= dgt_sy)) {
   if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
@@ -208,7 +208,7 @@ Exp2( void )
   TraceByte( operator_middle );
  }
 } /* Exp2 */
- 
+
 /* ----------------- Exp3 ----------------- */
 static void __CDECL
 Exp3( void )
@@ -216,12 +216,12 @@ Exp3( void )
  int   _Concat;
  int   _Pblank;
  CTYPE pos, pos2;
- 
+
  pos = CompileCodeLen;
  Exp4();
  _Concat = (symbol==concat_sy);
  _Pblank = symbolPrevBlank;
- 
+
  /* UNTIL NOT_SY there must be prefix and starting '(' operators */
  while ((symbol <= not_sy) ||  _Concat) {
   if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
@@ -234,25 +234,25 @@ Exp3( void )
    _CodeAddByte(OP_CONCAT);
   else
    _CodeAddByte(OP_BCONCAT);
- 
+
   TraceByte( operator_middle );
- 
+
   _Concat = (symbol==concat_sy);
   _Pblank = symbolPrevBlank;
  }
 } /* Exp3 */
- 
+
 /* ----------------- Exp4 ----------------- */
 static void __CDECL
 Exp4( void )
 {
  enum symboltype _symbol;
  CTYPE pos, pos2;
- 
+
  pos = CompileCodeLen;
  Exp5();
  _symbol = symbol;
- 
+
  while ((symbol==plus_sy) || (symbol==minus_sy)) {
   if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
   nextsymbol();
@@ -268,18 +268,18 @@ Exp4( void )
   _symbol = symbol;
  }
 } /* Exp4 */
- 
+
 /* ----------------- Exp5 ----------------- */
 static void __CDECL
 Exp5( void )
 {
  enum  symboltype _symbol;
  CTYPE pos, pos2;
- 
+
  pos = CompileCodeLen;
  Exp6();
  _symbol = symbol;
- 
+
  /* ORDER IS IMPORTANT */
  while ((symbol >= times_sy) && (symbol<=intdiv_sy)) {
   if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
@@ -300,13 +300,13 @@ Exp5( void )
   _symbol = symbol;
  }
 }  /* Exp5 */
- 
+
 /* ----------------- Exp6 ----------------- */
 static void __CDECL
 Exp6( void )
 {
  CTYPE pos, pos2;
- 
+
  pos = CompileCodeLen;
  Exp7();
  while (symbol==power_sy) {
@@ -320,7 +320,7 @@ Exp6( void )
    TraceByte( operator_middle );
  }
 } /* Exp6 */
- 
+
 /* ----------------- Exp7 ----------------- */
 static void __CDECL
 Exp7( void )
@@ -328,19 +328,19 @@ Exp7( void )
  enum symboltype _symbol;
  int  prefix;
  CTYPE pos;
- 
+
  pos = CompileCodeLen;
  _symbol = symbol;
- 
+
  if ((symbol==not_sy) || (symbol==minus_sy)) {
   nextsymbol();
   prefix = TRUE;
  } else
   prefix = FALSE;
- 
+
  if (!prefix && (symbol==plus_sy))
   nextsymbol();
- 
+
  Exp8();
  if (prefix) {
   if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
@@ -352,7 +352,7 @@ Exp7( void )
   TraceByte( operator_middle );
  }
 } /* Exp7 */
- 
+
 /* ----------------- Exp8 ----------------- */
 static void __CDECL
 Exp8( void )
@@ -379,7 +379,7 @@ Exp8( void )
   _mustbe(ri_parent,ERR_UNMATCHED_PARAN,0);
  }
 } /* Exp8 */
- 
+
 /* -------------------------------------------------------------- */
 /*  [Function] ::= [Identifier]([[Expression][,[Expression]]...]) */
 /* -------------------------------------------------------------- */
@@ -389,20 +389,20 @@ C_function( void )
  int ia,line,realarg=0;
  word existarg=0,bp=1,lastarg; /* bit mapped, if arguments exist */
  void *lbl;
- 
+
  line = symboline; /* keep line number */
- 
+
  lbl = _AddLabel( FT_FUNCTION, UNKNOWN_LABEL );
- 
+
  /* add a space in stack, for the result string */
  if ((exp_ct==exp_assign) && (exp_pos==CompileCodeLen))
   exp_ct = exp_normal;
  else
   _CodeAddByte(OP_PUSHTMP);
- 
+
  nextsymbol();
  ia = lastarg = 0;
- 
+
  if (symbol != ri_parent) {
   if (symbol != comma_sy) {
    Exp0();
@@ -412,7 +412,7 @@ C_function( void )
   }
   ia++;
   bp <<= 1; /* increase bit position */
- 
+
   while (symbol==comma_sy) {
    nextsymbol();
    if (ia>=MAXARGS)
@@ -427,7 +427,7 @@ C_function( void )
    bp <<= 1; /* increase bit position */
   }
  }
- 
+
  _CodeAddByte(OP_CALL);
   _CodeAddPtr(lbl); /* call pointer */
   _CodeAddByte(lastarg); /* arguments */

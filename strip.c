@@ -17,28 +17,28 @@
  * Initial Version
  *
  */
- 
+
 #include <string.h>
 #include "lstring.h"
- 
+
 /* --------------- Lstrip ------------------ */
 void __CDECL
 Lstrip( const PLstr to, const PLstr str, const char action, const char pad)
 {
  char *cf, *cl;
  size_t l;
- 
+
  if (LTYPE(*str)!=LSTRING_TY) {
   Lstrcpy(to,str);
   return;
  }
- 
+
  l = LLEN(*str);
  if (!l) {
   LZEROSTR(*to);
   return;
  }
- 
+
  cf = LSTR(*str);
  if (action==LBOTH || action==LLEADING) {
   while (l && (*cf==pad)) { cf++; l--; }
@@ -46,7 +46,7 @@ Lstrip( const PLstr to, const PLstr str, const char action, const char pad)
    LZEROSTR(*to);
    return;
  } }
- 
+
  l = LLEN(*str);
  cl = LSTR(*str)+ l - 1;
  if (action==LBOTH || action==LTRAILING) {
@@ -55,9 +55,9 @@ Lstrip( const PLstr to, const PLstr str, const char action, const char pad)
    LZEROSTR(*to);
    return;
  } }
- 
+
  l = (int)( (long)(char huge *)cl - (long)(char huge *)cf + 1);
- 
+
  if (l<LLEN(*str)) {
   Lfx(to,l);
   MEMMOVE(LSTR(*to),cf,l);

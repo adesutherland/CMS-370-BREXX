@@ -14,15 +14,15 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------ Lsign --------------------- */
 int __CDECL
 Lsign( const PLstr num )
 {
  L2NUM(num);
- 
+
  switch (LTYPE(*num)) {
   case LINTEGER_TY:
    if (LINT(*num)<0)
@@ -32,7 +32,7 @@ Lsign( const PLstr num )
     return  1;
    else
     return  0;
- 
+
   case LREAL_TY:
    if (LREAL(*num)<0)
     return -1;

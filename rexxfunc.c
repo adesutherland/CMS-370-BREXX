@@ -33,30 +33,30 @@
  * Initial revision
  *
  */
- 
+
 #include <math.h>
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "rxdefs.h"
 #include "compile.h"
- 
+
 #define DECL( A )  void __CDECL R_##A ( const int );
- 
+
 #ifdef __CMS__
 #define VMDCL( A )  void __CDECL VM_##A ( const int );
- 
+
 VMDCL( O )
- 
+
 #endif
- 
+
 DECL( SSoI     )   DECL( SIoC  )  DECL( S   )   DECL( SIoI )
 DECL( SSoIoIoC )   DECL( SoSoC )  DECL( SoI )   DECL( IoI  )
 DECL( O        )   DECL( SI    )  DECL( C   )   DECL( oSoS )
 DECL( SS       )   DECL( SoSoS )
- 
+
 DECL( arg       )  DECL( compare   )  DECL( copies    )
 #ifndef __CMS__
 DECL( close     )
@@ -79,7 +79,7 @@ DECL( trunc     )  DECL( verify    )
 DECL( write     )
 #endif
 DECL( xrange    )
- 
+
 #ifndef __CMS__
 DECL( dropbuf   )
 #endif
@@ -88,14 +88,14 @@ DECL( changestr )
 DECL( flush     )
 DECL( port      )
 #endif
- 
+
 DECL( charslines )
 DECL( charlinein )
 DECL( charlineout )
 #ifndef __CMS__
 DECL( stream )
 #endif
- 
+
 /* Math routines */
 DECL( abs_sign  )
 DECL( math )
@@ -105,7 +105,7 @@ DECL( atanpow )
 DECL( bitwise )
 DECL( not )
 #undef DECL
- 
+
 /* ------------- Register Functions Tree ----------- */
 static BinTree *ExtraFuncs = NULL;
 /* !!!!!!!!!!!! WARNING THE LIST MUST BE SORTED !!!!!!!!!!! */
@@ -312,17 +312,17 @@ rexx_routine[] = {
  { "XRANGE", R_xrange ,f_xrange }
 #endif
 };
- 
+
 /* ------------- C_isBuiltin --------------- */
 TBltFunc* __CDECL
 C_isBuiltin( PLstr func )
 {
  int first, middle, last, cmp;
  PBinLeaf leaf;
- 
+
  first = 0; /* Use binary search to find intruction */
  last  = DIMENSION(rexx_routine)-1;
- 
+
  while (first<=last)   {
   middle = (first+last)/2;
   if ((cmp=Lcmp(func,rexx_routine[middle].name))==0)
@@ -333,7 +333,7 @@ C_isBuiltin( PLstr func )
   else
    first = middle+1;
  }
- 
+
  /* try to see if it exists in the extra functions */
  if (ExtraFuncs) {
   leaf = BinFind(ExtraFuncs,func);
@@ -342,7 +342,7 @@ C_isBuiltin( PLstr func )
  }
  return NULL;
 } /* C_isBuiltin */
- 
+
 /* ----------- RxRegFunction ------------- */
 /* returns TRUE if an error occurs */
 int __CDECL
@@ -352,30 +352,30 @@ RxRegFunction( char *name, void (__CDECL *func)(int), int opt )
  TBltFunc *fp;
  PBinLeaf leaf;
  RxFunc  *fc;
- 
+
  if (ExtraFuncs==NULL) {
   ExtraFuncs = (BinTree*)MALLOC(sizeof(BinTree),"ExtraFuncs");
   BINTREEINIT(*ExtraFuncs);
  }
- 
+
  LINITSTR(fn);
  Lscpy(&fn,name);
  Lupper(&fn); /* translate to upper case */
- 
+
  /* Function Already exists */
  if (C_isBuiltin(&fn)) {
   LFREESTR(fn);
   return TRUE;
  }
- 
+
  /* create the structure */
  fp = (TBltFunc*)MALLOC(sizeof(TBltFunc),"RegFunc");
  if (!fp) return TRUE;
- 
+
  fp->name = NULL;
  fp->func = func;
  fp->opt  = opt;
- 
+
  /* Check the labels */
  leaf = BinFind(&_labels, &fn);
  if (leaf != NULL) {
@@ -383,16 +383,16 @@ RxRegFunction( char *name, void (__CDECL *func)(int), int opt )
   fc->type = FT_BUILTIN;
   fc->builtin = fp;
  } /* if it does not exists, it will be added when needed */
- 
+
  /* Add it to the ExtraFuncs.
   * fn after BinAdd will be empty,
   * so the BinAdd should be the last
   */
  BinAdd(ExtraFuncs,&fn,fp);
- 
+
  return FALSE;
 } /* RxRegFunction */
- 
+
 /* ----------- RxRegFunctionDone --------- */
 void __CDECL
 RxRegFunctionDone( void )

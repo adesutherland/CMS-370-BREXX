@@ -17,32 +17,32 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------ Lspace --------------- */
 void __CDECL
 Lspace( const PLstr to, const PLstr from, long n, const char pad )
 {
  size_t p,lp;
  Lstr space, sub;
- 
+
  if (LTYPE(*from) != LSTRING_TY) {
   Lstrcpy(to,from);
   return;
  }
- 
+
  LINITSTR(space);
  LINITSTR(sub);
- 
+
  if (n<0) n = 0;
- 
+
  Lstrset(&space,(size_t)n,pad);
- 
+
  p = 0;
  LZEROSTR(*to);
  LSKIPBLANKS(*from,p);
- 
+
  for (;;) {
   lp = p;
   LSKIPWORD(*from,p);
@@ -52,7 +52,7 @@ Lspace( const PLstr to, const PLstr from, long n, const char pad )
   if (p>=LLEN(*from)) break;
   Lstrcat(to,&space);
  }
- 
+
  LFREESTR(space);
  LFREESTR(sub);
 } /* Lspace */

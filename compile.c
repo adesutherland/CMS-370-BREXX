@@ -53,21 +53,21 @@
  * Initial revision
  *
  */
- 
+
 #define __COMPILE_C__
- 
+
 #include <setjmp.h>
- 
+
 #include "lerror.h"
 #include "lstring.h"
 #include "bintree.h"
 #include "dqueue.h"
- 
+
 #include "rexx.h"
 #include "trace.h"
 #include "compile.h"
 #include "nextsymb.h"
- 
+
 /*
 //
 // Need To DO
@@ -75,7 +75,7 @@
 // Kill after the interpetation the extra CLAUSES!!!!!
 //
 */
- 
+
 /* ------------ local defines ------------ */
 #ifndef ALIGN
 #define CODEFIXUPB(p,v) *(byte *)(LSTR(*CompileCode) + (p)) = (v)
@@ -86,16 +86,16 @@
 #define CODEFIXUPB(p,v) CODEFIXUP(p,v)
 #define CLAUSESTEP sizeof(dword)
 #endif
- 
+
 /* ---- function prototypes ---- */
 int __CDECL C_expr( int );
 void __CDECL C_template( void );
 TBltFunc* __CDECL C_isBuiltin( PLstr );
- 
+
 /* --- static Variables --- */
 static int str_interpreted; /* is it a string interpreted */
-static int checked_semicolon; /* if instruction has checked the semicolon like IF */
- 
+static int checked_semicolon; /* if instruction has checked the semicolon likeIF */
+
 typedef struct loop_st {
  size_t Citerate;
  size_t Cleave;
@@ -103,11 +103,11 @@ typedef struct loop_st {
  PLstr ctrlvar;
 } LoopCtrl;
 static DQueue  Loop;
- 
+
 /* ------------ local prototypes ------------ */
 static bool C_instr(bool);
 static int  C_chk4assign(void);
- 
+
 static void C_address(void);
 static void C_assign(void);
 static void C_arg(void);
@@ -133,7 +133,7 @@ static void C_select(void);
 static void C_signal(void);
 static void C_trace(void);
 static void C_upper(void);
- 
+
 /* ---------------------------------------------------------- */
 static
 struct sort_list_st {
@@ -171,23 +171,23 @@ statements_list[] = {
  {"UPPER", C_upper  },
  {"WHEN", C_error  }
 };
- 
+
 /* ---------------- crloopctrl ------------------- */
 static LoopCtrl *
 crloopctrl( size_t it, size_t le, int vars, PLstr cv )
 {
  LoopCtrl *lc;
- 
+
  lc = (LoopCtrl *) MALLOC(sizeof(LoopCtrl),"LoopCtrl");
  lc->Citerate = it;
  lc->Cleave = le;
  lc->noofvars = vars;
  lc->ctrlvar = cv;
- 
+
  DQPUSH(&Loop,lc);
  return lc;
 } /* LoopCtrl */
- 
+
 /* ------------- CreateClause ---------------- */
 static void
 CreateClause( void )
@@ -197,24 +197,24 @@ CreateClause( void )
      CompileClause[CompileCurClause-1].code ==
      CompileCodeLen-CLAUSESTEP)
   return;
- 
+
  /* --- create a clause --- */
  CompileClause[CompileCurClause].ptr     = symbolprevptr;
  CompileClause[CompileCurClause].line    = symboline;
  CompileClause[CompileCurClause].code    = CompileCodeLen;
  CompileClause[CompileCurClause].nesting = CompileNesting;
  CompileClause[CompileCurClause].fptr    = CompileRxFile;
- 
+
  CompileCurClause++;
  if (CompileCurClause==CompileClauseItems) {
   CompileClause = (Clause*)REALLOC(CompileClause,
     (CompileClauseItems+CLAUSE_INC)*sizeof(Clause));
   CompileClauseItems += CLAUSE_INC;
  }
- 
+
  _CodeAddByte(OP_NEWCLAUSE);
 } /* CreateClause */
- 
+
 /* --------------- _mustbe -------------------- */
 void __CDECL
 _mustbe( enum symboltype sym, int errno, int subno )
@@ -227,10 +227,10 @@ _mustbe( enum symboltype sym, int errno, int subno )
 ///// This is not correct!!!!!
 */
 } /* _mustbe */
- 
+
 #ifndef ALIGN
 /* ### If not defined ALIGN ### */
- 
+
 /* --------------- _CodeInsByte --------------- */
 word
 _CodeInsByte( word pos, byte b )
@@ -247,7 +247,7 @@ _CodeInsByte( word pos, byte b )
  CompileCodePtr++;
  return CompileCodeLen++;
 } /* _CodeInsByte */
- 
+
 /* --------------- _CodeAddByte --------------- */
 word
 _CodeAddByte( byte b )
@@ -259,7 +259,7 @@ _CodeAddByte( byte b )
  *CompileCodePtr++ = b;
  return CompileCodeLen++;
 } /* _CodeAddByte */
- 
+
 /* --------------- _CodeAddWord --------------- */
 word
 _CodeAddWord( word w )
@@ -275,10 +275,10 @@ _CodeAddWord( word w )
  CompileCodeLen += sizeof(w);
  return pos;
 } /* _CodeAddWord */
- 
+
 /* ### If defined ALIGN ### */
 #else
- 
+
 /* --------------- _CodeInsByte --------------- */
 dword
 _CodeInsByte( dword pos, dword d )
@@ -296,13 +296,13 @@ _CodeInsByte( dword pos, dword d )
  CompileCodeLen += sizeof(d);
  return CompileCodeLen;
 } /* _CodeInsByte */
- 
+
 /* --------------- _CodeAddDWord --------------- */
 dword
 _CodeAddDWord( dword d )
 {
  dword pos;
- 
+
  if (CompileCodeLen+sizeof(d) >= LMAXLEN(*CompileCode)) {
   Lfx(CompileCode, CompileCodeLen + CODE_INC);
   CompileCodePtr = (byte*)LSTR(*CompileCode) + CompileCodeLen;
@@ -313,9 +313,9 @@ _CodeAddDWord( dword d )
  CompileCodeLen += sizeof(d);
  return pos;
 } /* _CodeAddWord */
- 
+
 #endif
- 
+
 /* --------------- _CodeAddPtr ---------------- */
 dword
 _CodeAddPtr( void *ptr )
@@ -331,7 +331,7 @@ _CodeAddPtr( void *ptr )
  CompileCodeLen += sizeof(ptr);
  return pos;
 } /* _CodeAddPtr */
- 
+
 /* -------------- _Add2Lits ----------------- */
 void *
 _Add2Lits( PLstr lit, int hasdot )
@@ -342,7 +342,7 @@ _Add2Lits( PLstr lit, int hasdot )
  char *ch;
  int i,t,cnt,start,stop;
  IdentInfo *inf;
- 
+
  /* Find in tree */
  tosearch = lit;
  LINITSTR(numstr);
@@ -364,16 +364,16 @@ _Add2Lits( PLstr lit, int hasdot )
    tosearch = &numstr;
   }
  }
- 
+
  leaf = BinFind( &rxLitterals, tosearch );
  if (leaf==NULL)
   if (tosearch == &numstr)
    leaf = BinFind(&rxLitterals,tosearch);
- 
+
  if (leaf==NULL) {
   LINITSTR(newstr); Lfx(&newstr,1);
   Lstrcpy(&newstr,tosearch);
- 
+
 #ifdef USEOPTION
   /* set the option for faster recognition */
   if (LTYPE(newstr) == LINTEGER_TY)
@@ -382,7 +382,7 @@ _Add2Lits( PLstr lit, int hasdot )
   if (LTYPE(newstr) == LREAL_TY)
    LSETOPT(newstr,LOPTREAL);
 #endif
- 
+
   if ((LTYPE(newstr)==LSTRING_TY) &&
    !LISNULL(newstr) && Ldatatype(&newstr,'S'))
   {
@@ -392,7 +392,7 @@ _Add2Lits( PLstr lit, int hasdot )
     for (cnt=1,ch=LSTR(newstr); *ch; ch++)
      if (*ch == '.')
       cnt++;
- 
+
     /* allocate space */
     inf = (IdentInfo*)MALLOC
      (sizeof(IdentInfo)+(cnt-1)*sizeof(PBinLeaf),
@@ -400,12 +400,12 @@ _Add2Lits( PLstr lit, int hasdot )
     /* count substrings and add them to lits */
     inf->id = NO_CACHE;
     inf->stem = cnt;
- 
+
     /* scan for substrings */
     LINITSTR(aux);
     _Lsubstr(&aux,&newstr,1,hasdot);
     inf->leaf[0] = _Add2Lits(&aux,FALSE);
- 
+
     stop = hasdot+1; /* after the dot */
     ch = LSTR(newstr)+hasdot;
     i = 1;
@@ -418,7 +418,7 @@ _Add2Lits( PLstr lit, int hasdot )
       inf->leaf[i++] = NULL;
       break;
      }
- 
+
      start = stop; /* find next dot */
      while (*ch && *ch!='.') {
       ch++; stop++;
@@ -439,13 +439,13 @@ _Add2Lits( PLstr lit, int hasdot )
    inf->id = NO_CACHE;
   } else
    inf = NULL;
- 
+
   leaf = BinAdd( &rxLitterals, &newstr, inf );
  }
  LFREESTR(numstr);
  return leaf;
 } /* _Add2Lits */
- 
+
 /* ------------------- _AddLabel ------------------ */
 PBinLeaf
 _AddLabel( int type, size_t offset )
@@ -454,11 +454,11 @@ _AddLabel( int type, size_t offset )
  Lstr newstr;
  RxFunc *func;
  TBltFunc *isbuiltin;
- 
+
  /* --- check to see if we are interpeting a string --- */
  if (str_interpreted && type == FT_LABEL && offset != UNKNOWN_LABEL)
   Lerror(ERR_UNEXPECTED_LABEL,1,&symbolstr);
- 
+
  /* --- Find in tree --- */
  leaf = BinFind(&_labels, &symbolstr);
  if (leaf==NULL) {
@@ -468,7 +468,7 @@ _AddLabel( int type, size_t offset )
   func->type    = type;
   func->builtin = NULL;
   func->label   = offset;
- 
+
   /* we want to add a function */
   if (symbolisstr)
    func->type = FT_SYSTEM;
@@ -498,7 +498,7 @@ _AddLabel( int type, size_t offset )
  }
  return leaf;
 } /* _AddLabel */
- 
+
 /* -------------------------------------------------------------- */
 /* C_error,  reports an error, when an illegal symbol is found.   */
 /* -------------------------------------------------------------- */
@@ -517,7 +517,7 @@ C_error(void)
  else
   Lerror(ERR_INVALID_EXPRESSION,0);
 } /* C_error */
- 
+
 /* -------------------------------------------------------------- */
 /*  ADDRESS [<symbol | string> [expr]] ;                          */
 /*      redirect commands or a single command to a new            */
@@ -535,7 +535,7 @@ C_address( void )
    _CodeAddByte(environment_opt);
   return;
  }
- 
+
  if (symbol==le_parent || identCMP("VALUE")) {
   if (symbol==ident_sy) nextsymbol();
   C_expr(exp_normal);
@@ -565,7 +565,7 @@ C_address( void )
  } else
   Lerror(ERR_INVALID_EXPRESSION,0);
 } /* C_address */
- 
+
 /* -------------------------------------------------------------- */
 /*  ARG     <template> ;                                          */
 /*      parse argument string(s), translated into uppercase,      */
@@ -575,7 +575,7 @@ static void
 C_arg( void )
 {
  int ai;
- 
+
  ai = 0;
  do {
   if (symbol==comma_sy) nextsymbol();
@@ -587,7 +587,7 @@ C_arg( void )
   ai++;
  } while (symbol==comma_sy);
 } /* C_arg */
- 
+
 /* -------------------------------------------------------------- */
 /*  CALL    [symbol | string] [<expr>] [,<expr>]... ;             */
 /*      call an internal routine, an external routine or program, */
@@ -602,16 +602,16 @@ C_call( void )
  int     ia, func, line, realarg=0;
  word    existarg=0,bp=1,lastarg=0; /* bit mapped, if arguments exist */
  void    *lbl;
- 
+
  /* keep line number */
  line = symboline;
  func = (symbol==function_sy);
- 
+
  if ( (symbol!=ident_sy) &&
   (symbol!=literal_sy) &&
   (symbol!=function_sy))
    Lerror(ERR_STRING_EXPECTED,0);
- 
+
 /* ///////// NOT CORRECT //////////// */
 /* Make it work as the SIGNAL ON ...  */
  if (!CMP("OFF") || (!CMP("ON"))) {
@@ -619,16 +619,16 @@ C_call( void )
   return;
  }
 /* ///////////////////////////////// */
- 
+
  lbl = _AddLabel( FT_FUNCTION, UNKNOWN_LABEL );
- 
+
  /* since we don't know if it is going to return
     a result then we create a stack space */
  _CodeAddByte(OP_PUSHTMP);
- 
+
  nextsymbol();
  ia = 0;
- 
+
  if ((symbol!=semicolon_sy) || (func && (symbol!=ri_parent))) {
   if (symbol != comma_sy) {
    C_expr(exp_normal);
@@ -638,7 +638,7 @@ C_call( void )
   }
   ia++;
   bp <<= 1;       /* increase bit position */
- 
+
   while (symbol==comma_sy) {
    nextsymbol();
    if (ia>=MAXARGS)
@@ -655,8 +655,8 @@ C_call( void )
    bp <<= 1;       /* increase bit position */
   }
  }
- 
- 
+
+
  _CodeAddByte(OP_CALL);
   _CodeAddPtr(lbl); /* call pointer */
   _CodeAddByte(lastarg); /* arguments */
@@ -665,11 +665,11 @@ C_call( void )
   _CodeAddWord(line); /* symbol line */
   _CodeAddByte(CT_PROCEDURE); /* call type */
  TraceByte( nothing_middle );
- 
+
  if (func)
   _mustbe(ri_parent,ERR_UNMATCHED_PARAN,0);
 } /* C_call */
- 
+
 /* -------------------------------------------------------------- */
 /*  DO      [ [name=expri  [TO exprt] [BY exprb]                  */
 /*            [FOR exprf]] | [ FOREVER | exprr ]                  */
@@ -698,7 +698,7 @@ DOuntilEND(void)
  }
  nextsymbol(); /* Skip END */
 } /* DOuntilEND */
- 
+
 #define DO_ASSIGN 0x0001
 #define DO_TO  0x0002
 #define DO_BY  0x0004
@@ -706,7 +706,7 @@ DOuntilEND(void)
 #define DO_FOREVER 0x0010
 #define DO_WHILE 0x0020
 #define DO_UNTIL 0x0040
- 
+
 /* --- C_do --- */
 static void
 C_do(void)
@@ -724,7 +724,7 @@ C_do(void)
  size_t pat=0,tmp;
  word idx=0, idxTO=0, idxBY=0, idxFOR=0;
  int dotype=0;
- 
+
  /* Simplest case */
  if (symbol==semicolon_sy) { /* SINGLE LOOP */
   symbolstat = in_do_st;
@@ -732,16 +732,16 @@ C_do(void)
   symbolstat = old_statement;
   return;
  }
- 
+
  symbolstat = in_do_init_st;
- 
+
  /* --- First check for repetition --- */
  /* --- and construct header       --- */
- 
+
  if (C_chk4assign()) {
   cv_ptr = SYMBOLADD2LITS;
   CtrlVar = &(((PBinLeaf)cv_ptr)->key);
- 
+
   C_assign();
   dotype |= DO_ASSIGN;
   while (symbol==to_sy || symbol==for_sy || symbol==by_sy)
@@ -794,29 +794,29 @@ C_do(void)
   C_expr(exp_normal);
   _CodeAddByte(OP_FORINIT);
  }
- 
+
  /* Create a jmp reference at the end and to the iterate pos */
  /* jump over leave "jmp" */
- 
+
  _CodeAddByte(OP_JMP); tmp=_CodeAddWord(0);
  leave_p = CompileCodeLen;
  _CodeAddByte(OP_JMP); fix_leave =_CodeAddWord(0);
- 
+
  if (dotype & DO_ASSIGN) {
   iterate_p = CompileCodeLen;
   _CodeAddByte(OP_JMP); fix_iterate = _CodeAddWord(0);
  }
- 
+
  CODEFIXUP(tmp,CompileCodeLen);
  body_p = CompileCodeLen;
- 
+
  /* --- Create the main loop control --- */
  if (dotype & DO_ASSIGN)
   lc = crloopctrl(iterate_p,leave_p,idx,CtrlVar);
  else
   lc = crloopctrl(body_p,leave_p,idx,CtrlVar);
- 
- 
+
+
  if (symbol==while_sy || identCMP("WHILE")) {
   dotype |= DO_WHILE;
   nextsymbol();  /* Skip WHILE */
@@ -829,25 +829,25 @@ C_do(void)
   _CodeAddByte(OP_JMP);
    overuntil = _CodeAddWord(0);
   untilexpr = CompileCodeLen;
- 
+
   /* modify to the correct iterate address */
   /* to check the UNTIL expr after the iteration */
   lc->Citerate = CompileCodeLen;
- 
+
   C_expr(exp_normal);
   _CodeAddByte(OP_JT); _CodeAddWord(leave_p);
   _CodeAddByte(OP_JMP);
    untilend = _CodeAddWord(0);
   CODEFIXUP(overuntil,CompileCodeLen);
  }
- 
+
  /* --- create code for TO,BY,FOR --- */
  if (idxTO) {
   _CodeAddByte(OP_DUP); _CodeAddByte(idx-idxTO);
   _CodeAddByte(OP_LOAD);
    _CodeAddPtr(cv_ptr);
    TraceByte( nothing_middle );
- 
+
   if (idxBY) {
    CODEFIXUP(pat,CompileCodeLen); /* Patch reference */
   }
@@ -860,13 +860,13 @@ C_do(void)
    _CodeAddByte(idx-idxFOR); /* variable */
    _CodeAddWord(leave_p);
  }
- 
+
  /* ===== main body ====== */
  _CodeAddByte(OP_NEWCLAUSE);
  symbolstat = in_do_st;
  _mustbe(semicolon_sy,ERR_INVALID_DO_SYNTAX,0);
  DOuntilEND();
- 
+
  if (CtrlVar) {
   if (symbol == ident_sy) {
    if(!Lstrcmp(&symbolstr,CtrlVar))
@@ -879,13 +879,13 @@ C_do(void)
  } else
  if (symbol == ident_sy)
   Lerror(ERR_UNMATCHED_END,3,&symbolstr);
- 
+
  /* --- if UNTIL in DO --- */
  if (dotype & DO_UNTIL) {
   _CodeAddByte(OP_JMP); _CodeAddWord( untilexpr );
   CODEFIXUP(untilend,CompileCodeLen);
  }
- 
+
  /* --- calc next value --- */
  if (dotype & DO_ASSIGN) {
   CODEFIXUP(fix_iterate,CompileCodeLen);
@@ -906,20 +906,20 @@ C_do(void)
     TraceByte( other_middle );
   }
  }
- 
+
  /* --- end of loop, add a jump to the beggining --- */
  _CodeAddByte(OP_JMP); _CodeAddWord( body_p );
  CODEFIXUP(fix_leave,CompileCodeLen);
  lc = DQPop(&Loop); /* delete loop control */
  FREE(lc);
- 
+
  if (dotype & (DO_TO | DO_FOR | DO_BY)) {
   _CodeAddByte(OP_POP); /* pop the last value from stack */
   _CodeAddByte(idx);
  }
  symbolstat = old_statement;
 } /* C_do */
- 
+
 /* -------------------------------------------------------------- */
 /*  DROP name [name]... ;                                         */
 /*      drop (reset) the named variables or group of variables.   */
@@ -953,7 +953,7 @@ C_drop(void)
    break;
  }
 } /* C_drop */
- 
+
 /* -------------------------------------------------------------- */
 /*  EXIT [expr] ;                                                 */
 /*      leave the program (with return data, EXPR). EXIT is       */
@@ -971,7 +971,7 @@ C_exit(void)
   C_expr(exp_normal);
  _CodeAddByte(OP_EXIT);
 } /* C_exit */
- 
+
 /* -------------------------------------------------------------- */
 /*  IF expr [;] THEN [;] instr ;                                  */
 /*             [ELSE [;] instr];                                  */
@@ -985,34 +985,34 @@ C_if(void)
 {
  enum stat_type old_statement;
  size_t nxt, end;
- 
+
  old_statement = symbolstat;
  symbolstat = in_if_init_st;
  C_expr(exp_normal);
- 
+
  SKIP_SEMICOLONS;
- 
+
  _CodeAddByte(OP_JF); nxt=_CodeAddWord(0);
- 
+
  CreateClause();
  _mustbe(then_sy,ERR_THEN_EXPECTED,1);
  symbolstat = in_if_st;
- 
+
  SKIP_SEMICOLONS;
- 
+
  symbolstat = normal_st;
  C_instr(FALSE);
- 
+
  SKIP_SEMICOLONS;
  if (identCMP("ELSE")) {
   symbolstat = in_if_st;
   _CodeAddByte(OP_JMP); end=_CodeAddWord(0);
   CODEFIXUP(nxt,CompileCodeLen);
   CreateClause();
- 
+
   nextsymbol();
   SKIP_SEMICOLONS;
- 
+
   C_instr(FALSE);
   nxt = end;
  }
@@ -1020,7 +1020,7 @@ C_if(void)
  symbolstat = old_statement;
  checked_semicolon = TRUE;
 } /* C_if */
- 
+
 /* -------------------------------------------------------------- */
 /*  INTERPRET  expr ;                                             */
 /*      evaluate EXPR and then execute the resultant string as    */
@@ -1032,7 +1032,7 @@ C_interpret(void)
  C_expr(exp_normal);
  _CodeAddByte(OP_INTERPRET);
 } /* C_interpret */
- 
+
 /* -------------------------------------------------------------- */
 /*  ITERATE   [name|num] ;                                        */
 /*      start next iteration of the innermost repetitive loop     */
@@ -1044,9 +1044,9 @@ C_iterate(void)
  LoopCtrl *lc=NULL;
  DQueueElem *elem;
  word  pop=0;
- 
+
  if (!Loop.items) Lerror(ERR_INVALID_LEAVE,0);
- 
+
  if (symbol==ident_sy) {
   elem = Loop.tail;
   while (1) {
@@ -1073,7 +1073,7 @@ C_iterate(void)
   Lerror(ERR_SYMBOL_EXPECTED,2,&symbolstr);
  _CodeAddByte(OP_JMP); _CodeAddWord(lc->Citerate);
 } /* C_iterate */
- 
+
 /* -------------------------------------------------------------- */
 /*  LEAVE     [name|num] ;                                        */
 /*      terminate innermost loop (or loop with control            */
@@ -1085,9 +1085,9 @@ C_leave(void)
  LoopCtrl *lc=NULL;
  DQueueElem *elem;
  word  pop=0;
- 
+
  if (!Loop.items) Lerror(ERR_INVALID_LEAVE,0);
- 
+
  if (symbol==ident_sy) {
   elem = Loop.tail;
   while (1) {
@@ -1114,7 +1114,7 @@ C_leave(void)
   Lerror(ERR_SYMBOL_EXPECTED,2,&symbolstr);
  _CodeAddByte(OP_JMP); _CodeAddWord(lc->Cleave);
 } /* C_leave */
- 
+
 /* -------------------------------------------------------------- */
 /*  LOWER name [name]... ;                                        */
 /*      translate the values of the specified individual          */
@@ -1124,7 +1124,7 @@ static void
 C_lower(void)
 {
  void *sym;
- 
+
  while (symbol==ident_sy) {
   sym = SYMBOLADD2LITS;
   _CodeAddByte(OP_LOAD);
@@ -1135,7 +1135,7 @@ C_lower(void)
   nextsymbol();
  }
 } /* C_lower */
- 
+
 /* -------------------------------------------------------------- */
 /*  NOP  ;                                                        */
 /*      dummy instruction, has no side-effects.                   */
@@ -1145,7 +1145,7 @@ C_nop(void)
 {
  _CodeAddByte(OP_NOP);
 } /* C_nop */
- 
+
 /* -------------------------------------------------------------- */
 /*  NUMERIC   DIGITS [expr]  |                                    */
 /*            FORM   [SCIENTIFIC | ENGINEERING] |                 */
@@ -1178,9 +1178,9 @@ C_numeric(void)
     TraceByte( nothing_middle );
   } else
    Lerror(ERR_INV_SUBKEYWORD,11,&symbolstr);
- 
+
   if (symbol!=semicolon_sy) nextsymbol();
- 
+
   _CodeAddByte(OP_STOREOPT);
    _CodeAddByte(form_opt);
  } else
@@ -1192,7 +1192,7 @@ C_numeric(void)
  } else
   Lerror(ERR_INV_SUBKEYWORD,15,&symbolstr);
 } /* C_numeric */
- 
+
 /* -------------------------------------------------------------- */
 /*  PARSE   [UPPER]  + ARG               | [template] ;           */
 /*                   | AUTHOR            |                        */
@@ -1227,12 +1227,12 @@ C_parse(void)
  enum stat_type old_statement;
  int ai;
  int with_chk=FALSE;
- 
+
  if (identCMP("UPPER")) {
   toupper = TRUE;
   nextsymbol();
  }
- 
+
  if (identCMP("ARG")) {
   ai = 0;
   do {
@@ -1273,7 +1273,7 @@ C_parse(void)
    nextsymbol();
    if (symbol != ident_sy)
     Lerror(ERR_INVALID_TEMPLATE,0);
- 
+
    _CodeAddByte(OP_LOAD);
     _CodeAddPtr(SYMBOLADD2LITS);
     TraceByte( variable_middle );
@@ -1286,25 +1286,25 @@ C_parse(void)
    _CodeAddByte(OP_PUSHTMP);
    _CodeAddByte(OP_PUSHTMP);
    _CodeAddByte(OP_PUSHTMP);
- 
+
    _CodeAddByte(OP_LOADOPT);
     _CodeAddByte(os_opt);
- 
+
    _CodeAddByte(OP_LOADOPT);
     _CodeAddByte(calltype_opt);
    _CodeAddByte(OP_BCONCAT);
     TraceByte( nothing_middle );
- 
+
    _CodeAddByte(OP_LOADOPT);
     _CodeAddByte(filename_opt);
    _CodeAddByte(OP_BCONCAT);
     TraceByte( nothing_middle );
- 
+
    _CodeAddByte(OP_LOADOPT);
     _CodeAddByte(prgname_opt);
    _CodeAddByte(OP_BCONCAT);
     TraceByte( nothing_middle );
- 
+
    _CodeAddByte(OP_LOADOPT);
     _CodeAddByte(shell_opt);
    _CodeAddByte(OP_BCONCAT);
@@ -1330,18 +1330,18 @@ C_parse(void)
     _CodeAddByte(version_opt);
   } else
    Lerror(ERR_INV_SUBKEYWORD,12+toupper,&symbolstr);
- 
+
   /* --- Common Code --- */
   if (toupper)
    _CodeAddByte(OP_UPPER);
- 
+
   /* skip WITH if exist */
   if (identCMP("WITH") && !with_chk)
    nextsymbol();
   C_template();
  }
 } /* C_parse */
- 
+
 /* -------------------------------------------------------------- */
 /*  PROCEDURE [EXPOSE name|(var) [name|(var)]...] ;               */
 /*      start a new generation of variables within an internal    */
@@ -1353,7 +1353,7 @@ C_procedure(void)
 {
  byte exposed=0;
  size_t pos;
- 
+
  _CodeAddByte(OP_PROC);
  pos = _CodeAddByte(0);
  if (identCMP("EXPOSE")) {
@@ -1381,7 +1381,7 @@ C_procedure(void)
  }
  MUSTBE_SEMICOLON;
 } /* C_procedure */
- 
+
 /* -------------------------------------------------------------- */
 /*  PULL [template] ;                                             */
 /*      read the next string from the program stack (system       */
@@ -1396,7 +1396,7 @@ C_pull(void)
  _CodeAddByte(OP_UPPER);
  C_template();
 } /* C_pull */
- 
+
 /* -------------------------------------------------------------- */
 /*  PUSH [expr];                                                  */
 /*      push EXPR onto head of the system queue (stack LIFO)      */
@@ -1412,7 +1412,7 @@ C_push(void)
   C_expr(exp_normal);
  _CodeAddByte(OP_RX_PUSH);
 } /* C_push */
- 
+
 /* -------------------------------------------------------------- */
 /*  QUEUE [expr];                                                 */
 /*      add EXPR to the tail of the system queue (stack FIFO)     */
@@ -1428,7 +1428,7 @@ C_queue(void)
   C_expr(exp_normal);
  _CodeAddByte(OP_RX_QUEUE);
 } /* C_queue */
- 
+
 /* -------------------------------------------------------------- */
 /*  RETURN [expr] ;                                               */
 /*      evaluate EXOR and then return the value to the caller.    */
@@ -1445,7 +1445,7 @@ C_return( void )
   _CodeAddByte(OP_RETURNF);
  }
 } /* C_return */
- 
+
 /* -------------------------------------------------------------- */
 /*  SAY [expr];                                                   */
 /*      evaluate EXPR and then display the result on the user's   */
@@ -1457,7 +1457,7 @@ C_say(void)
  C_expr(exp_normal);
  _CodeAddByte(OP_SAY);
 } /* C_say */
- 
+
 /* -------------------------------------------------------------- */
 /*  SELECT ;                                                      */
 /*     WHEN expr [;] THEN [;] inst ;                              */
@@ -1477,17 +1477,17 @@ C_select(void)
  enum stat_type old_statement;
  size_t nxt, jmp2end, end;
  int otherwise=FALSE,when=FALSE;
- 
+
  MUSTBE_SEMICOLON;
- 
+
  old_statement = symbolstat;
- 
+
  /* Skip jump to the end */
  _CodeAddByte(OP_JMP); nxt=_CodeAddWord(0);
- 
+
  /* add a jump to the end of the structure */
  jmp2end = _CodeAddByte(OP_JMP); end=_CodeAddWord(0);
- 
+
  CompileNesting++;
  for (;;) {
   SKIP_SEMICOLONS;
@@ -1501,13 +1501,13 @@ C_select(void)
     CreateClause();
     nextsymbol();
     C_expr(exp_normal);
- 
+
     SKIP_SEMICOLONS;
     _CodeAddByte(OP_JF); nxt=_CodeAddWord(0);
     CreateClause();
     _mustbe(then_sy,ERR_THEN_EXPECTED,0);
     symbolstat = in_if_st;
- 
+
     SKIP_SEMICOLONS;
     C_instr(FALSE);
     _CodeAddByte(OP_JMP); _CodeAddWord(jmp2end);
@@ -1544,7 +1544,7 @@ C_select(void)
  CODEFIXUP(end,CompileCodeLen);
  symbolstat = old_statement;
 } /* C_select */
- 
+
 /* -------------------------------------------------------------- */
 /*  SIGNAL [name] |                                               */
 /*         [VALUE] expr |                                         */
@@ -1568,7 +1568,7 @@ C_signal( void)
  int value;
  int cnd=0;
  void *ptr=NULL;
- 
+
  if (symbol==ident_sy) {
   if (!CMP("OFF") || (!CMP("ON"))) {
    value = 0;
@@ -1585,7 +1585,7 @@ C_signal( void)
      cnd = (value)?set_signal_opt:unset_signal_opt;
    } else
     Lerror(ERR_INV_SUBKEYWORD,4-value,&symbolstr);
- 
+
    /* must handle correct the name */
    if (identCMP("NAME")) {
     nextsymbol(); /* skip name */
@@ -1600,10 +1600,10 @@ C_signal( void)
    _CodeAddByte(OP_PUSH);
     _CodeAddPtr(ptr);
     TraceByte( nothing_middle );
- 
+
    _CodeAddByte(OP_STOREOPT);
     _CodeAddByte(cnd);
- 
+
    if (cnd==set_signal_name_opt) {
     _CodeAddByte(OP_POP);
      _CodeAddByte(1);
@@ -1621,7 +1621,7 @@ C_signal( void)
  } else
   Lerror(ERR_STRING_EXPECTED,4,&symbolstr);
 } /* C_signal */
- 
+
 /* -------------------------------------------------------------- */
 /*        + +   +      + + +                   + +                */
 /*        | | ? | ?... | | | All               | |;               */
@@ -1683,11 +1683,11 @@ C_trace(void)
   nextsymbol();
  } else
   Lerror(ERR_STRING_EXPECTED,6,&symbolstr);
- 
+
  _CodeAddByte(OP_STOREOPT);
   _CodeAddByte(trace_opt);
 } /* C_trace */
- 
+
 /* -------------------------------------------------------------- */
 /*  UPPER name [name]... ;                                        */
 /*      translate the values of the specified individual          */
@@ -1697,7 +1697,7 @@ static void
 C_upper(void)
 {
  void *sym;
- 
+
  while (symbol==ident_sy) {
   sym = SYMBOLADD2LITS;
   _CodeAddByte(OP_LOAD);
@@ -1708,7 +1708,7 @@ C_upper(void)
   nextsymbol();
  }
 } /* C_upper */
- 
+
 /* -------------------------------------------------------------- */
 /*  [expr] ;                                                      */
 /* Execute a host command according to environment                */
@@ -1721,7 +1721,7 @@ C_HostCmd( void )
  C_expr(exp_normal);
  _CodeAddByte(OP_SYSTEM);
 } /* C_HostCmd */
- 
+
 /* -------------------------------------------------------------- */
 /*  name = [expr]                                                 */
 /*       is an assignment: the variable name is set to the value  */
@@ -1745,14 +1745,14 @@ C_chk4assign(void)
  } else
   return FALSE;
 } /* C_chk4assign */
- 
+
 /* ------ assigment ------- */
 static void
 C_assign(void)
 {
  void *var;
  bool stem;
- 
+
  var = SYMBOLADD2LITS;
  stem = !symbolhasdot && (LSTR(symbolstr)[LLEN(symbolstr)-1]=='.');
  nextsymbol();
@@ -1768,13 +1768,13 @@ C_assign(void)
    _CodeAddPtr(var);
  }
 } /* C_assign */
- 
+
 /* --------------- C_instr --------------- */
 static bool
 C_instr(bool until_end)
 {
  int first, middle, last, cmp, found;
- 
+
  /* -- create a new clause ptr -- */
  CompileNesting++;
  checked_semicolon = FALSE;
@@ -1790,12 +1790,12 @@ C_instr(bool until_end)
   CompileNesting--;
   longjmp(_error_trap,1); /* Everything is Ok */
  }
- 
+
  if (!identCMP("END")) CreateClause();
- 
+
  if (symbol==label_sy)
   Lerror(ERR_UNEXPECTED_LABEL,0);
- 
+
  if (C_chk4assign())
   C_assign();
  else
@@ -1807,7 +1807,7 @@ C_instr(bool until_end)
    else
     Lerror(ERR_UNMATCHED_END,0);
   }
- 
+
   /* Binary search for the instruction */
   first = found = 0;
   last  = DIMENSION(statements_list)-1;
@@ -1822,7 +1822,7 @@ C_instr(bool until_end)
    else
     first = middle+1;
   }
- 
+
   if (found) {
    if (statements_list[middle].func != C_error)
     nextsymbol();
@@ -1831,43 +1831,43 @@ C_instr(bool until_end)
    C_HostCmd();
  } else
   C_HostCmd();
- 
+
  if (!checked_semicolon)  /* if noone has checked for a */
   MUSTBE_SEMICOLON; /* semicolon then check it now */
- 
+
  CompileNesting--;
  return FALSE;
 } /* C_instr */
- 
+
 /* ------------- RxInitCompile -------------- */
 void __CDECL
 RxInitCompile( RxFile *rxf, PLstr src )
 {
  int i;
- 
+
  str_interpreted = (src!=NULL);
- 
+
  /* copy to our static variables */
  CompileCode = _code;
  CompileRxFile = rxf;
- 
+
  /* Initialise Loop Queue for LEAVE & ITERATE jmp points */
  DQINIT(Loop);
- 
+
  /* Initialize code string */
  Lfx(CompileCode,CODE_INC);
  CompileCodeLen = LLEN(*CompileCode);
  CompileCodePtr = (byte *)LSTR(*CompileCode) + CompileCodeLen;
- 
+
  if (CompileClause == NULL) {
   CompileCurClause = 0;
   CompileClauseItems = CLAUSE_INC;
   CompileClause = (Clause*)MALLOC(CLAUSE_INC*sizeof(Clause),"Clause");
  }
- 
+
  /* initialise nesting */
  CompileNesting = 0;
- 
+
  /* Initialise next symbol */
  if (str_interpreted)
   InitNextsymbol(src);
@@ -1889,20 +1889,20 @@ RxInitCompile( RxFile *rxf, PLstr src )
   InitNextsymbol(&(rxf->file));
  }
 } /* RxInitCompile */
- 
+
 /* -------------- RxCompile ----------------- */
 int __CDECL
 RxCompile( void )
 {
  int jc;
- 
+
  /* --- trap eof --- */
  if ((jc=setjmp(_error_trap))!=0) {
    /* Set the length of the Code and exit */
   LLEN(*CompileCode) = CompileCodeLen;
   goto CompEnd;
  }
- 
+
  /* ---- main loop ---- */
  /* will exit only with a longjmp */
  while (1) {
@@ -1929,23 +1929,23 @@ RxCompile( void )
   } else
    C_instr(FALSE);
  }
- 
+
 CompEnd:
  /* Check here for various errors */
  if (Loop.items>0)
   DQFlush(&Loop,FREE);
- 
+
  /* mark the end of clauses */
  CompileClause[CompileCurClause].ptr  = 0;
  CompileClause[CompileCurClause].line = 0;
  CompileClause[CompileCurClause].code = 0;
  CompileClause[CompileCurClause].fptr = 0;
- 
+
  /* ---- Mark the End of compilation ----- */
  symbolptr = NULL;  /* mark end of compilation */
  CompileCodePtr = NULL;
- 
+
  if (jc==1) rxReturnCode = 0;
- 
+
  return rxReturnCode;
 } /* RxCompile */

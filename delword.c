@@ -17,30 +17,30 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ----------------- Ldelword ---------------- */
 void __CDECL
 Ldelword( const PLstr to, const PLstr from, long start, long length )
 {
  size_t i;
  Lstr tmp;
- 
+
  if (start <= 0) start = 1;
  i = Lwordindex(from,start);
  if (i==0) {
   Lstrcpy(to,from);
   return;
  }
- 
+
  if (i==1)
   LZEROSTR(*to)
  else
   _Lsubstr(to,from,1,i-1);
- 
+
  if (length<0) return;
- 
+
  i--;
  while (length) {
   length--;

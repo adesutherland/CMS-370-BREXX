@@ -14,15 +14,15 @@
  * Initial revision
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------- Ldec ------------------ */
 void __CDECL
 Ldec( const PLstr num )
 {
  L2NUM(num);
- 
+
  if (LTYPE(*num)==LINTEGER_TY)
   LINT(*num) -= 1;
  else

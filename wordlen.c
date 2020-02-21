@@ -14,15 +14,15 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* --------------- Lwordlength ----------------- */
 long __CDECL
 Lwordlength( const PLstr from, long n )
 {
  long i;
- 
+
  i = Lwordindex(from,n);
  if (i==0) return 0;
  n = i--;

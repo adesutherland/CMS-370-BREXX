@@ -1,0 +1,38 @@
+&CONTROL OFF NOMSG
+&IF &INDEX NE 6 &GOTO -Tell
+
+* Get the date of the first file.
+LISTFILE &1 &2 &3 (DATE LIFO
+&IF &RETCODE NE 0 &EXIT &RETCODE
+&READ VARS &X &X &X &X &X &X &X &ADT &ATM
+&MD = &SUBSTR &ADT 1 5
+&YY = &SUBSTR &ADT 7 2
+&ADT = &CONCAT &YY &MD
+
+* Get the date of the second file.
+LISTFILE &4 &5 &6 (DATE LIFO
+&IF &RETCODE NE 0 &EXIT 1
+&READ VARS &X &X &X &X &X &X &X &BDT &BTM
+&MD = &SUBSTR &BDT 1 5
+&YY = &SUBSTR &BDT 7 2
+&BDT = &CONCAT &YY &MD
+
+&IF &ADT > &BDT &EXIT 1
+&IF &ADT < &BDT &EXIT 0
+
+* The dates are the same, so now compare the times.
+&L = &LENGTH &ATM
+&IF &L = 4 &ATM = &CONCAT 0 &ATM
+&L = &LENGTH &BTM
+&IF &L = 4 &BTM = &CONCAT 0 &BTM
+&IF &ATM >= &BTM &EXIT 1
+&EXIT 0
+
+-Tell
+&BEGTYPE
+UPTODATE fileid1 fileid2
+
+Returns 1 if 'fileid1' is newer than 'fileid2', or if 'fileid2' is missing.
+Otherwise it returns 0.  Returns 28 if 'fileid1' is not found.
+&END
+&EXIT 100

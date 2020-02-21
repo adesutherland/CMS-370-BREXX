@@ -20,9 +20,9 @@
  * Initial revision
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ---------------- Lcharin ------------------- */
 void __CDECL
 Lcharin( FILEP f, const PLstr line, const long start, const long length )

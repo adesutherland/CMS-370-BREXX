@@ -14,9 +14,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* --------------- Lupper ------------------ */
 void __CDECL
 Lupper( const PLstr s )

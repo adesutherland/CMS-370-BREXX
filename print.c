@@ -40,9 +40,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 #ifdef RXCONIO
 # define ANSI_FPRINTF(fd,fs,ff) if (fd==STDOUT) \
     cprintf(fs,ff); else fprintf(fd,fs,ff)
@@ -52,7 +52,7 @@
 # define ANSI_FPRINTF(fd,fs,ff) fprintf(fd,fs,ff)
 # define ANSI_FPUTS(fd,fs) fprintf(fd,fs)
 #endif
- 
+
 /* ---------------- Lprint ------------------- */
 void __CDECL
 Lprint( FILEP f, const PLstr str )
@@ -60,19 +60,19 @@ Lprint( FILEP f, const PLstr str )
  size_t l;
  char *c;
  char s[64];
- 
+
 #ifdef __CMS__
    Lstr tmp;
    LINITSTR(tmp);
 #endif
- 
+
 #ifndef WIN
  if (str==NULL) {
   ANSI_FPUTS(f,"<NULL>");
   return;
  }
 #endif
- 
+
  switch (LTYPE(*str)) {
   case LSTRING_TY:
    c = LSTR(*str);
@@ -97,7 +97,7 @@ Lprint( FILEP f, const PLstr str )
     FPUTC(*c++,f);
 #endif
    break;
- 
+
   case LINTEGER_TY:
 #ifdef WIN
    FPUTS(LTOA(LINT(*str),s,10), f);
@@ -105,7 +105,7 @@ Lprint( FILEP f, const PLstr str )
    ANSI_FPRINTF(f,"%ld", LINT(*str));
 #endif
    break;
- 
+
   case LREAL_TY:
 #ifdef __CMS__
    Lformat(&tmp, str, -1, -1, 0, 0);

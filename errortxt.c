@@ -23,12 +23,12 @@
  * Initial Version
  *
  */
- 
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include "lerror.h"
 #include "lstring.h"
- 
+
 /* ============= Error messages =============== */
 ErrorMsg errortext[] = {
 #ifndef WCE
@@ -60,7 +60,7 @@ ErrorMsg errortext[] = {
 #ifndef WCE
  { ERRNUM(7,1), "SELECT requires WHEN; found \"<token>\"" },
  { ERRNUM(7,2), "SELECT requires WHEN, OTHERWISE, or END; found \"<token>\"" },
- { ERRNUM(7,3), "All WHEN expressions of SELECT are false; OTHERWISE expected" },
+ { ERRNUM(7,3), "All WHEN expressions of SELECT are false; OTHERWISE expected"},
 #endif
  { ERRNUM(8,0), "Unexpected THEN or ELSE" },
 #ifndef WCE
@@ -111,7 +111,7 @@ ErrorMsg errortext[] = {
 #endif
  { ERRNUM(18,0), "THEN expected" },
 #ifndef WCE
- { ERRNUM(18,1), "IF keyword requires matching THEN clause; found \"<token>\"" },
+ { ERRNUM(18,1), "IF keyword requires matching THEN clause; found \"<token>\""},
  { ERRNUM(18,2), "WHEN keyword requires matching THEN clause; found \"<token>\"" },
 #endif
  { ERRNUM(19,0), "String or symbol expected" },
@@ -146,7 +146,7 @@ ErrorMsg errortext[] = {
 #endif
  { ERRNUM(25,0), "Invalid sub-keyword found" },
 #ifndef WCE
- { ERRNUM(25,1), "CALL ON must be followed by one of the keywords ERROR, HALT, NOVALUE, NOTREADY or SYNTAX; found \"<token>\"" },
+ { ERRNUM(25,1), "CALL ON must be followed by one of the keywords ERROR, HALT,NOVALUE, NOTREADY or SYNTAX; found \"<token>\"" },
  { ERRNUM(25,2), "CALL OFF must be followed by one of the keywords ERROR, HALT, NOVALUE, NOTREADY or SYNTAX; found \"<token>\"" },
  { ERRNUM(25,3), "SIGNAL ON must be followed by one of the keywords ERROR, HALT, NOVALUE, NOTREADY or SYNTAX; found \"<token>\"" },
  { ERRNUM(25,4), "SIGNAL OFF must be followed by one of the keywords ERROR, HALT, NOVALUE, NOTREADY or SYNTAX; found \"<token>\"" },
@@ -159,9 +159,9 @@ ErrorMsg errortext[] = {
  { ERRNUM(25,12),"PARSE must be followed by one of the keywords UPPER, ARG, AUTHOR, EXTERNAL, LINEIN, NUMERIC, PULL, SOURCE, VALUE, VAR or VERSION; found \"<token>\"" },
  { ERRNUM(25,13),"UPPER must be followed by one of the keywords ARG, AUTHOR, EXTERNAL, LINEIN, NUMERIC, PULL, SOURCE, VALUE, VAR or VERSION; found \"<token>\"" },
  { ERRNUM(25,14),"ERROR must be followed by one of the keywords <keywords>; found \"<token>\"" },
- { ERRNUM(25,15),"NUMERIC must be followed by one of the keywords DIGITS, FORM or FUZZ; found \"<token>\"" },
- { ERRNUM(25,16),"FOREVER must be followed by one of the keywords WHILE, UNTIL or nothing; found \"<token>\"" },
- { ERRNUM(25,17),"PROCEDURE must be followed by the keyword EXPOSE or nothing; found \"<token>\"" },
+ { ERRNUM(25,15),"NUMERIC must be followed by one of the keywords DIGITS, FORMor FUZZ; found \"<token>\"" },
+ { ERRNUM(25,16),"FOREVER must be followed by one of the keywords WHILE, UNTILor nothing; found \"<token>\"" },
+ { ERRNUM(25,17),"PROCEDURE must be followed by the keyword EXPOSE or nothing;found \"<token>\"" },
 #endif
  { ERRNUM(26,0), "Invalid whole number" },
 #ifndef WCE
@@ -173,7 +173,7 @@ ErrorMsg errortext[] = {
  { ERRNUM(26,6), "NUMERIC FUZZ value must be zero or a positive whole number; found \"<value>\"" },
  { ERRNUM(26,7), "Number used in TRACE setting must be a whole number; found \"<value>\"" },
  { ERRNUM(26,8), "Operand to right of the power operator (\"**\") must be a whole number; found \"<value>\"" },
- { ERRNUM(26,11),"Result of <value> % <value> operation would need exponential notation at current NUMERIC DIGITS <value>" },
+ { ERRNUM(26,11),"Result of <value> % <value> operation would need exponentialnotation at current NUMERIC DIGITS <value>" },
  { ERRNUM(26,12),"Result of % operation used for <value> // <value> operation would need exponential notation at current NUMERIC DIGITS <value>" },
 #endif
  { ERRNUM(27,0), "Invalid DO syntax" },
@@ -189,7 +189,7 @@ ErrorMsg errortext[] = {
 #endif
  { ERRNUM(29,0), "Environment name too long" },
 #ifndef WCE
- { ERRNUM(29,1), "Environment name exceeds #Limit_EnvironmentName 'characters; found \"<name>\"" },
+ { ERRNUM(29,1), "Environment name exceeds #Limit_EnvironmentName 'characters;found \"<name>\"" },
 #endif
  { ERRNUM(30,0), "Name or string too long" },
 #ifndef WCE
@@ -239,14 +239,14 @@ ErrorMsg errortext[] = {
  { ERRNUM(40,3), "Not enough arguments in invocation of <bif>; minimum expected is <argnumber>" },
  { ERRNUM(40,4), "Too many arguments in invocation of <bif>; maximum expected is <argnumber>" },
  { ERRNUM(40,5), "Missing argument in invocation of <bif>; argument <argnumber> is required" },
- { ERRNUM(40,9), "argument <argnumber> exponent exceeds Exponent Digits limit; found \"<value>\"" },
+ { ERRNUM(40,9), "argument <argnumber> exponent exceeds Exponent Digits limit;found \"<value>\"" },
  { ERRNUM(40,11),"argument <argnumber> must be a number; found \"<value>\"" },
  { ERRNUM(40,12),"argument <argnumber> must be a whole number; found \"<value>\"" },
  { ERRNUM(40,13),"argument <argnumber> must be zero or positive; found \"<value>\"" },
  { ERRNUM(40,14),"argument <argnumber> must be positive; found \"<value>\"" },
  { ERRNUM(40,15),"argument <argnumber> must fit in <value> digits; found \"<value>\"" },
  { ERRNUM(40,16),"argument 1 requires a whole number fitting within DIGITS(<value>); found \"<value>\"" },
- { ERRNUM(40,17),"argument 1 must have an integer part in the range 0:90 and a decimal part no larger than .9; found \"<value>\"" },
+ { ERRNUM(40,17),"argument 1 must have an integer part in the range 0:90 and adecimal part no larger than .9; found \"<value>\"" },
  { ERRNUM(40,18),"conversion must have a year in the range 0001 to 9999" },
  { ERRNUM(40,19),"argument 2, \"<value>\", is not in the format described by argument 3, \"<value>\"" },
  { ERRNUM(40,21),"argument <argnumber> must not be null" },
@@ -258,11 +258,11 @@ ErrorMsg errortext[] = {
  { ERRNUM(40,28),"argument <argnumber>, option must start with one of \"<optionslist>\"; found \"<value>\"" },
  { ERRNUM(40,29),"conversion to format \"<value>\" is not allowed" },
  { ERRNUM(40,31),"argument 1 (\"<value>\") must not exceed 100000" },
- { ERRNUM(40,32),"the difference between argument 1 (\"<value>\") and argument 2 (\"<value>\") must not exceed 100000" },
+ { ERRNUM(40,32),"the difference between argument 1 (\"<value>\") and argument2 (\"<value>\") must not exceed 100000" },
  { ERRNUM(40,33),"argument 1 (\"<value>\") must be less than or equal to argument 2 (\"<value>\")" },
  { ERRNUM(40,34),"argument 1 (\"<value>\") must be less than or equal to the number of lines in the program (<sourceline()>)" },
  { ERRNUM(40,35),"argument 1 cannot be expressed as a whole number; found \"<value>\"" },
- { ERRNUM(40,36),"argument 1 must be the name of a variable in the pool; found \"<value>\"" },
+ { ERRNUM(40,36),"argument 1 must be the name of a variable in the pool; found\"<value>\"" },
  { ERRNUM(40,37),"argument 3 must be the name of a pool; found \"<value>\"" },
  { ERRNUM(40,38),"argument <argnumber> is not large enough to format \"<value>\"" },
  { ERRNUM(40,39),"argument 3 is not zero or one; found \"<value>\"" },
@@ -299,7 +299,7 @@ ErrorMsg errortext[] = {
 #endif
  { ERRNUM(46,0), "Invalid variable reference" },
 #ifndef WCE
- { ERRNUM(46,1), "Extra token (\"<token>\") found in variable reference; \")\" expected" },
+ { ERRNUM(46,1), "Extra token (\"<token>\") found in variable reference; \")\"expected" },
 #endif
  { ERRNUM(47,0), "Unexpected label" },
 #ifndef WCE
@@ -335,14 +335,14 @@ ErrorMsg errortext[] = {
  { ERRNUM(55,0), "DB Error" },
  { ERRNUM(55,1), "Database is not openned" },
  { ERRNUM(55,2), "Field not found" },
- 
+
  { ERRNUM(56,0), "Shared library error \"<dlopen>\"" },
- 
+
  { ERRNUM(57,0), "Cannot open file" },
  { ERRNUM(58,0), "File not found" },
  { ERRNUM(59,0), "File not opened" }
 };
- 
+
 /* ------------------ Lerrortext ------------------- */
 void __CDECL
 Lerrortext( const PLstr to, const int errn, const int subn, va_list *ap)
@@ -354,14 +354,14 @@ Lerrortext( const PLstr to, const int errn, const int subn, va_list *ap)
  char *ch,*chstart;
  PLstr str;
 #endif
- 
+
 #ifndef WCE
  err = ERRNUM(errn,subn);
 #else
  err = ERRNUM(errn,0); // Ignore the 'subn'
 #endif
  LZEROSTR(*to);
- 
+
  /* Binary search for the instruction */
  first = found = 0;
  last  = DIMENSION(errortext)-1;
@@ -376,9 +376,9 @@ Lerrortext( const PLstr to, const int errn, const int subn, va_list *ap)
   else
    first = middle+1;
  }
- 
+
  if (!found) return;
- 
+
 #ifndef WCE
  /* --- found --- */
  if (ap==NULL)
@@ -394,10 +394,10 @@ Lerrortext( const PLstr to, const int errn, const int subn, va_list *ap)
    i = (char huge *)ch - (char huge *)chstart;
    MEMCPY(LSTR(*to)+LLEN(*to), chstart, i);
    LLEN(*to) += i;
- 
+
    str = va_arg(*ap,PLstr);/* read next argument */
    Lstrcat(to,str); /* append it to string */
- 
+
    chstart = ch;
    ch = STRCHR(chstart,'>'); /* find end */
    chstart = ch+1;

@@ -39,13 +39,13 @@
  * Initial revision
  *
  */
- 
+
 #ifndef WCE
 # include <time.h>
 #endif
 #include <stdlib.h>
 #include <string.h>
- 
+
 #ifdef __BORLANDC__
 # include <dos.h>
 //# include <alloc.h>
@@ -57,10 +57,10 @@
  };
 # endif
 #endif
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "stack.h"
 #include "trace.h"
@@ -68,14 +68,14 @@
 #include "dqueue.h"
 #include "compile.h"
 #include "interpre.h"
- 
+
 #ifdef WIN
 # include <winfunc.h>
 #endif
- 
+
 /* ------------- External variables ------------ */
 extern Lstr     stemvaluenotfound;      /* from variable.c */
- 
+
 /* -------------------------------------------------------------- */
 /*  ADDRESS()                                                     */
 /* -------------------------------------------------------------- */
@@ -89,7 +89,7 @@ extern Lstr     stemvaluenotfound;      /* from variable.c */
 /* -------------------------------------------------------------- */
 /*  QUEUED()                                                      */
 /* -------------------------------------------------------------- */
- 
+
 /* -- WIN32_WCE ------------------------------------------------- */
 /*  LASTERROR()                                                   */
 /* -------------------------------------------------------------- */
@@ -97,10 +97,10 @@ void __CDECL
 R_O( const int func )
 {
  long items;
- 
+
  if (ARGN)
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  switch (func) {
   case f_address:
    if (_proc[_rx_proc].env == NULL)
@@ -108,7 +108,7 @@ R_O( const int func )
    else
     Lstrcpy(ARGR,_proc[_rx_proc].env);
    break;
- 
+
 #ifndef __CMS__
   case f_desbuf:
    items = 0;
@@ -124,40 +124,40 @@ R_O( const int func )
    Licpy(ARGR,items);
    break;
 #endif
- 
+
   case f_digits:
    Licpy(ARGR,_proc[_rx_proc].digits);
    break;
- 
+
   case f_form:
    if (_proc[_rx_proc].form==SCIENTIFIC)
     Lscpy(ARGR,"SCIENTIFIC");
    else
     Lscpy(ARGR,"ENGINEERING");
    break;
- 
+
   case f_fuzz:
    Licpy(ARGR,_proc[_rx_proc].fuzz);
    break;
- 
+
 #ifndef __CMS__
   case f_makebuf:
    CreateStack();
    Licpy(ARGR,rxStackList.items);
    break;
 #endif
- 
+
 #ifdef WIN
   case f_lasterror:
    Licpy(ARGR,GetLastError());
    break;
 #endif
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  }
 } /* R_O */
- 
+
 /* -------------------------------------------------------------- */
 /*  DATE((option))                                                */
 /* -------------------------------------------------------------- */
@@ -175,23 +175,23 @@ R_C( const int func )
  long items;
  char option='N';
  DQueueElem *qe;
- 
+
  if (ARGN>1)
   Lerror(ERR_INCORRECT_CALL,0);
  if (exist(1)) {
   L2STR(ARG1);
   option = l2u[(byte)LSTR(*ARG1)[0]];
  }
- 
+
  switch (func) {
   case f_date:
    Ldate(ARGR,option);
    break;
- 
+
   case f_time:
    Ltime(ARGR,option);
    break;
- 
+
   case f_trace:
    i = 0;
    if (_proc[_rx_proc].interactive_trace)
@@ -211,7 +211,7 @@ R_C( const int func )
    LLEN(*ARGR)  = i;
    if (exist(1)) TraceSet(ARG1);
    break;
- 
+
   case f_queued:
 #if defined(__CMS__) || defined(__MVS)  /* dw start */
      Licpy(ARGR,StackQueued());
@@ -230,7 +230,7 @@ R_C( const int func )
     else
      Lerror(ERR_INCORRECT_CALL,0);
    }
- 
+
    /* count all buffers */
    items = 0;
    for (qe=rxStackList.head; qe; qe=qe->next)
@@ -238,12 +238,12 @@ R_C( const int func )
    Licpy(ARGR,items);
    break;
 #endif
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0 );
  }  /* switch */
 }  /* R_C */
- 
+
 /* -------------------------------------------------------------- */
 /*  VARDUMP((symbol)(,'Depth'|'Hex'|'X'))                         */
 /*      returns the binary tree in the format                     */
@@ -260,14 +260,14 @@ R_oSoS( )
  PBinLeaf leaf;
  Variable *var;
  Lstr  str;
- 
+
  if (ARGN>2)
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  option = RVT_NOTHING;
  if (ARGN==2) {
   L2STR(ARG2);
- 
+
   switch (LSTR(*ARG2)[0]) {
    case 'D':
    case 'd':
@@ -279,7 +279,7 @@ R_oSoS( )
     break;
   }
  }
- 
+
  LZEROSTR(*ARGR);
  if (ARG1==NULL)
   RxReadVarTree(ARGR,_proc[_rx_proc].scope,NULL,option);
@@ -298,7 +298,7 @@ R_oSoS( )
   LFREESTR(str);
  }
 } /* R_oSoS */
- 
+
 /* -------------------------------------------------------------- */
 /*  ADDR(symbol[,[option][,[pool]]])                              */
 /*  Returns the normalised address of the variable 'symbol'       */
@@ -319,7 +319,7 @@ void __CDECL
 R_SoSoS( int func )
 {
  char response;
- 
+
  if (!IN_RANGE(1,ARGN,3)) Lerror(ERR_INCORRECT_CALL,0);
  get_s(1);
  if (func == f_addr) {  /* ADDR(...) */
@@ -329,24 +329,24 @@ R_SoSoS( int func )
   Lstr str;
   void *ptr=NULL;
   long addr;
- 
+
   /* translate to uppercase */
   LINITSTR(str); Lfx(&str,LLEN(*ARG1));
   Lstrcpy(&str,ARG1);
   Lupper(&str); LASCIIZ(str);
- 
+
   if (exist(2)) {
    L2STR(ARG2);
    opt =  l2u[(byte)LSTR(*ARG2)[0]];
   }
- 
+
   if (exist(3)) {
    poolnum = (int)Lrdint(ARG3);
    if (poolnum<0 || poolnum > _rx_proc)
     Lerror(ERR_INCORRECT_CALL,37,ARG3);
   } else
    poolnum = _rx_proc;
- 
+
   leaf = RxVarFindName(_proc[poolnum].scope,&str,&found);
   LFREESTR(str);
   if (!found) {
@@ -384,7 +384,7 @@ R_SoSoS( int func )
    else
    if (response == 'P')
     Lerror(ERR_INCORRECT_CALL,37,ARG3);
- 
+
    if (!exist(2)) return;
    /* Set the new value */
    response = RxPoolSet(ARG3,ARG1,ARG2);
@@ -395,7 +395,7 @@ R_SoSoS( int func )
     Lerror(ERR_INCORRECT_CALL,36,ARG1);
   } else {
    Lstr str;
- 
+
    LINITSTR(str); Lfx(&str,sizeof(dword));
    Licpy(&str,_rx_proc);
    response = RxPoolGet(&str,ARG1,ARGR);
@@ -405,7 +405,7 @@ R_SoSoS( int func )
   }
  }
 } /* SoSoS */
- 
+
 /* -------------------------------------------------------------- */
 /*  ARG([n[,option]])                                             */
 /* -------------------------------------------------------------- */
@@ -413,14 +413,14 @@ void __CDECL
 R_arg( )
 {
  int a;
- 
+
  RxProc *pr = &(_proc[_rx_proc]);
- 
+
  switch (ARGN) {
   case  0:
    Licpy(ARGR,pr->arg.n);
    break;
- 
+
   case  1:
    a = (int)Lrdint(ARG1);
    if (!IN_RANGE(1,a,MAXARGS))
@@ -431,13 +431,13 @@ R_arg( )
    else
     LZEROSTR(*ARGR);
    break;
- 
+
   case  2:
    a = (int)Lrdint(ARG1);
    if (!IN_RANGE(1,a,MAXARGS))
     Lerror(ERR_INCORRECT_CALL,0);
    L2STR(ARG2);
- 
+
    if (l2u[(byte)LSTR(*ARG2)[0]] == 'E')
     Licpy(ARGR,
      pr->arg.a[a-1] != NULL);
@@ -448,12 +448,12 @@ R_arg( )
    else
     Lerror(ERR_INCORRECT_CALL,0);
    break;
- 
+
   default:
    Lerror(ERR_INCORRECT_CALL,0);
  }
 } /* R_arg */
- 
+
 /* -------------------------------------------------------------- */
 /* DATATYPE(string(,type))                                        */
 /* -------------------------------------------------------------- */
@@ -461,7 +461,7 @@ void __CDECL
 R_datatype( )
 {
  char type=' ';
- 
+
  if (!IN_RANGE(1,ARGN,2))
   Lerror(ERR_INCORRECT_CALL,0);
  must_exist(1);
@@ -477,7 +477,7 @@ R_datatype( )
   );
   return;
  }
- 
+
  if (type=='T') {   /* mine special type */
   switch (LTYPE(*ARG1)) {
    case LINTEGER_TY:Lscpy(ARGR,"INTEGER"); break;
@@ -490,7 +490,7 @@ R_datatype( )
  }
  Licpy(ARGR,Ldatatype(ARG1,type));
 } /* R_datatype */
- 
+
 #ifndef __CMS__
 /* -------------------------------------------------------------- */
 /*  DROPBUF((num))                                                */
@@ -500,11 +500,11 @@ R_dropbuf( )
 {
  long n=1;
  long items=0;
- 
+
  if (ARGN>1)
   Lerror(ERR_INCORRECT_CALL,0);
  get_oiv(1,n,1)
- 
+
  if (n==0)
   Licpy(ARGR,StackQueued());
  else {
@@ -521,7 +521,7 @@ R_dropbuf( )
  }
 } /* R_dropbuf */
 #endif
- 
+
 /* -------------------------------------------------------------- */
 /*  ERRORTEXT(n)                                                  */
 /* -------------------------------------------------------------- */
@@ -532,7 +532,7 @@ R_errortext( )
  must_exist(1);
  Lerrortext(ARGR,(int)Lrdint(ARG1),0,NULL);
 } /* R_errortext */
- 
+
 /* -------------------------------------------------------------- */
 /*  INTR( num, reg-string )                                       */
 /*      executes a 80x86 soft-interrupt.                          */
@@ -556,18 +556,18 @@ R_intr( )
   unsigned regarray[10];
  } reg;
  char *s;
- 
+
  if (ARGN != 2)
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  must_exist(1);
  intno = (int)Lrdint(ARG1);
  if (!IN_RANGE(0,intno,0xFF))
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  must_exist(2);
  L2STR(ARG2);
- 
+
  LINITSTR(str);
  Lspace(&str,ARG2,1,' ');
  Lupper(&str);
@@ -580,7 +580,7 @@ R_intr( )
    sscanf(s,"%X",&reg.regarray[i]);
   }
  }
- 
+
  intr(intno,&reg.regpack);
  Lfx(ARGR,100);
   LTYPE(*ARGR) = LSTRING_TY;
@@ -594,11 +594,11 @@ R_intr( )
   if (reg.regpack.r_flags & 0x1)
    *s++ = flags_str[i];
  *s = '\0';
- 
+
  LLEN(*ARGR) = STRLEN(LSTR(*ARGR))-1;
  LFREESTR(str);
 } /* R_int */
- 
+
 /* -------------------------------------------------------------- */
 /*  PORT(port(,value))                                            */
 /*      if value is not specified then reads one byte from port   */
@@ -610,7 +610,7 @@ R_port( )
 {
  long port;
  int  value;
- 
+
  if (!IN_RANGE(1,ARGN,2))
   Lerror(ERR_INCORRECT_CALL,0);
  get_i(1,port);
@@ -623,7 +623,7 @@ R_port( )
  }
 } /* R_port */
 #endif
- 
+
 /* -------------------------------------------------------------- */
 /*   MAX(number[,number]..])                                      */
 /* -------------------------------------------------------------- */
@@ -632,14 +632,14 @@ R_max( )
 {
  int i;
  double r;
- 
+
  if (!ARGN)
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  i = 0;
  while ((i<ARGN) && (rxArg.a[i]==NULL)) i++;
  if (i==MAXARGS) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  L2REAL((rxArg.a[i]));
  r = LREAL(*(rxArg.a[i]));
  for (i++; i<ARGN; i++)
@@ -649,7 +649,7 @@ R_max( )
   }
  Lrcpy(ARGR,r);
 } /* R_max */
- 
+
 /* -------------------------------------------------------------- */
 /*   MIN(number[,number]..])                                      */
 /* -------------------------------------------------------------- */
@@ -658,14 +658,14 @@ R_min( )
 {
  int i;
  double r;
- 
+
  if (!ARGN)
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  i = 0;
  while ((i<ARGN) && (rxArg.a[i]==NULL)) i++;
  if (i==MAXARGS) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  L2REAL((rxArg.a[i]));
  r = LREAL(*(rxArg.a[i]));
  for (i++; i<ARGN; i++)
@@ -675,7 +675,7 @@ R_min( )
   }
  Lrcpy(ARGR,r);
 } /* R_min */
- 
+
 /* -------------------------------------------------------------- */
 /* RANDOM((min)(,(max)(,seed)))                                   */
 /* -------------------------------------------------------------- */
@@ -685,23 +685,23 @@ R_random( )
  long min, max;
  static long seed;
  static int  sewed=0 ;
- 
+
  if (!IN_RANGE(0,ARGN,3)) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  if (exist(1)) {
   min = Lrdint(ARG1);
   if (min<0) Lerror(ERR_INCORRECT_CALL,0);
  } else
   min = 0;
- 
+
  if (exist(2)) {
   max = Lrdint(ARG2);
   if (max<0) Lerror(ERR_INCORRECT_CALL,0);
  } else
   max = 999;
- 
+
  if (min>max) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  if (exist(3)) {
   seed = Lrdint(ARG3);
   if (seed<0) Lerror(ERR_INCORRECT_CALL,0);
@@ -717,10 +717,10 @@ R_random( )
 #endif
   srand((unsigned)seed);
  }
- 
+
  Licpy(ARGR, (long)rand() % (max-min+1) + min);
 } /* R_random */
- 
+
 /* -------------------------------------------------------------- */
 /*  STORAGE((address(,(length)(,data))))                          */
 /*      returns the current virtual machine size expressed as a   */
@@ -741,7 +741,7 @@ R_storage( )
  unsigned seg,ofs;
 #endif
  size_t length = 1;
- 
+
  if (ARGN>3)
   Lerror(ERR_INCORRECT_CALL,0);
  if (ARGN==0) {
@@ -775,25 +775,25 @@ R_storage( )
 #endif
  } else
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  if (exist(2)) {
   adr = Lrdint(ARG2);
   if (adr <= 0)
    Lerror(ERR_INCORRECT_CALL,0);
   length = (size_t)adr;
  }
- 
+
  Lfx(ARGR,length);
   LTYPE(*ARGR) = LSTRING_TY;
   LLEN(*ARGR) = length;
   MEMCPY(LSTR(*ARGR),ptr,length);
- 
+
  if (exist(3)) {
   L2STR(ARG3); /*// !!!! Always is converted to string !!!! */
   MEMCPY(ptr, LSTR(*ARG3), LLEN(*ARG3));
  }
 } /* R_storage */
- 
+
 /* -------------------------------------------------------------- */
 /*  SOURCELINE([n])                                               */
 /*      return the number of lines in the program, or the nth     */
@@ -806,10 +806,10 @@ R_sourceline( )
  int i;
  char *c,*co;
  RxFile *rxf;
- 
+
  if (ARGN>1)
   Lerror(ERR_INCORRECT_CALL,0);
- 
+
  get_oi(1,l);
  if (l==0) { /* count the lines of the program */
   i = 0;
@@ -877,7 +877,7 @@ linefound:
   MEMCPY(LSTR(*ARGR),c,(size_t)l);
  }
 } /* R_sourceline */
- 
+
 #ifdef __CMS__
 void __CDECL
 VM_O(int func)
@@ -899,4 +899,3 @@ VM_O(int func)
  }
 } /* VM_O */
 #endif
- 

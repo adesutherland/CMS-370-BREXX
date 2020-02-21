@@ -14,17 +14,17 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ----------------- Lwordindex ---------------- */
 long __CDECL
 Lwordindex( const PLstr str, long n )
 {
  long p;
- 
+
  L2STR(str);
- 
+
  if ((LLEN(*str)==0) || (n<=0))  return 0;
  for (p=0;;) {
   LSKIPBLANKS(*str,p);

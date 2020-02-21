@@ -14,19 +14,19 @@
  * Initial revision
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------ Ld2x ------------------ */
 void __CDECL
 Ld2x( const PLstr to, const PLstr from, long length)
 {
  Lstr tmp,tmp2;
  long n;
- 
+
  LINITSTR(tmp);
  LINITSTR(tmp2);
- 
+
  if (length<0) {
   Ld2c(&tmp,from,-1);
   Lc2x(&tmp2,&tmp);
@@ -37,10 +37,10 @@ Ld2x( const PLstr to, const PLstr from, long length)
   Lc2x(&tmp2,&tmp);
  }
  Lright(to,&tmp2,length,' ');
- 
+
 /********
  if (length<0) length = 0;
- 
+
  n = length/2 + (length&1);
  Ld2c(&tmp,from,n);
  if (length) {
@@ -49,7 +49,7 @@ Ld2x( const PLstr to, const PLstr from, long length)
  } else
   Lc2x(to,&tmp);
 ******/
- 
+
  LFREESTR(tmp);
  LFREESTR(tmp2);
 } /* Ld2x */

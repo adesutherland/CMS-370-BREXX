@@ -14,15 +14,15 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* --------------- Llower ----------------- */
 void __CDECL
 Llower( const PLstr s )
 {
  size_t i;
- 
+
  L2STR(s);
  for (i=0; i<LLEN(*s); i++)
   LSTR(*s)[i] = u2l[ (byte) LSTR(*s)[i] ];

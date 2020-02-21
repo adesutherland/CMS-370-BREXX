@@ -17,9 +17,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* -----------------  expose ---------------- */
 void __CDECL
 Lexpose( const PLstr to, const PLstr A, const PLstr B )
@@ -28,10 +28,10 @@ Lexpose( const PLstr to, const PLstr A, const PLstr B )
  long   bi;
  bool   minusA;
  bool   minusB;
- 
+
  ar = Lrdreal(A);
  bi = Lrdint(B);
- 
+
  if (ar < 0 ) {
   if (ODD(bi))
    minusA = TRUE;
@@ -40,26 +40,26 @@ Lexpose( const PLstr to, const PLstr A, const PLstr B )
   ar = - ar;
  } else
   minusA = FALSE;
- 
+
  if (bi < 0 ) {
   minusB = TRUE;
   bi = - bi;
  } else
   minusB = FALSE;
  r = 1;
- 
+
  while (bi != 0) {
   if (ODD(bi)) r *= ar;
   ar *= ar;
   bi /= 2;
  }
  if (minusA) r = -r;
- 
+
  if (minusB)
   LREAL(*to) = 1/r;
  else
   LREAL(*to) = r;
- 
+
  LTYPE(*to) = LREAL_TY;
  LLEN(*to)  = sizeof(double);
 } /* Lexpose */

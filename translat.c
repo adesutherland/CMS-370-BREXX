@@ -17,9 +17,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ---------------- Ltranslate ------------------- */
 void __CDECL
 Ltranslate( const PLstr to, const PLstr from,
@@ -27,15 +27,15 @@ Ltranslate( const PLstr to, const PLstr from,
 {
  char     table[256];
  int      i;
- 
+
  Lstrcpy(to,from); L2STR(to);
- 
+
  for (i=0; i<256; i++)
   table[i] = i;
- 
+
  if (tableout) L2STR(tableout);
  if (tablein) L2STR(tablein);
- 
+
  if (tablein) {
   for (i=LLEN(*tablein)-1; i>=0; i--)
    if (tableout) {
@@ -54,7 +54,7 @@ Ltranslate( const PLstr to, const PLstr from,
      table[i] = LSTR(*tableout)[i];
    }
  }
- 
+
  for (i=0; i<LLEN(*to); i++)
   LSTR(*to)[i] = table[ (byte) LSTR(*to)[i] ];
 } /* Ltranslate */

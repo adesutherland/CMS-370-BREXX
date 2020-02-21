@@ -17,9 +17,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ----------------- Ljustify ------------------ */
 void __CDECL
 Ljustify( const PLstr to, const PLstr from, long length, char pad )
@@ -29,21 +29,21 @@ Ljustify( const PLstr to, const PLstr from, long length, char pad )
  double r,rstep;
  char padstr[2];
  Lstr tmp,sub,space;
- 
+
  L2STR(from);
  LZEROSTR(*to);
  if (length<=0) return;
- 
+
  LINITSTR(tmp);
  LINITSTR(sub);
  LINITSTR(space);
- 
+
  Lspace(&tmp,from,1,' ');
  if (LLEN(tmp)==0) {  /* Null string */
   Lstrset(to,length,pad);
   goto fin;
  }
- 
+
  if (LLEN(tmp) > length) {
   LLEN(tmp) = length;
   Lstrcpy(to,&tmp);
@@ -61,24 +61,24 @@ Ljustify( const PLstr to, const PLstr from, long length, char pad )
   }
 ******/
  }
- 
+
  for (p=spaces=0; p<LLEN(tmp); p++) /* count spaces */
   if (LSTR(tmp)[p] == ' ') spaces++;
- 
+
  if (!spaces) {  /* Ooops seulement un mot */
   Lleft(to,&tmp,length,pad);
   goto fin;
  }
  padstr[0] = pad;
  padstr[1] = 0;
- 
+
  ins = length - (LLEN(tmp) - spaces);
  extra = ins%spaces;
  rstep = (double)(spaces+1)/(double)(extra+1);
  ins /= spaces;
- 
+
  Lstrset(&space,ins,pad);
- 
+
  for (r=rstep,p=0,i=1;;i++) {
   lp = p;
   LSKIPWORD(tmp,p);

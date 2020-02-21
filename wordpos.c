@@ -17,10 +17,10 @@
  * Initial Version
  *
  */
- 
+
 #include <ctype.h>
 #include "lstring.h"
- 
+
 /* ----------------- Lwordpos ----------------- */
 long __CDECL
 Lwordpos( const PLstr phrase, const PLstr s, long n )
@@ -28,7 +28,7 @@ Lwordpos( const PLstr phrase, const PLstr s, long n )
  long idx;
  long lp,p;
  long lk,k;
- 
+
  L2STR(phrase);
  if (n>0) {
   idx = Lwordindex(s,n)-1;
@@ -40,11 +40,11 @@ Lwordpos( const PLstr phrase, const PLstr s, long n )
   L2STR(s);
  }
  lp = idx;
- 
+
  lk=0; LSKIPBLANKS(*phrase,lk);
  if(lk>=LLEN(*phrase)) return LNOTFOUND;
  k = lk;  p = lp;
- 
+
  while (1) {
   if (p >= LLEN(*s)) {
    LSKIPBLANKS(*phrase,k);

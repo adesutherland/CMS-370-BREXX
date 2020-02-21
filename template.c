@@ -23,39 +23,39 @@
  * Initial revision
  *
  */
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "trace.h"
 #include "compile.h"
- 
+
 /* ----------- vrefp --------- */
 /* variable reference position */
 static void
 vrefp( void )
 {
  nextsymbol(); /* skip left parenthesis */
- 
+
  if (symbol != ident_sy)
  Lerror( ERR_STRING_EXPECTED,7,&symbolstr);
- 
+
  _CodeAddByte( OP_LOAD );
   _CodeAddPtr( SYMBOLADD2LITS );
   TraceByte( nothing_middle );
  nextsymbol();
- 
+
  _mustbe(ri_parent,ERR_INV_VAR_REFERENCE,1);
 } /* vrefp */
- 
+
 /* -------- position ------- */
 /* variable reference position */
 static void
 position(void)
 {
  int type;
- 
+
  if (symbol==le_parent)
   vrefp();
  else
@@ -74,7 +74,7 @@ position(void)
   Lerror(ERR_INVALID_TEMPLATE,2,&symbolstr);
  _CodeAddByte(OP_TOINT);
 } /* position */
- 
+
 /* -------------------------------------------------------------- */
 /*  template_list := template | [template] ',' [template_list]    */
 /*  template   := (trigger | target | Msg38.1)+                   */
@@ -95,7 +95,7 @@ C_template(void)
  bool sign;
  int type;
  CTYPE pos;
- 
+
  _CodeAddByte(OP_PARSE);
  while ((symbol!=semicolon_sy) && (symbol!=comma_sy)) {
   trigger = FALSE;
@@ -115,7 +115,7 @@ C_template(void)
      nextsymbol();
     }
     break;
- 
+
    case minus_sy:
    case plus_sy:
     trigger = TRUE;
@@ -130,10 +130,10 @@ C_template(void)
     }
     _CodeAddByte(OP_TR_REL);
     break;
- 
+
    case literal_sy:
     trigger = TRUE;
- 
+
     if (symbolisstr) {
      _CodeAddByte(OP_PUSH);
       _CodeAddPtr(SYMBOLADD2LITS_KEY);
@@ -147,7 +147,7 @@ C_template(void)
      else
      if (type==LSTRING_TY)
       Lerror(ERR_INVALID_TEMPLATE,1,&symbolstr);
- 
+
      _CodeAddByte(OP_PUSH);
       _CodeAddPtr(SYMBOLADD2LITS_KEY);
       TraceByte( nothing_middle );
@@ -156,13 +156,13 @@ C_template(void)
      nextsymbol();
     }
     break;
- 
+
    case le_parent:
     trigger = TRUE;
     vrefp();
     _CodeAddByte(OP_TR_LIT);
     break;
- 
+
    case eq_sy:
     trigger = TRUE;
     nextsymbol();
@@ -170,7 +170,7 @@ C_template(void)
     _CodeAddByte(OP_TOINT);
     _CodeAddByte(OP_TR_ABS);
     break;
- 
+
    default:
     Lerror(ERR_INVALID_TEMPLATE,0);
   } /* end of switch */
@@ -189,7 +189,7 @@ C_template(void)
    }
   }
  } /* end of while */
- 
+
  if (target_ptr) { /* assign the remaining part */
   _CodeAddByte(OP_TR_END);
   _CodeAddByte(OP_CREATE);
@@ -202,7 +202,7 @@ C_template(void)
   _CodeAddByte(OP_PDOT);
    TraceByte( dot_middle );
  }
- 
+
  _CodeAddByte(OP_POP);
   _CodeAddByte(1);
 } /* C_template */

@@ -27,22 +27,22 @@
  * Initial revision
  *
  */
- 
+
 #define __TRACE_C__
- 
+
 #include <stdlib.h>
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "trace.h"
 #include "compile.h"
 #include "interpre.h"
 #include "variable.h"
 #include "nextsymb.h"
- 
+
 /* ---------- function prototypes ------------- */
 void    __CDECL RxInitInterStr();
- 
+
 /* ---------- Extern variables ---------------- */
 extern Clause *CompileClause;  /* compile clauses */
 extern int CompileCurClause; /* current clause */
@@ -52,9 +52,9 @@ extern int _trace;   /* from interpret.c */
 extern PLstr RxStck[];  /*     -//-  */
 extern int RxStckTop;  /*     -//-  */
 extern Lstr    _tmpstr[];  /*     -//-  */
- 
+
 static char TraceChar[] = {' ','>','L','V','C','O','F','.'};
- 
+
 /* ----------------- TraceCurline ----------------- */
 int __CDECL
 TraceCurline( RxFile **rxf, int print )
@@ -62,13 +62,13 @@ TraceCurline( RxFile **rxf, int print )
  size_t line;
  size_t cl, codepos;
  char *ch, *chend;
- 
+
  if (symbolptr==NULL) { /* we are in intepret */
   if (CompileClause==NULL) {
    if (rxf) *rxf = rxFileList;
    return -1;
   }
- 
+
   codepos = (size_t)((byte huge *)Rxcip - (byte huge *)Rxcodestart);
   /* search for clause */
   cl = 0;
@@ -91,7 +91,7 @@ TraceCurline( RxFile **rxf, int print )
    cl = 0;
   else
    cl = CompileCurClause-1;
- 
+
   _nesting   = CompileClause[ cl ].nesting;
   if (rxf) {
    if (CompileCurClause==0)
@@ -116,14 +116,14 @@ TraceCurline( RxFile **rxf, int print )
   }
   for (chend=ch; *chend!=';' && *chend!='\n'; chend++) /*do nothing*/;;
  }
- 
+
 #ifndef WIN
  if (print) {
   int i;
- 
+
   fprintf(STDERR,"%6d *-* ",line);
   for (i=1; i<_nesting; i++) fputc(' ',STDERR);
- 
+
   while (*ch && ch<chend) {
    if (*ch!='\n')
     fputc(*ch,STDERR);
@@ -134,11 +134,11 @@ TraceCurline( RxFile **rxf, int print )
 #else
  if (print) {
   int i;
- 
+
   PUTINT(line,6,10);
   PUTS(" *-* ");
   for (i=1; i<_nesting; i++) PUTCHAR(' ');
- 
+
   while (*ch && ch<chend) {
    if (*ch!='\n')
     PUTCHAR(*ch);
@@ -149,13 +149,13 @@ TraceCurline( RxFile **rxf, int print )
 #endif
  return line;
 } /* TraceCurline */
- 
+
 /* ---------------- TraceSet -------------------- */
 void __CDECL
 TraceSet( PLstr trstr )
 {
  char *ch;
- 
+
  L2STR(trstr);
  Lupper(trstr);
  LASCIIZ(*trstr);
@@ -176,7 +176,7 @@ TraceSet( PLstr trstr )
 #endif
   ch++;
  }
- 
+
  switch (*ch) {
   case 'A':
    _proc[_rx_proc].trace = all_trace;
@@ -224,19 +224,19 @@ TraceSet( PLstr trstr )
    Lerror(ERR_INVALID_TRACE,1,trstr);
  }
 } /* TraceSet */
- 
+
 /* --------------------- TraceByte -------------------- */
 void __CDECL
 TraceByte( int middlechar )
 {
  byte tracebyte=0;
- 
+
  tracebyte |= (middlechar & TB_MIDDLECHAR);
  tracebyte |= TB_TRACE;
- 
+
  _CodeAddByte( tracebyte );
 } /* TraceByte */
- 
+
 /* ------------------ TraceClause ----------------- */
 void __CDECL
 TraceClause( void )
@@ -251,7 +251,7 @@ TraceClause( void )
  mem_chk();
 #endif
 } /* TraceClause */
- 
+
 /* ------------------ TraceInstruction ----------------- */
 void __CDECL
 TraceInstruction( CIPTYPE inst )
@@ -276,7 +276,7 @@ TraceInstruction( CIPTYPE inst )
 #endif
   }
 } /* TraceInstruction */
- 
+
 /* ---------------- TraceInteractive ------------------- */
 int __CDECL
 TraceInteractive( int frominterpret )
@@ -284,15 +284,15 @@ TraceInteractive( int frominterpret )
  /* Read the interactive string into a tmp var */
  RxStckTop++;
  RxStck[RxStckTop] = &(_tmpstr[RxStckTop]);
- 
+
  Lread(STDIN,RxStck[RxStckTop],LREADLINE);
  if (!LLEN(*RxStck[RxStckTop])) {
   RxStckTop--;
   return FALSE;
  }
- 
+
  _trace = FALSE;
- 
+
  RxInitInterStr();
  _proc[_rx_proc].calltype = CT_INTERACTIVE;
  if (frominterpret) {

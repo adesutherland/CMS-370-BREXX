@@ -17,10 +17,10 @@
  * Initial Version
  *
  */
- 
+
 #include <string.h>
 #include "lstring.h"
- 
+
 /* --------------------- Lverify  ----------------------- *
  *  str      -  string that we check every char           *
  *  if it exists on 'ref'                     *
@@ -37,17 +37,17 @@ long __CDECL
 Lverify( const PLstr str, const PLstr ref, const bool match, long start )
 {
  bool found;
- 
+
  L2STR(str);
  L2STR(ref);
- 
+
  start--;
  if (start<0) start = 0;
  if (start >= LLEN(*str)) return LNOTFOUND;
- 
+
  for (; start<LLEN(*str); start++) {
   found = (MEMCHR(LSTR(*ref), LSTR(*str)[start], LLEN(*ref))==NULL);
-  if (found ¬ match) return start+1;
+  if (found ? match) return start+1;
  }
  return LNOTFOUND;
 } /* Lverify */

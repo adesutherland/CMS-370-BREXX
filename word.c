@@ -14,15 +14,15 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------ Lword ------------------- */
 void __CDECL
 Lword( const PLstr to, const PLstr from, long n )
 {
  long i;
- 
+
  i = Lwordindex(from,n);
  if (n<=0) n = 1;
  if (i==0) {

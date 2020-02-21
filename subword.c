@@ -20,26 +20,26 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ----------------- Lsubword ------------------ */
 void __CDECL
 Lsubword( const PLstr to, const PLstr from, long n, long length )
 {
  long i;
  Lstr tmp;
- 
+
  if (n<=0) n = 1;
  i = Lwordindex(from,n);
- 
+
  if (i==0) {
   LZEROSTR(*to);
   return;
  }
- 
+
  LINITSTR(tmp);
- 
+
  if (length<=0) {
   if (length<0) _Lsubstr(&tmp,from,(size_t)i,0);
   goto fin;

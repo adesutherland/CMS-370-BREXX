@@ -17,10 +17,10 @@
  * Initial revision
  *
  */
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 /* ------------------- Lb2x ------------------- */
 void __CDECL
 Lb2x( const PLstr to, const PLstr from )
@@ -28,16 +28,16 @@ Lb2x( const PLstr to, const PLstr from )
  long i;
  int j,k;
  char *c;
- 
+
  Lstrcpy(to,from);
  Lreverse(to);
  c = LSTR(*to);
- 
+
  for (i=j=k=0; i<LLEN(*to); i++) {
   if (ISSPACE(LSTR(*to)[i])) continue;
   if (LSTR(*to)[i]<'0' || LSTR(*to)[i]>'1')
    Lerror(ERR_INVALID_HEX_CONST,0);
- 
+
   j |= ((LSTR(*to)[i]=='1')&1) << k;
   if (++k==4) {
    *c++ = chex[j];

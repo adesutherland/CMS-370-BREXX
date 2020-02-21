@@ -23,14 +23,14 @@
  * Initial revision
  *
  */
- 
+
 #if !defined(WIN) && !defined(__CMS__) && !defined(__MVS__)
 # include <sys/stat.h>
 # include <unistd.h>
 #endif
- 
+
 #include "lstring.h"
- 
+
 /* ---------------- Lchars ------------------- */
 long __CDECL
 Lchars( FILEP f )
@@ -39,14 +39,14 @@ Lchars( FILEP f )
  return GetFileSize(f->handle,NULL) - FTELL(f);
 #else
  long l,chs;
- 
+
 #if !defined(WIN) && !defined(__CMS__) && !defined(__MVS__)
  struct stat buf;
  fstat(fileno(f),&buf);
  if (S_ISCHR(buf.st_mode) || S_ISFIFO(buf.st_mode))
   return !FEOF(f);
 #endif
- 
+
  l = FTELL(f);  /* read current position */
  FSEEK(f,0L,SEEK_END); /* seek at the end */
  chs = FTELL(f) - l ;

@@ -14,9 +14,9 @@
  * Initial revision
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------- Lcompare --------------------- *
  * compares the two strings and returns the position  *
  * of the non matching character [1,largest length]   *
@@ -27,10 +27,10 @@ Lcompare( const PLstr A, const PLstr B, const char pad )
 {
  long i;
  PLstr a,b;
- 
+
  L2STR(A);
  L2STR(B);
- 
+
  if (LLEN(*A) < LLEN(*B)) {
   a = A;
   b = B;
@@ -42,6 +42,6 @@ Lcompare( const PLstr A, const PLstr B, const char pad )
   if (LSTR(*a)[i] != LSTR(*b)[i]) return i+1;
  for (; i<LLEN(*b); i++)
   if (pad != LSTR(*b)[i]) return i+1;
- 
+
  return 0;
 } /* Lcompare */

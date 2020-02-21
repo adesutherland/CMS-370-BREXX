@@ -45,20 +45,20 @@
  * Initial revision
  *
  */
- 
+
 #include <string.h>
 #include <stdlib.h>
 #ifdef __CMS__
 #include <cmssys.h>
 #endif
- 
+
 #include "lstring.h"
 #include "rexx.h"
 #include "trace.h"
 #include "stack.h"
 #include "compile.h"
 #include "interpre.h"
- 
+
 #ifndef WIN
 #if defined(MSDOS) || defined(__WIN32__)
 # include <io.h>
@@ -78,45 +78,45 @@
 #  include <unistd.h>
 # endif
 #endif
- 
+
 #if !defined(__CMS__) && !defined(__MVS__)
 # include <sys/stat.h>
 #endif
 #include <string.h>
- 
+
 #ifndef S_IREAD
 # define S_IREAD 0
 # define S_IWRITE 1
 #endif
- 
+
 #define NOSTACK  0
 #define FIFO  1
 #define LIFO  2
 #define STACK  3
- 
+
 #define LOW_STDIN 0
 #define LOW_STDOUT 1
- 
+
 #ifndef __CMS__
 /* ---------------------- chkcmd4stack ---------------------- */
 static void
 chkcmd4stack(PLstr cmd, int *in, int *out )
 {
  Lstr Ucmd;
- 
+
  *in = *out = 0;
  if (LLEN(*cmd)<7) return;
- 
+
  LINITSTR(Ucmd);
- 
+
  /* Search for string "STACK>" in front of command
  or for strings    "(STACK", "(FIFO", "(LIFO"
                    ">STACK", ">FIFO", ">LIFO" at the end */
- 
+
  if (LLEN(*cmd)<=5) return;
- 
+
  Lstrcpy(&Ucmd,cmd); Lupper(&Ucmd);
- 
+
  if (!MEMCMP(LSTR(Ucmd),"STACK>",6)) *in=FIFO;
  if (!MEMCMP(LSTR(Ucmd)+LLEN(Ucmd)-5,"STACK",5)) *out = STACK;
  if (!MEMCMP(LSTR(Ucmd)+LLEN(Ucmd)-4,"FIFO",4)) *out = FIFO;
@@ -125,19 +125,19 @@ chkcmd4stack(PLstr cmd, int *in, int *out )
   if (LSTR(Ucmd)[LLEN(Ucmd)-((*out==STACK)?6:5)]!='(' &&
       LSTR(Ucmd)[LLEN(Ucmd)-((*out==STACK)?6:5)]!='>')   *out = 0;
  LFREESTR(Ucmd);
- 
+
  if (*in) {
   MEMMOVE(LSTR(*cmd),LSTR(*cmd)+6,LLEN(*cmd)-6);
   LLEN(*cmd) -= 6;
  }
  if (*out)
   LLEN(*cmd) -= (*out==STACK)?6:5;
- 
+
  if (*out==STACK)
   *out = FIFO;
 } /* chkcmd4stack */
 #endif
- 
+
 #if !defined(__CMS__) && !defined(__MVS__)
 /* -------------------- mkfntemp -------------------- */
 static void
@@ -145,8 +145,8 @@ mkfntemp(char *fn, size_t length)
 {
  int l;
  char *c;
- 
- 
+
+
  fn[0] = '\0'; c = getenv("TEMP");
  if (c) STRCPY(fn,c);
  l = STRLEN(fn);
@@ -158,7 +158,7 @@ mkfntemp(char *fn, size_t length)
  STRCAT(fn,"OXXXXXX");
  MKTEMP(fn);
 } /* mkfntemp */
- 
+
 /* ------------------ RxRedirectCmd ----------------- */
 int __CDECL
 RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
@@ -168,7 +168,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
  int filein, fileout;
  FILE *f;
  PLstr str;
- 
+
  /* --- redirect input --- */
  if (in) {
   mkfntemp(fnin,sizeof(fnin));
@@ -180,7 +180,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
     LPFREE(str);
    }
    fclose(f);
- 
+
    old_stdin = dup(LOW_STDIN);
    filein = open(fnin,S_IREAD);
    dup2(filein,LOW_STDIN);
@@ -188,7 +188,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
   } else
    in = FALSE;
  }
- 
+
  /* --- redirect output --- */
  if (out) {
   mkfntemp(fnout,sizeof(fnout));
@@ -197,7 +197,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
   dup2(fileout,LOW_STDOUT);
   close(fileout);
  }
- 
+
  /* --- Execute the command --- */
  LASCIIZ(*cmd);
 #if defined(__BORLANDC__) && !defined(__WIN32__)
@@ -205,7 +205,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
 #else
  rxReturnCode = system(LSTR(*cmd));
 #endif
- 
+
  /* --- restore input --- */
  if (in) {
   close(LOW_STDIN);
@@ -213,7 +213,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
   close(old_stdin);
   remove(fnin);
  }
- 
+
  /* --- restore output --- */
  if (out) {
   close(LOW_STDOUT);
@@ -244,29 +244,29 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
      else
       Push2Stack(str);
     }
- 
+
    fclose(f);
    remove(fnout);
   }
  }
- 
+
  return rxReturnCode;
 } /* RxRedirectCmd */
 #endif
- 
+
 /* ------------------ RxExecuteCmd ----------------- */
 int __CDECL
 RxExecuteCmd( PLstr cmd, PLstr env )
 {
 #if defined(__CMS__)
  int how;
- 
+
 LASCIIZ(* env);
  // Right now we support the CMS and COMMAND environments.
  if (!Lcmp(env, "CMS")) how = CMS_CONSOLE;
  else how = CMS_COMMAND;
  rxReturnCode = CMScommand(LSTR(* cmd), how);                                 // execute the command
- 
+
  RxSetSpecialVar(RCVAR,rxReturnCode);                                 // set the returncode variable
  if (rxReturnCode && !(_proc[_rx_proc].trace & off_trace)) {       // do the right thing for tracing
   if (_proc[_rx_proc].trace & (error_trace | normal_trace)) {
@@ -284,11 +284,11 @@ LASCIIZ(* env);
 #ifndef WIN
  int in,out;
  Lstr cmdN;
- 
+
  LINITSTR(cmdN); Lfx(&cmdN,1);
  Lstrcpy(&cmdN,cmd);
  L2STR(&cmdN);
- 
+
  LASCIIZ(cmdN);
  if (env==NULL) {
   chkcmd4stack(&cmdN,&in,&out);
@@ -310,10 +310,10 @@ LASCIIZ(* env);
   if (!Lcmp(env,"EXEC"))  ; /*execl(...); */
  else
   rxReturnCode = -3;
- 
+
  /* free string */
  LFREESTR(cmdN);
- 
+
  RxSetSpecialVar(RCVAR,rxReturnCode);
  if (rxReturnCode && !(_proc[_rx_proc].trace & off_trace)) {
   if (_proc[_rx_proc].trace & (error_trace | normal_trace)) {
@@ -331,10 +331,10 @@ LASCIIZ(* env);
  Lstr file, args;
  TCHAR *uFile, *uArgs;
  PROCESS_INFORMATION p;
- 
+
  LINITSTR(file);
  LINITSTR(args); Lfx(&args,1);
- 
+
  ch = LSTR(*cmd);
  if ((*ch=='\'') || (*ch=='\"')) {
   ch = STRCHR(ch+1,*ch);
@@ -348,16 +348,16 @@ LASCIIZ(* env);
   Lword(&file, cmd, 1);
   Lsubword(&args, cmd, 2, LREST);
  }
- 
+
  uFile = (TCHAR*)MALLOC(sizeof(TCHAR)*LLEN(file)+2,NULL);
  uArgs = (TCHAR*)MALLOC(sizeof(TCHAR)*LLEN(args)+2,NULL);
  mbstowcs(uFile,LSTR(file),LLEN(file)); uFile[LLEN(file)] = (TCHAR)0;
  mbstowcs(uArgs,LSTR(args),LLEN(args)); uArgs[LLEN(args)] = (TCHAR)0;
- 
+
  CreateProcess(uFile, uArgs, NULL, NULL, FALSE, 0, NULL, NULL, NULL, &p);
  CloseHandle(p.hProcess);
  CloseHandle(p.hThread);
- 
+
  FREE(uFile);
  FREE(uArgs);
  LFREESTR(file);
@@ -366,5 +366,5 @@ LASCIIZ(* env);
 #endif
  return rxReturnCode;
 } /* RxExecuteCmd */
- 
+
 #endif

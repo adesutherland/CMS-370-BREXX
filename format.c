@@ -24,9 +24,9 @@
  * Initial Version
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ---------------- Lformat ------------------ */
 void __CDECL
 Lformat( const PLstr to, const PLstr from,
@@ -36,16 +36,16 @@ Lformat( const PLstr to, const PLstr from,
  Lstr tmp,Integer,Befo,Afte,Mantissa,Exponent;
  long i,j,Point,Afters;
  int  Sign,ShowExp;
- 
+
  LINITSTR(tmp);
  LINITSTR(Integer);
  LINITSTR(Befo);
  LINITSTR(Afte);
  LINITSTR(Mantissa);
  LINITSTR(Exponent);
- 
+
  Lspace(&tmp,from,0,' '); // * trim spaces *
- 
+
  for (i=0; i<LLEN(tmp); i++) // * split in Mantissa 'E' Exponent *
   if (LSTR(tmp)[i]=='e' || LSTR(tmp)[i]=='E') {
    Lsubstr(&Exponent,&tmp,i+2,0,' ');
@@ -59,7 +59,7 @@ Lfo10:
   Lstrcpy(&tmp,&Mantissa);
   Lsubstr(&Mantissa,&tmp,2,0,' ');
  }
- 
+
  for (i=0; i<LLEN(Mantissa); i++)
   if (LSTR(Mantissa)[i]=='.') {
    Lleft(&Befo,&Mantissa,i,' ');
@@ -69,16 +69,16 @@ Lfo10:
  Lstrcpy(&Befo,&Mantissa);
 Lfo20:
  Point = LLEN(Befo);
- 
+
  // * Sign, Mantissa and Exponent now reflect the number. Befo, Afte
  // * and Point reflect Mantissa *
- 
+
  // * The fourth and fifth argument allow for exponential notation.
  // * Decide whether exponential form to be used, setting ShowExp. *
- 
+
  ShowExp = 0;
  L2INT(&Exponent);
- 
+
  if (expp>=0 || expt>=0) {
   if (expt<0) expt = digits.level;
   // * decide whether exponential form to be used. *
@@ -87,16 +87,16 @@ Lfo20:
   LeftOfPoint = 0;
   if (LLEN(Befo) > 0)
    LeftOfPoint = Befo; // * Value left of the point *
- 
+
   // * Digits after point rule for exponentiation *
   // * Count zeros to right of point *
   z = 0;
   while (LSTR(Afte)[z] == '0') z++;
   if ((LeftOfPoint=0) && ((z-LINT(Exponent)) > 5)) ShowExp = 1
- 
+
   // * An extra rule for exponential form *
   if (expp=0) ShowExp = 0;
- 
+
   // * Construct the exponential part of the result. *
   if (ShowExp) {
    LINT(Exponent) = LINT(Exponent) + (Point-1);
@@ -115,7 +115,7 @@ Lfo20:
   if (LINT(Exponent))
    ShowExp = 1;
  }
- 
+
  Lstrcpy(&Integer,&Befo);
  Lstrcat(&Integer,&Afte);
  if (Point<1) { // * Add extra zeros on the left *
@@ -124,7 +124,7 @@ Lfo20:
   Lstrcat(&Integer,&tmp);
   Point = 1;
  }
- 
+
  If (Point>LLEN(Integer)) { // * and maybe on the right *
   Lleft(&tmp,&Integer,Point,'0');
   Lstrcpy(&Integer,&tmp);
@@ -138,9 +138,9 @@ Lfo20:
   Lleft(&tmp,&Integer,LLEN(Integer)+after-Afters,'0');
   Lstrcpy(&Integer,&tmp);
  }
- 
+
 ......
- 
+
  LFREESTR(tmp);
  LFREESTR(Integer);
  LFREESTR(befo);
@@ -152,7 +152,7 @@ Lfo20:
 // This code is not tied to CMS.  But I don't want to inflict it on other systems where I cannot
 // test it... RPO.
 //
-// As it stands, Lformat is called from R_format in RXCONV.C with 'before' and 'after' set to 0
+// As it stands, Lformat is called from R_format in RXCONV.C with 'before' and'after' set to 0
 // regardless of whether they were specified or omitted on the call to the FORMAT function.  We will
 // therefore adopt the convention that 'before' or 'after' with a value < 0 means they were not
 // specified on the call to FORMAT.
@@ -166,7 +166,7 @@ int fractions;
 int len;
 Lstr tmp;
 LINITSTR(tmp);
- 
+
 t = Lrdreal(from);
 sprintf(buffer, "%40.20f", t);
 len = strlen(buffer);
@@ -187,20 +187,20 @@ if ((digits > lNumericDigits) || (expp > 0)) {                     // exponentia
    else if (fractions > (lNumericDigits - 1)) fractions = lNumericDigits - 1;
    }
 else {
-   exponent = 0;                                                                 // standard display
+   exponent = 0;  // standard display
    if ((digits + fractions) > lNumericDigits) fractions = lNumericDigits - digits;
    if ((after >= 0) && (after < fractions)) fractions = after;        // caller wants less precision
    }
- 
+
 if (exponent) {                                                   // display in exponential notation
    sprintf(buffer, "%.*e", fractions, t);
    Lscpy(to, buffer);
    }
-else {                                                                           // display normally
+else {  // display normally
    sprintf(buffer, "%20.*f", fractions, t);          // in the form nnnn.dddd with correct precision
    if (after < 0) {                                                     // must strip trailing zeros
       for (i = strlen(buffer) - 1; buffer[i] == '0'; i--) buffer[i] = '\0';
-      if (buffer[i] == '.') buffer[i] = '\0';         // and the decimal point if it is what is left
+      if (buffer[i] == '.') buffer[i] = '\0';         // and the decimal pointif it is what is left
       }
    else if (after > fractions) {                                              // must pad with zeros
       len = strlen(buffer) + after - fractions;
@@ -218,16 +218,16 @@ else {                                                                          
    }
 LFREESTR(tmp);
 return;
- 
+
 #else
  double r;
  TCHAR str[50];
- 
+
  r = Lrdreal(from);
  if (before<0) before = 0;
  if (after<0)  after  = 0;
  if (after)    before += (after+1);
- 
+
 # ifndef WCE
  sprintf(
 # else
@@ -237,7 +237,7 @@ return;
   (expp<=0)? TEXT("%#*.*lf") :
   (expp==1)? TEXT("%#*.*lG") : TEXT("%#*.*lE"),
   (int)before, (int)after, r);
- 
+
 #ifndef WCE
  Lscpy(to,str);
 #else

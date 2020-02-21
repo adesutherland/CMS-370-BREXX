@@ -1,3 +1,4 @@
+/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 /*
  * $Id: os.h,v 1.10 2009/06/02 09:41:43 bnv Exp $
  * $Log: os.h,v $
@@ -106,7 +107,7 @@
 
 # define VMCMS 1
 # define SHELL "SHELL"
-# define OS "VM//CMS"
+# define OS "CMS"
 # define FILESEP '.'
 # define PATHSEP ':'
 

@@ -1,5 +1,5 @@
 /* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
- 
+
 /*
  * $Id: rxmath.c,v 1.8 2008/07/15 07:40:25 bnv Exp $
  * $Log: rxmath.c,v $
@@ -28,16 +28,16 @@
  * Initial revision
  *
  */
- 
+
 #include <math.h>
 #include <stdlib.h>
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "rxdefs.h"
- 
+
 /* --------------------------------------------------------------- */
 /*  ABS(number)                                                    */
 /* --------------------------------------------------------------- */
@@ -47,13 +47,13 @@ void __CDECL
 R_abs_sign( const int func )
 {
  if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  if (func==f_abs)
   Labs(ARGR,ARG1);
  else
   Licpy(ARGR,Lsign(ARG1));
 } /* R_abs_sign */
- 
+
 /* ----------------------* common math functions *---------------- */
 void __CDECL
 R_math( const int func )
@@ -63,71 +63,71 @@ R_math( const int func )
  Lstrcpy(ARGR,ARG1);
  switch (func) {
 #ifndef __CMS__
- 
+
   case f_acos:
    LREAL(*ARGR) = acos(LREAL(*ARGR));
    break;
- 
+
   case f_asin:
    LREAL(*ARGR) = asin(LREAL(*ARGR));
    break;
- 
+
   case f_atan:
    LREAL(*ARGR) = atan(LREAL(*ARGR));
    break;
- 
+
   case f_cos :
    LREAL(*ARGR) =  cos(LREAL(*ARGR));
    break;
- 
+
   case f_cosh:
    LREAL(*ARGR) = cosh(LREAL(*ARGR));
    break;
- 
+
   case f_exp :
    LREAL(*ARGR) =  exp(LREAL(*ARGR));
    break;
- 
+
   case f_log :
    LREAL(*ARGR) =  log(LREAL(*ARGR));
    break;
- 
+
   case f_log10:
    LREAL(*ARGR) = log10(LREAL(*ARGR));
    break;
- 
+
   case f_pow10:
    LREAL(*ARGR) = pow(10.0,LREAL(*ARGR));
    break;
- 
+
   case f_sin :
    LREAL(*ARGR) =  sin(LREAL(*ARGR));
    break;
- 
+
   case f_sinh:
    LREAL(*ARGR) = sinh(LREAL(*ARGR));
    break;
 #endif
- 
+
   case f_sqrt:
    LREAL(*ARGR) = sqrt(LREAL(*ARGR));
    break;
 #ifndef __CMS__
- 
+
   case f_tan :
    LREAL(*ARGR) =  tan(LREAL(*ARGR));
    break;
- 
+
   case f_tanh:
    LREAL(*ARGR) = tanh(LREAL(*ARGR));
    break;
 #endif
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_math */
- 
+
 #ifndef __CMS__
 /* --------------------------------------------------------------- */
 /*  ATAN2(x,y)                                                     */
@@ -147,7 +147,7 @@ R_atanpow( const int func )
   LREAL(*ARGR) = pow(LREAL(*ARGR),LREAL(*ARG2));
 } /* R_atanpow */
 #endif
- 
+
 /* --------------------------------------------------------------- */
 /*  AND(a,b)                                                       */
 /* --------------------------------------------------------------- */
@@ -161,10 +161,10 @@ R_bitwise( const int func )
  int i;
  int num;
  if (ARGN<2) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  Lstrcpy(ARGR,ARG1);
  L2INT(ARGR);
- 
+
  for (i=1; i<ARGN; i++) {
   num = Lrdint(rxArg.a[i]);
   if (func==f_and)
@@ -173,10 +173,10 @@ R_bitwise( const int func )
   if (func==f_or)
    LINT(*ARGR) |= num;
   else
-   LINT(*ARGR) ¬= num;
+   LINT(*ARGR) ?= num;
  }
 } /* R_bitwise */
- 
+
 /* --------------------------------------------------------------- */
 /*  NOT(n)                                                         */
 /* --------------------------------------------------------------- */
@@ -184,7 +184,7 @@ void __CDECL
 R_not( const int func )
 {
  if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
- 
+
  Lstrcpy(ARGR,ARG1);
  L2INT(ARGR);
  LINT(*ARGR) = ~LINT(*ARGR);

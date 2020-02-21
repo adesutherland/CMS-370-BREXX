@@ -71,37 +71,37 @@
  * Initial revision
  *
  */
- 
+
 #define __INTERPRET_C__
- 
+
 #ifndef WCE
 # include <stdio.h>
 # include <signal.h>
 #endif
- 
+
 #include "lerror.h"
 #include "lstring.h"
- 
+
 #include "rexx.h"
 #include "stack.h"
 #include "trace.h"
 #include "bintree.h"
 #include "compile.h"
 #include "interpre.h"
- 
+
 #ifdef WCE
 # define MAX_EVENT_COUNT 50
 #endif
- 
+
 /* ---------------- global variables ------------------ */
 int _trace;   /* if trace is enabled */
 PLstr   RxStck[STCK_SIZE]; /* Array of PLstr       */
 int     RxStckTop;  /* top item of stack    */
 Lstr _tmpstr[STCK_SIZE]; /* temporary strings */
- 
+
 /*extern int _interrupt;*/ /* if any interrupt is pending */
 /*void ProcessInterrupt();*/
- 
+
 /* ---------------- Local variables ------------------- */
 static Scope VarScope; /* Variables Scope      */
 static PLstr ToParse; /* Parsing variables */
@@ -110,15 +110,15 @@ static int DataStart,
   BreakStart,
   BreakEnd,
   SourceEnd; /* Length of string+1 */
- 
- 
+
+
 static jmp_buf  old_error; /* keep old value of errortrap */
- 
+
 extern Lstr stemvaluenotfound; /* from variable.c */
- 
+
 #define STACKTOP RxStck[RxStckTop]
 #define STACKP(i) RxStck[RxStckTop-(i)]
- 
+
 #ifdef __DEBUG__
 # define DEBUGDISPLAY0(a)  if (__debug__) printf("\t%u\t%s\n",inst_ip,(a))
 # define DEBUGDISPLAY0nl(a) if (__debug__) printf("\t%u\t%s\t",inst_ip,(a))
@@ -126,7 +126,7 @@ extern Lstr stemvaluenotfound; /* from variable.c */
      Lprint(STDOUT,RxStck[RxStckTop]); printf("\"\n"); }
 # define DEBUGDISPLAYi(a,b) if (__debug__) {printf("\t%u\t%s\t\"",inst_ip,(a)); \
      Lprint(STDOUT,(b)); printf("\"\n"); }
-# define DEBUGDISPLAY2(a)  if (__debug__) {printf("\t%u\t%s\t\"",inst_ip,(a)); \
+# define DEBUGDISPLAY2(a)  if (__debug__) {printf("\t%u\t%s\t\"",inst_ip,(a));\
      Lprint(STDOUT,STACKP(1)); printf("\",\""); \
      Lprint(STDOUT,STACKTOP);printf("\"\n"); }
 #else
@@ -136,11 +136,11 @@ extern Lstr stemvaluenotfound; /* from variable.c */
 # define DEBUGDISPLAYi(a,b)
 # define DEBUGDISPLAY2(a)
 #endif
- 
+
 #ifdef __PROFILE__
 int instr_cnt[256];  /* instruction counter */
 #endif
- 
+
 #define CHKERROR if (RxStckTop==STCK_SIZE-1) Lerror(ERR_STORAGE_EXHAUSTED,0)
 #define INCSTACK { RxStckTop++; CHKERROR; }
 #define POP_C_POP_B_PEEK_A { POP(C); POP(B); PEEK(A); }
@@ -148,7 +148,7 @@ int instr_cnt[256];  /* instruction counter */
 #define PEEKR(x,r) x = &(RxStck[RxStckTop-(r)])
 #define POP(x)  x = &(RxStck[RxStckTop--])
 #define PUSH(x)  {x = &(RxStck[++RxStckTop]); CHKERROR; }
- 
+
 #ifndef ALIGN
 # define PLEAF(x)  { x = (PBinLeaf)(*(dword*)Rxcip); \
     Rxcip += sizeof(dword); }
@@ -161,7 +161,7 @@ int instr_cnt[256];  /* instruction counter */
 # define INCDWORD(x) (x)++
 # define CWORD  dword
 #endif
- 
+
 #ifdef __DEBUG__
 /* -------------- DebugStackList ------------- */
 static void
@@ -178,48 +178,48 @@ DebugStackList(void)
   }
 } /* DebugStackList */
 #endif
- 
+
 /* ---------------- RxProcResize ---------------- */
 void __CDECL
 RxProcResize( void )
 {
  size_t oldsize=_proc_size;
- 
+
  _proc_size += PROC_INC;
  _proc = (RxProc*) REALLOC( _proc, _proc_size * sizeof(RxProc) );
  MEMSET(_proc+oldsize,0,PROC_INC*sizeof(RxProc));
 } /* RxProcResize */
- 
+
 /* ------------- I_trigger_space -------------- */
 static void
 I_trigger_space( void )
 {
  /* normalise to 0 .. len-1 */
  DataStart = BreakEnd-1;
- 
+
  /* skip leading spaces */
  LSKIPBLANKS(*ToParse,DataStart);
- 
+
  /* find word */
  BreakStart = DataStart;
  LSKIPWORD(*ToParse,BreakStart);
- 
+
  /* skip trailing spaces */
  BreakEnd = BreakStart;
  LSKIPBLANKS(*ToParse,BreakEnd);
- 
+
  /* again in rexx strings 1..len */
  DataStart++;
  BreakStart++;
  BreakEnd++;
 } /* I_trigger_space */
- 
+
 /* ------------- I_trigger_litteral -------------- */
 static void
 I_trigger_litteral(const PLstr lit)
 {
  int PatternPos;
- 
+
  PatternPos = (int)Lpos(lit,ToParse,DataStart);
  if (PatternPos>0) {
   BreakStart = PatternPos;
@@ -230,7 +230,7 @@ I_trigger_litteral(const PLstr lit)
   BreakEnd = SourceEnd;
  }
 } /* I_trigger_litteral */
- 
+
 /* ----------------- I_LoadOption ---------------- */
 static void
 I_LoadOption( const PLstr value, const int opt )
@@ -238,36 +238,36 @@ I_LoadOption( const PLstr value, const int opt )
 #ifndef WCE
  char *ch;
 #endif
- 
+
  switch (opt) {
   case environment_opt:
    Lstrcpy(value,_proc[_rx_proc].env);
    break;
- 
+
   case digits_opt:
    Licpy(value,_proc[_rx_proc].digits);
    break;
- 
+
   case fuzz_opt:
    Licpy(value,_proc[_rx_proc].fuzz);
    break;
- 
+
   case form_opt:
    Lscpy(value,(_proc[_rx_proc].form)?"SCIENTIFIC":"ENGINEERING");
    break;
- 
+
   case author_opt:
    Lscpy(value,AUTHOR);
    break;
- 
+
   case version_opt:
    Lscpy(value,VERSIONSTR);
    break;
- 
+
   case os_opt:
    Lscpy(value,OS);
    break;
- 
+
   case calltype_opt:
    switch (_proc[_rx_proc].calltype) {
     case CT_PROCEDURE:
@@ -280,15 +280,15 @@ I_LoadOption( const PLstr value, const int opt )
      Lscpy(value,"COMMAND");
    }
    break;
- 
+
   case filename_opt:
    Lstrcpy(value,&(CompileClause[0].fptr)->name);
    break;
- 
+
   case prgname_opt:
    Lscpy(value,_prgname);
    break;
- 
+
   case shell_opt:
 #ifndef WCE
    ch = getenv(SHELL);
@@ -298,18 +298,18 @@ I_LoadOption( const PLstr value, const int opt )
 #endif
     LZEROSTR(*value);
    break;
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  }
 } /* I_LoadOption */
- 
+
 /* ----------------- I_StoreOption --------------- */
 static void
 I_StoreOption( const PLstr value, const int opt )
 {
  long l;
- 
+
  switch (opt) {
   case environment_opt:
    if (LLEN(*value) > 250)
@@ -318,7 +318,7 @@ I_StoreOption( const PLstr value, const int opt )
     LPMALLOC(_proc[_rx_proc].env);
    Lstrcpy(_proc[_rx_proc].env,value);
    break;
- 
+
   case trace_opt:
    TraceSet(value);
    if (_proc[_rx_proc].trace &
@@ -326,9 +326,9 @@ I_StoreOption( const PLstr value, const int opt )
      _trace = FALSE;
    else
      _trace = TRUE;
- 
+
    break;
- 
+
   case digits_opt:
    if (LLEN(*value)==0)
     _proc[_rx_proc].digits = LMAXNUMERICDIGITS;
@@ -342,7 +342,7 @@ I_StoreOption( const PLstr value, const int opt )
    if (_proc[_rx_proc].digits <= _proc[_rx_proc].fuzz)
     Lerror(ERR_INVALID_RESULT,1);
    break;
- 
+
   case fuzz_opt:
    if (LLEN(*value)==0)
     _proc[_rx_proc].fuzz = 0;
@@ -355,11 +355,11 @@ I_StoreOption( const PLstr value, const int opt )
    if (_proc[_rx_proc].digits <= _proc[_rx_proc].fuzz)
     Lerror(ERR_INVALID_RESULT,1);
    break;
- 
+
   case form_opt:
    _proc[_rx_proc].form = (int)Lrdint(value);
    break;
- 
+
   case set_signal_opt:
   case set_signal_name_opt:
    switch (LSTR(*value)[0]) {
@@ -403,7 +403,7 @@ I_StoreOption( const PLstr value, const int opt )
      Lerror(ERR_INTERPRETER_FAILURE,0);
    }
    break;
- 
+
   case unset_signal_opt:
    switch (LSTR(*value)[0]) {
     case 'E':
@@ -425,12 +425,12 @@ I_StoreOption( const PLstr value, const int opt )
      Lerror(ERR_INTERPRETER_FAILURE,0);
    }
    break;
- 
+
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);
  }
 } /* I_StoreOption */
- 
+
 /* ---------------- I_MakeIntArgs ---------------- */
 /* prepare arguments for an internal function call */
 /* returns stack position after call               */
@@ -442,15 +442,15 @@ I_MakeIntArgs( const int na, const int realarg, const CTYPE existarg )
 {
  int i,st;
  word bp; /* bit position */
- 
+
  rxArg.n = na;
  bp = (1 << (na-1));
- 
+
  /* must doit reverse */
  MEMSET(rxArg.a,0,sizeof(rxArg.a));
- 
+
  rxArg.r = RxStck[RxStckTop-realarg];
- 
+
  st = RxStckTop; /* stack position of arguments */
  for (i=na-1; i>=0; i--) {
   if (existarg & bp) {
@@ -465,7 +465,7 @@ I_MakeIntArgs( const int na, const int realarg, const CTYPE existarg )
  }
  return st;
 } /* I_MakeIntArgs */
- 
+
 /* ---------------- I_MakeArgs ---------------- */
 /* prepare arguments for a call to a func       */
 #ifdef INLINE
@@ -478,28 +478,28 @@ I_MakeArgs( const int calltype, const int na, const CTYPE existarg )
  CTYPE bp; /* bit position */
  RxProc *pr;
  Args *arg;
- 
+
  _rx_proc++;  /* increase program items       */
- 
+
  if (_rx_proc==_proc_size) RxProcResize();
  pr = _proc+_rx_proc;
- 
+
  /* initialise pr structure */
  /* use the old values      */
  MEMCPY(pr,_proc+_rx_proc-1,sizeof(*pr));
  pr->calltype = calltype;
  pr->ip  = (size_t)((byte huge *)Rxcip - (byte huge *)Rxcodestart);
  pr->stacktop = RxStckTop;
- 
+
  /* setup arguments */
  arg = &(pr->arg);
  arg->n = na;
- 
+
  bp = (1 << (na-1));
- 
+
  /* must doit reverse */
  MEMSET(arg->a,0,sizeof(arg->a));
- 
+
  st = RxStckTop; /* stack position of arguments */
  for (i=na-1; i>=0; i--) {
   if (existarg & bp) {
@@ -510,13 +510,13 @@ I_MakeArgs( const int calltype, const int na, const CTYPE existarg )
   bp >>= 1;
  }
  arg->r = RxStck[st];
- 
+
  if (calltype==CT_FUNCTION)
   pr->stack = st;
  else
   pr->stack = st-1;
 } /* I_MakeArgs */
- 
+
 /* -------------- I_CallFunction ---------------- */
 static int
 I_CallFunction( void )
@@ -533,7 +533,7 @@ I_CallFunction( void )
 #ifdef __DEBUG__
  size_t inst_ip;
 #endif
- 
+
  /* --- read the arguments here --- */
  PLEAF(leaf);   /* function number */
  nargs = *(Rxcip++);  /* number of args */
@@ -544,7 +544,7 @@ I_CallFunction( void )
   INCWORD(Rxcip);
  ct = *(Rxcip++);  /* call type  */
  func = (RxFunc *)(leaf->value);
- 
+
 #ifdef __DEBUG__
  if (__debug__) {
   int i;
@@ -554,7 +554,7 @@ I_CallFunction( void )
    nargs, existarg,(func->type==FT_BUILTIN)?"builtin":"other");
  }
 #endif
- 
+
  if (func->type == FT_BUILTIN) {
   nargs = I_MakeIntArgs(nargs,realarg,existarg);
   (func->builtin->func)(func->builtin->opt);
@@ -626,11 +626,11 @@ I_CallFunction( void )
    Rxcip = (CIPTYPE*)((byte huge *)Rxcodestart+func->label);
    Rxcip++; /* skip the OP_NEWCLAUSE */
    if (_trace) TraceClause();
- 
+
    /* handle OP_PROC code */
    if (*Rxcip == OP_PROC) {
     int exposed;
- 
+
     /* give a unique program id */
     /* we might have a problem after 2*32 routine calls!! */
     _procidcnt++;
@@ -644,7 +644,7 @@ I_CallFunction( void )
     Rxcip++;
     _proc[_rx_proc].scope = RxScopeMalloc();
     VarScope = _proc[_rx_proc].scope;
- 
+
     /* handle exposed variables */
     exposed = *(Rxcip++);
 #ifdef __DEBUG__
@@ -658,7 +658,7 @@ I_CallFunction( void )
      if (litleaf==NULL) {
       int found;
       PBinLeaf leaf;
- 
+
       PLEAF(litleaf);
       RxVarExpose(VarScope,litleaf);
 #ifdef __DEBUG__
@@ -698,7 +698,7 @@ I_CallFunction( void )
   return FALSE;
  }
 } /* I_CallFunction */
- 
+
 /* ---------------- I_ReturnProc -------------- */
 /* restore arguments after a procedure return */
 static void
@@ -707,18 +707,18 @@ I_ReturnProc( void )
   /* fix ip and stack */
  Rxcip = (CIPTYPE*)((byte huge *)Rxcodestart + _proc[_rx_proc].ip);
  RxStckTop = _proc[_rx_proc].stack;
- 
+
  if (_rx_proc>0) {
    /* free everything that it is new */
   if (VarScope!=_proc[_rx_proc-1].scope) {
    RxScopeFree(VarScope);
    FREE(VarScope);
   }
- 
+
   if (_proc[_rx_proc].env != _proc[_rx_proc-1].env)
    LPFREE(_proc[_rx_proc].env);
  }
- 
+
   /* load previous data and exit */
  _rx_proc--;
  Rx_id = _proc[_rx_proc].id;
@@ -729,17 +729,17 @@ I_ReturnProc( void )
  else
    _trace = TRUE;
 } /* I_ReturnProc */
- 
+
 /* ------------ RxInitInterStr -------------- */
 void __CDECL
 RxInitInterStr()
 {
  RxProc *pr;
- 
+
  _rx_proc++;  /* increase program items       */
  if (_rx_proc==_proc_size) RxProcResize();
  pr = _proc+_rx_proc;
- 
+
  /* program id is the same */
  MEMCPY(pr,_proc+_rx_proc-1,sizeof(*pr));
  pr->calltype = CT_INTERPRET;
@@ -748,28 +748,28 @@ RxInitInterStr()
  pr->clauselen = CompileCurClause;
  pr->stack = RxStckTop-1;  /* before temporary str */
  pr->stacktop = RxStckTop;
- 
+
  /* setup arguments */
  (pr->arg).n = 0;
  MEMSET(pr->arg.a,0,sizeof(pr->arg.a));
  (pr->arg).r = NULL;
- 
+
  /* --- save state --- */
  MEMCPY(old_error,_error_trap,sizeof(_error_trap));
  SIGNAL(SIGINT,SIG_IGN);
- 
+
  /* compile the program */
  RxInitCompile(rxFileList,STACKTOP);
  RxCompile();
- 
+
  /* --- restore state --- */
  MEMCPY(_error_trap,old_error,sizeof(_error_trap));
  SIGNAL(SIGINT,RxHaltTrap);
- 
+
  /* might have changed position */
  Rxcodestart = (CIPTYPE*)LSTR(*_code);
  Rxcip = (CIPTYPE*)((byte huge *)Rxcodestart + pr->codelen);
- 
+
  /* check for an error in compilation */
  if (rxReturnCode) {
   /* --- load previous data and exit ---- */
@@ -777,12 +777,12 @@ RxInitInterStr()
   _rx_proc--;
   Rx_id = _proc[_rx_proc].id;
   VarScope = _proc[_rx_proc].scope;
- 
+
   RxSetSpecialVar(RCVAR,rxReturnCode);
   RxSignalCondition(SC_SYNTAX);
  }
 } /* RxInitInterStr */
- 
+
 /* ------------ RxDoneInterStr -------------- */
 static void
 RxDoneInterStr( void )
@@ -795,10 +795,10 @@ RxDoneInterStr( void )
    else
     _trace = TRUE;
  }
- 
+
  Rxcip = (CIPTYPE*)((byte huge *)Rxcodestart + _proc[_rx_proc].ip);
  RxStckTop = _proc[_rx_proc].stack;
- 
+
  /* fixup code length, cut the interpretation code */
  LLEN(*_code) = _proc[_rx_proc].codelen;
  CompileCurClause = _proc[_rx_proc].clauselen;
@@ -806,22 +806,22 @@ RxDoneInterStr( void )
   Lstrcpy(_proc[_rx_proc-1].env, _proc[_rx_proc].env);
   LPFREE(_proc[_rx_proc].env);
  }
- 
+
   /* --- load previous data and exit ---- */
  _rx_proc--;
  Rx_id = _proc[_rx_proc].id;
- 
+
  _proc[_rx_proc].trace = _proc[_rx_proc+1].trace;
  _proc[_rx_proc].interactive_trace = _proc[_rx_proc+1].interactive_trace;
  VarScope = _proc[_rx_proc].scope;
 } /* RxDoneInterStr */
- 
+
 /* ---------------- RxInitInterpret --------------- */
 void __CDECL
 RxInitInterpret( void )
 {
  int i;
- 
+
 #ifdef __PROFILE__
  MEMSET(instr_cnt,sizeof(instr_cnt),0);
 #endif
@@ -833,7 +833,7 @@ RxInitInterpret( void )
   if (!LSTR(_tmpstr[i])) Lerror(ERR_STORAGE_EXHAUSTED,0);
  }
 } /* RxInitInterpret */
- 
+
 /* ---------------- RxDoneInterpret --------------- */
 void __CDECL
 RxDoneInterpret( void )
@@ -849,13 +849,13 @@ RxDoneInterpret( void )
 #endif
 #ifdef __DEBUG__
  mem_chk();
- 
+
  if (RxStckTop>=0) {
   fprintf(STDERR,"interpret: %d items left in stack.\n", RxStckTop+1);
   DebugStackList();
  }
 #endif
- 
+
  /* clear stack */
  for (i=0; i<STCK_SIZE; i++) {
 #ifdef __DEBUG__
@@ -868,7 +868,7 @@ RxDoneInterpret( void )
   LFREESTR(_tmpstr[i]);
  }
 } /* RxDoneInterpret */
- 
+
 /* ---------------- RxInterpret --------------- */
 int __CDECL
 RxInterpret( void )
@@ -886,21 +886,21 @@ RxInterpret( void )
 #ifdef WCE
  int event_count = 0;
 #endif
- 
+
  rxReturnCode = 0;
  Rx_id  = _proc[_rx_proc].id;
  Rxcodestart = (CIPTYPE*)LSTR(*_code);
  VarScope = _proc[_rx_proc].scope;
  Rxcip   = (CIPTYPE*)((byte huge *)Rxcodestart + _proc[_rx_proc].ip);
  _proc[_rx_proc].stack = RxStckTop;
- 
+
  if (_proc[_rx_proc].trace & (normal_trace | off_trace | error_trace))
    _trace = FALSE;
  else
    _trace = TRUE;
- 
+
  SIGNAL(SIGINT,RxHaltTrap);
- 
+
  if ((jc=setjmp(_error_trap))!=0) {
   CIPTYPE *tmp_Rxcip;
   if (jc==JMP_EXIT) {
@@ -908,20 +908,20 @@ RxInterpret( void )
    goto interpreter_fin;
   }
   /* else if (jc==JMP_CONTINUE) .... CONTINUE code */
- 
+
   /* exit from interpret, if we are in any */
   tmp_Rxcip = Rxcip;
   while (_proc[_rx_proc].calltype==CT_INTERPRET)
    RxDoneInterStr();
   Rxcip = tmp_Rxcip;
- 
+
   /* clear stack */
   RxStckTop = _proc[_rx_proc].stacktop;
  }
- 
+
  while (1) {
 main_loop:
- 
+
 #ifdef __DEBUG__
  if (__debug__) {
   while (1) {
@@ -969,12 +969,12 @@ outofcmd:
    }
 #endif
    goto main_loop;
- 
+
     /* POP = NO OPERATION */
   case OP_NOP:
    DEBUGDISPLAY0("NOP");
    goto main_loop;
- 
+
     /* PUSH p[lit]   */
     /* push a litteral to stack */
   case OP_PUSH:
@@ -984,7 +984,7 @@ outofcmd:
    CHKERROR;
    DEBUGDISPLAY("PUSH");
    goto chk4trace;
- 
+
     /* PUSHTMP */
   case OP_PUSHTMP:
    RxStckTop++;
@@ -992,14 +992,14 @@ outofcmd:
    CHKERROR;
    DEBUGDISPLAY0("PUSHTMP");
    goto main_loop;
- 
+
     /* POP b[num]  */
     /* pop NUM stack items */
   case OP_POP:
    DEBUGDISPLAY0("POP");
    RxStckTop -= *(Rxcip++);
    goto main_loop;
- 
+
     /* DUP b[rel]   */
     /* duplicate RELative stck item */
   case OP_DUP:
@@ -1008,7 +1008,7 @@ outofcmd:
    CHKERROR;
    DEBUGDISPLAY("DUP");
    goto main_loop;
- 
+
     /* COPY    */
     /* copy (Lstrcpy) top item */
     /* to previous one  */
@@ -1017,7 +1017,7 @@ outofcmd:
    Lstrcpy(STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto main_loop;
- 
+
     /* COPY2TMP   */
     /* if top item is not a pointer */
     /* to a tmp var then copy the */
@@ -1030,7 +1030,7 @@ outofcmd:
    }
    DEBUGDISPLAY("COPY2TMP");
    goto main_loop;
- 
+
     /* PATCH w[rel] b[code] */
     /* patch CODE string to RELative pos with CODE */
   case OP_PATCH:
@@ -1038,7 +1038,7 @@ outofcmd:
    *(CIPTYPE*)((byte huge *)Rxcodestart + w) = *(Rxcip++);
    DEBUGDISPLAY0("PATCH");
    goto main_loop;
- 
+
     /* RAISE b[cond] b[errno] b[subno] */
     /* raise an error condition  */
   case OP_RAISE:
@@ -1047,7 +1047,7 @@ outofcmd:
    DEBUGDISPLAY("RAISE");
    Lerror(errno,subno,STACKTOP);
    goto main_loop;
- 
+
     /* LOADARG b[arg]  */
     /* push an ARGument to stck */
   case OP_LOADARG:
@@ -1061,8 +1061,8 @@ outofcmd:
    }
    DEBUGDISPLAY("LOADARG");
    goto main_loop;
- 
- 
+
+
     /* LOADOPT [data] */
     /* load an option */
   case OP_LOADOPT:
@@ -1075,7 +1075,7 @@ outofcmd:
    I_LoadOption(STACKTOP,nf);
    DEBUGDISPLAY("LOADOPT");
    goto main_loop;
- 
+
     /* STOREOPT [data] */
     /* store an option */
   case OP_STOREOPT:
@@ -1084,16 +1084,16 @@ outofcmd:
    I_StoreOption(STACKTOP,nf);
    RxStckTop--;
    goto main_loop;
- 
+
     /* LOAD p[leaf]   */
     /* push a VARiable to stack */
   case OP_LOAD:
    INCSTACK;  /* make space */
    PLEAF(litleaf);  /* get variable ptr */
    DEBUGDISPLAYi("LOAD",&(litleaf->key));
- 
+
    inf = (IdentInfo*)(litleaf->value);
- 
+
    /* check to see if we have allready its position */
    if (inf->id == Rx_id) {
     leaf = inf->leaf[0];
@@ -1118,21 +1118,21 @@ outofcmd:
     }
    }
    goto chk4trace;
- 
+
     /* STORE p[leaf]   */
     /* store top stack item to VARiable */
   case OP_CREATE:  /* assigmnent */
    INCSTACK;
    PLEAF(litleaf); /* Get pointer to variable */
    DEBUGDISPLAYi("CREATE",&(litleaf->key));
- 
+
    inf = (IdentInfo*)(litleaf->value);
    if (inf->id == Rx_id) {
     leaf = inf->leaf[0];
     STACKTOP = LEAFVAL(leaf);
    } else {
     leaf = RxVarFind(VarScope,litleaf,&found);
- 
+
     if (found)
      STACKTOP = LEAFVAL(leaf);
     else {
@@ -1146,16 +1146,16 @@ outofcmd:
       inf->leaf[0] = leaf;
      }
     }
- 
+
    }
    goto main_loop;
- 
+
     /* DROP p[leaf]  */
     /* drop VARiable */
   case OP_DROP:
    PLEAF(litleaf); /* Get pointer to variable */
    DEBUGDISPLAYi("DROP",&(litleaf->key));
- 
+
    inf = (IdentInfo*)(litleaf->value);
    if (inf->id == Rx_id) {
     leaf = inf->leaf[0];
@@ -1167,7 +1167,7 @@ outofcmd:
    }
    inf->id = NO_CACHE;
    goto chk4trace;
- 
+
     /* indirect drop, from stack */
     /* asssume that is UPPER case tmp */
   case OP_DROPIND:
@@ -1175,7 +1175,7 @@ outofcmd:
    RxVarDelInd(VarScope,STACKTOP);
    RxStckTop--;
    goto chk4trace;
- 
+
   case OP_ASSIGNSTEM:
    PLEAF(litleaf); /* Get pointer to stem */
    DEBUGDISPLAYi("ASSIGNSTEM",&(litleaf->key));
@@ -1189,7 +1189,7 @@ outofcmd:
      RxScopeAssign(leaf);
    }
    goto main_loop;
- 
+
     /* BYINIT [patchpos] */
   case OP_BYINIT:
    w = *(CWORD *)Rxcip; INCWORD(Rxcip);
@@ -1205,7 +1205,7 @@ outofcmd:
    else
     *(CIPTYPE*)((byte huge *)Rxcodestart + w) = OP_TGE;
    goto main_loop;
- 
+
     /* FORINIT  */
     /* Initialise a FOR loop*/
   case OP_FORINIT:
@@ -1219,7 +1219,7 @@ outofcmd:
    if (Llt(STACKTOP,&(zeroStr->key)))
     Lerror(ERR_INVALID_INTEGER,3,STACKTOP);
    goto main_loop;
- 
+
     /* DECFOR  */
   case OP_DECFOR:
    DEBUGDISPLAY("DECFOR");
@@ -1230,7 +1230,7 @@ outofcmd:
     INCWORD(Rxcip);
    Ldec(a);
    goto main_loop;
- 
+
 /**
 //// Beware might lose something when number is like '   10   '
 **/
@@ -1240,57 +1240,57 @@ outofcmd:
    DEBUGDISPLAY("TOINT");
    L2INT(STACKTOP);
    goto main_loop;
- 
+
     /* LOWER  */
     /* upper top stack */
   case OP_LOWER:
    DEBUGDISPLAY("LOWER");
    Llower(STACKTOP);
    goto main_loop;
- 
+
     /* UPPER  */
     /* upper top stack */
   case OP_UPPER:
    DEBUGDISPLAY("UPPER");
    Lupper(STACKTOP);
    goto main_loop;
- 
+
     /* SIGNAL p[label] */
     /* clear stack and jmp to LABEL pos */
   case OP_SIGNAL:
    /* clear stack */
    RxStckTop = _proc[_rx_proc].stacktop;
- 
+
    /* check label */
    PLEAF(leaf);
    func = (RxFunc*)(leaf->value);
    DEBUGDISPLAYi("SIGNAL",&(leaf->key));
- 
+
    if (func->label==UNKNOWN_LABEL)
     Lerror(ERR_UNEXISTENT_LABEL,1,&(leaf->key));
    /* jump */
    Rxcip=(CIPTYPE*)((byte huge *)Rxcodestart+func->label);
    goto main_loop;
- 
+
     /* SIGNALVAL [address] */
     /* get address from stack */
   case OP_SIGNALVAL:
    DEBUGDISPLAY("SIGNALVAL");
- 
+
    /* search for label */
    L2STR(STACKTOP);
    leaf = BinFind(&_labels,RxStck[RxStckTop--]);
    if (leaf==NULL || ((RxFunc*)(leaf->value))->label == UNKNOWN_LABEL)
     Lerror(ERR_UNEXISTENT_LABEL,1,RxStck[RxStckTop+1]);
    func = (RxFunc*)(leaf->value);
- 
+
    /* clear stack */
    RxStckTop = _proc[_rx_proc].stacktop;
- 
+
    /* jump */
    Rxcip = (CIPTYPE*)((byte huge *)Rxcodestart + (size_t)(func->label));
    goto main_loop;
- 
+
     /* JMP w[pos]    */
     /* unconditional jump to POSition */
   case OP_JMP:
@@ -1301,7 +1301,7 @@ outofcmd:
     printf("%d\n",(byte huge *)Rxcip-(byte huge *)Rxcodestart);
 #endif
    goto main_loop;
- 
+
     /* JF w[pos]   */
     /* jump if top is 0 to POSition */
   case OP_JF:
@@ -1320,7 +1320,7 @@ outofcmd:
    else
     INCWORD(Rxcip);
    goto main_loop;
- 
+
     /* JT w[pos]   */
     /* jump if top is 1 to POSition */
   case OP_JT:
@@ -1339,7 +1339,7 @@ outofcmd:
    else
     INCWORD(Rxcip);
    goto main_loop;
- 
+
     /* CALL p[label] b[noargs] w[existarg] */
     /* create new stack and jmp to LABEL pos*/
   case OP_CALL:
@@ -1347,7 +1347,7 @@ outofcmd:
    if (I_CallFunction())
     goto chk4trace;
    goto main_loop;
- 
+
     /* RETURN   */
     /* clear stack and return */
     /* if first prg then exit */
@@ -1361,7 +1361,7 @@ outofcmd:
    }
    I_ReturnProc();
    goto main_loop;
- 
+
     /* RETURNF   */
     /* move top of stack to correct */
     /* position of return arg and */
@@ -1392,14 +1392,14 @@ outofcmd:
     /* point the return data */
     a = STACKTOP;
    }
- 
+
    I_ReturnProc();
- 
+
    if (_proc[_rx_proc+1].calltype == CT_PROCEDURE)
     /* Assign the the RESULT variable */
     RxVarSet(VarScope,resultStr,a);
    goto main_loop;
- 
+
     /* INTERPRET [string] */
   case OP_INTERPRET:
    DEBUGDISPLAY("INTERPRET");
@@ -1410,18 +1410,18 @@ outofcmd:
    }
    RxInitInterStr();
    goto main_loop;
- 
+
   case OP_INTER_END:
    DEBUGDISPLAY0("INTER_END");
    RxDoneInterStr();
    goto main_loop;
- 
+
     /* PROC */
   case OP_PROC:
    DEBUGDISPLAY0("ERROR-PROC");
    Lerror(ERR_UNEXPECTED_PROC,1);
    goto chk4trace;
- 
+
     /* SAY   */
     /* display TOP item */
   case OP_SAY:
@@ -1429,7 +1429,7 @@ outofcmd:
    Lprint(STDOUT,RxStck[RxStckTop--]);
    PUTCHAR('\n');
    goto main_loop;
- 
+
     /* SYSTEM  */
     /* execute a system call*/
   case OP_SYSTEM:
@@ -1439,7 +1439,7 @@ outofcmd:
    RxExecuteCmd(STACKTOP,STACKP(1));
    RxStckTop -= 2;
    goto main_loop;
- 
+
     /* EXIT   */
     /* exit prg with RC */
   case OP_EXIT:
@@ -1450,7 +1450,7 @@ outofcmd:
    RxStckTop = -1;
 #endif
    goto interpreter_fin;
- 
+
     /* PARSE  */
     /* Initialise PARSING */
   case OP_PARSE:
@@ -1461,7 +1461,7 @@ outofcmd:
    DataStart = BreakStart = BreakEnd = 1;
    SourceEnd = LLEN(*ToParse)+1;
    goto main_loop;
- 
+
     /* PVAR   */
     /* Parse to stack */
   case OP_PVAR:
@@ -1470,7 +1470,7 @@ outofcmd:
     DataEnd = SourceEnd;
    else
     DataEnd = BreakStart;
- 
+
    if (DataEnd!=DataStart)
     _Lsubstr(RxStck[RxStckTop--],ToParse,DataStart,DataEnd-DataStart);
    else {
@@ -1485,7 +1485,7 @@ outofcmd:
    Rxcip++;
    goto main_loop;
    /*** goto chk4trace; ***/
- 
+
     /* PDOT   */
     /* Parse to hyperspace */
   case OP_PDOT:
@@ -1508,14 +1508,14 @@ outofcmd:
    }
    Rxcip++;
    goto main_loop;
- 
+
     /* TR_SPACE  */
     /* trigger a space */
   case OP_TR_SPACE:
    DEBUGDISPLAY0("TR_SPACE");
    I_trigger_space();
    goto main_loop;
- 
+
     /* TR_LIT   */
     /* trigger a litteral from stck */
   case OP_TR_LIT:
@@ -1523,7 +1523,7 @@ outofcmd:
    DataStart = BreakEnd;
    I_trigger_litteral(RxStck[RxStckTop--]);
    goto main_loop;
- 
+
     /* TR_ABS   */
     /* trigger ABSolute position */
   case OP_TR_ABS:
@@ -1533,28 +1533,28 @@ outofcmd:
 **/
    DataStart = BreakEnd;
    BreakStart = (size_t)LINT(*(RxStck[RxStckTop--]));
- 
+
    /* check for boundaries */
    BreakStart = RANGE(1,BreakStart,SourceEnd);
    BreakEnd = BreakStart;
    goto main_loop;
- 
+
     /* TR_REL   */
     /* trigger RELative position */
   case OP_TR_REL:
    DEBUGDISPLAY("TR_REL");
- 
+
 /**
 //   L2INT(**A);
 **/
    DataStart = BreakStart;
    BreakStart = DataStart + (size_t)LINT(*(RxStck[RxStckTop--]));
- 
+
    /* check for boundaries */
    BreakStart = RANGE(1,BreakStart,SourceEnd);
    BreakEnd = BreakStart;
    goto main_loop;
- 
+
     /* TR_END   */
     /* trigger to END of data */
   case OP_TR_END:
@@ -1563,7 +1563,7 @@ outofcmd:
    BreakStart = SourceEnd;
    BreakEnd = SourceEnd;
    goto main_loop;
- 
+
     /* RX_QUEUE   */
     /* queue stck to Rexx queue */
   case OP_RX_QUEUE:
@@ -1573,7 +1573,7 @@ outofcmd:
    Lstrcpy(a,RxStck[RxStckTop--]);
    Queue2Stack(a);
    goto main_loop;
- 
+
     /* RX_PUSH   */
     /* push stck to Rexx queue */
   case OP_RX_PUSH:
@@ -1583,7 +1583,7 @@ outofcmd:
    Lstrcpy(a,RxStck[RxStckTop--]);
    Push2Stack(a);
    goto main_loop;
- 
+
     /* RX_PULL   */
     /* pull stck from Rexx queue */
   case OP_RX_PULL:
@@ -1610,7 +1610,7 @@ outofcmd:
    }
    DEBUGDISPLAY("RX_PULL");
    goto main_loop;
- 
+
     /* RX_EXTERNAL   */
     /* read data from extrnal queue */
   case OP_RX_EXTERNAL:
@@ -1619,91 +1619,91 @@ outofcmd:
    Lread(STDIN,STACKTOP,LREADLINE);
    DEBUGDISPLAY("RX_EXTERNAL");
    goto main_loop;
- 
+
   case OP_EQ:
    DEBUGDISPLAY2("EQ");
    a = STACKP(2);
    LICPY(*a, Leq(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_NE:
    DEBUGDISPLAY2("NE");
    a = STACKP(2);
    LICPY(*a, Lne(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_GT:
    DEBUGDISPLAY2("GT");
    a = STACKP(2);
    LICPY(*a, Lgt(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_GE:
    DEBUGDISPLAY2("GE");
    a = STACKP(2);
    LICPY(*a, Lge(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_LT:
    DEBUGDISPLAY2("LT");
    a = STACKP(2);
    LICPY(*a, Llt(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_LE:
    DEBUGDISPLAY2("LE");
    a = STACKP(2);
    LICPY(*a, Lle(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_DEQ:
    DEBUGDISPLAY2("DEQ");
    a = STACKP(2);
    LICPY(*a, Ldeq(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_DNE:
    DEBUGDISPLAY2("DNE");
    a = STACKP(2);
    LICPY(*a, Ldne(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_DGT:
    DEBUGDISPLAY2("DGT");
    a = STACKP(2);
    LICPY(*a, Ldgt(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_DGE:
    DEBUGDISPLAY2("DGE");
    a = STACKP(2);
    LICPY(*a, Ldge(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_DLT:
    DEBUGDISPLAY2("DLT");
    a = STACKP(2);
    LICPY(*a, Ldlt(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_DLE:
    DEBUGDISPLAY2("DLE");
    a = STACKP(2);
    LICPY(*a, Ldle(STACKP(1),STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_TEQ:
    DEBUGDISPLAY2("TEQ");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1711,7 +1711,7 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_TNE:
    DEBUGDISPLAY2("TNE");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1719,7 +1719,7 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_TDEQ:
    DEBUGDISPLAY2("TDEQ");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1727,7 +1727,7 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_TDNE:
    DEBUGDISPLAY2("TNDE");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1735,7 +1735,7 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_TGT:
    DEBUGDISPLAY2("TGT");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1743,7 +1743,7 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_TGE:
    DEBUGDISPLAY2("TGE");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1751,7 +1751,7 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_TLT:
    DEBUGDISPLAY2("TLT");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1759,7 +1759,7 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_TLE:
    DEBUGDISPLAY2("TLE");
    a = &(_tmpstr[RxStckTop-1]);
@@ -1767,35 +1767,35 @@ outofcmd:
    RxStckTop--;
    STACKTOP = &_tmpstr[RxStckTop];
    goto chk4trace;
- 
+
   case OP_NOT:
    DEBUGDISPLAY("NOT");
    a = STACKP(1);
    LICPY(*a,!Lbool(STACKTOP));
    RxStckTop--;
    goto chk4trace;
- 
+
   case OP_AND:
    DEBUGDISPLAY2("AND");
    a = STACKP(2);
    LICPY(*a, Lbool(STACKP(1)) & Lbool(STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_OR:
    DEBUGDISPLAY2("OR");
    a = STACKP(2);
    LICPY(*a, Lbool(STACKP(1)) | Lbool(STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_XOR:
    DEBUGDISPLAY2("XOR");
    a = STACKP(2);
-   LICPY(*a, Lbool(STACKP(1)) ¬ Lbool(STACKTOP));
+   LICPY(*a, Lbool(STACKP(1)) ? Lbool(STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_CONCAT:
    DEBUGDISPLAY2("CONCAT");
    a = STACKP(2);
@@ -1809,7 +1809,7 @@ outofcmd:
    }
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_BCONCAT:
    DEBUGDISPLAY2("BCONCAT");
    a = STACKP(2);
@@ -1824,65 +1824,65 @@ outofcmd:
    Lstrcat(a,STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_NEG:
    DEBUGDISPLAY("NEG");
    Lneg(STACKP(1),STACKTOP);
    RxStckTop--;
    goto chk4trace;
- 
+
   case OP_INC:
    DEBUGDISPLAY("INC");
    Linc(RxStck[RxStckTop--]);
    goto chk4trace;
- 
+
   case OP_DEC:
    DEBUGDISPLAY("DEC");
    Ldec(RxStck[RxStckTop--]);
    goto chk4trace;
- 
+
   case OP_ADD:
    DEBUGDISPLAY2("ADD");
    Ladd(STACKP(2), STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_SUB:
    DEBUGDISPLAY2("SUB");
    Lsub(STACKP(2), STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_MUL:
    DEBUGDISPLAY2("MUL");
    Lmult(STACKP(2), STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_DIV:
    DEBUGDISPLAY2("DIV");
    Ldiv(STACKP(2), STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_IDIV:
    DEBUGDISPLAY2("IDIV");
    Lintdiv(STACKP(2), STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_MOD:
    DEBUGDISPLAY2("MOD");
    Lmod(STACKP(2), STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   case OP_POW:
    DEBUGDISPLAY2("POW");
    Lexpose(STACKP(2), STACKP(1),STACKTOP);
    RxStckTop -= 2;
    goto chk4trace;
- 
+
   default:
    DEBUGDISPLAY0("error, unknown mnemonic");
    Rxcip--;

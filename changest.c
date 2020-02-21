@@ -20,9 +20,9 @@
  * Initial revision
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ----------------- Lchagestr ------------------- */
 void __CDECL
 Lchangestr( const PLstr to, const PLstr oldstr,
@@ -30,17 +30,17 @@ Lchangestr( const PLstr to, const PLstr oldstr,
 {
  size_t pos, foundpos;
  Lstr tmp;
- 
+
  if (LLEN(*oldstr)==0) {
   Lstrcpy(to,str);
   return;
  }
- 
+
  Lfx(to,LLEN(*str));
  LZEROSTR(*to);
- 
+
  LINITSTR(tmp);
- 
+
  pos = 1;
  for (;;) {
   foundpos = Lindex(str,oldstr,pos);

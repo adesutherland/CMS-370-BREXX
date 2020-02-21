@@ -37,7 +37,7 @@
  * Initial Version
  *
  */
- 
+
 #if defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER) && !defined(WCE)
 # include <dos.h>
 # include <time.h>
@@ -58,9 +58,9 @@
 #endif
 #include "lerror.h"
 #include "lstring.h"
- 
+
 static double elapsed=0.0;
- 
+
 /* ------------------ _Ltimeinit ----------------- */
 void __CDECL
 _Ltimeinit( void )
@@ -79,7 +79,7 @@ _Ltimeinit( void )
  struct timeval tv;
  struct timezone tz;
 #endif
- 
+
 #ifdef WCE
  elapsed = (double)GetTickCount() / 1000.0;
 #elif defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
@@ -102,7 +102,7 @@ _Ltimeinit( void )
  elapsed = tv.tv_sec + (double)tv.tv_usec/1000000.0;
 #endif
 } /* _Ltimeinit */
- 
+
 /* -------------------- Ltime ---------------------- */
 void __CDECL
 Ltime( const PLstr timestr, char option )
@@ -129,17 +129,17 @@ Ltime( const PLstr timestr, char option )
   struct timezone tz;
 # endif
 #endif
- 
+
  option = l2u[(byte)option];
  Lfx(timestr,30); LZEROSTR(*timestr);
- 
+
 #ifndef WCE
  now = time(NULL);
  tmdata = localtime(&now) ;
 #else
  GetLocalTime(&time);
 #endif
- 
+
  switch (option) {
   case 'C':
 #ifndef WCE
@@ -156,7 +156,7 @@ Ltime( const PLstr timestr, char option )
     hour, time.wMinute, ampm) ;
 #endif
    break;
- 
+
   case 'E':
 #ifdef WCE
    unow = (double)GetTickCount() / 1000.0;
@@ -181,7 +181,7 @@ Ltime( const PLstr timestr, char option )
    LTYPE(*timestr) = LREAL_TY;
    LLEN(*timestr) = sizeof(double);
    return;
- 
+
   case 'H':
 #ifndef WCE
    sprintf(LSTR(*timestr), "%d", tmdata->tm_hour) ;
@@ -189,7 +189,7 @@ Ltime( const PLstr timestr, char option )
    swprintf(buf, TEXT("%d"), time.wHour) ;
 #endif
    break;
- 
+
   case 'L':
 #ifdef WCE
    swprintf(buf, TEXT("%02d:%02d:%02d.%03d"), time.wHour,
@@ -212,7 +212,7 @@ Ltime( const PLstr timestr, char option )
     tmdata->tm_sec, tv.tv_usec) ;
 #endif
    break;
- 
+
   case 'M':
 #ifndef WCE
    sprintf(LSTR(*timestr), "%d",
@@ -222,7 +222,7 @@ Ltime( const PLstr timestr, char option )
     time.wHour*60 + time.wMinute);
 #endif
    break;
- 
+
   case 'N':
 #ifndef WCE
    sprintf(LSTR(*timestr), "%02d:%02d:%02d",
@@ -233,7 +233,7 @@ Ltime( const PLstr timestr, char option )
     time.wHour, time.wMinute, time.wSecond);
 #endif
    break;
- 
+
   case 'R':
 #ifdef WCE
    unow = (double)GetTickCount() / 1000.0;
@@ -259,7 +259,7 @@ Ltime( const PLstr timestr, char option )
    LTYPE(*timestr) = LREAL_TY;
    LLEN(*timestr) = sizeof(double);
    return;
- 
+
   case 'S':
 #ifndef WCE
    sprintf(LSTR(*timestr), "%ld",
@@ -271,7 +271,7 @@ Ltime( const PLstr timestr, char option )
     *60L + (long)time.wSecond) ;
 #endif
    break;
- 
+
   default:
    Lerror(ERR_INCORRECT_CALL,0);
  }

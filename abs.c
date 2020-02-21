@@ -14,16 +14,16 @@
  * Initial revision
  *
  */
- 
+
 #include <math.h>
 #include "lstring.h"
- 
+
 /* ------------------ Labs ---------------------- */
 void __CDECL
 Labs( const PLstr to, const PLstr num )
 {
  L2NUM(num);
- 
+
  switch (LTYPE(*num)) {
   case LINTEGER_TY:
    Licpy(to,labs(LINT(*num)));

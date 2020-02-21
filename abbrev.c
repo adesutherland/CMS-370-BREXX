@@ -17,17 +17,17 @@
  * Initial revision
  *
  */
- 
+
 #include "lstring.h"
- 
+
 /* ------------------- Labbrev -------------------- */
 bool __CDECL
 Labbrev(const PLstr information, const PLstr info, long length)
 {
         int     cond1, cond2, cond3;
- 
+
  if (length<=0) length = LLEN(*info);
- 
+
         cond1 = (LLEN(*information) >= LLEN(*info));
         cond2 = (LLEN(*info) >= length);
         cond3 = !memcmp(LSTR(*information), LSTR(*info), LLEN(*info));
