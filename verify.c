@@ -47,7 +47,7 @@ Lverify( const PLstr str, const PLstr ref, const bool match, long start )
 
  for (; start<LLEN(*str); start++) {
   found = (MEMCHR(LSTR(*ref), LSTR(*str)[start], LLEN(*ref))==NULL);
-  if (found ? match) return start+1;
+  if (found ^ match) return start+1;
  }
  return LNOTFOUND;
 } /* Lverify */

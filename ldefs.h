@@ -98,7 +98,7 @@ typedef int  bool;
 #endif
 #define CTL(a)  (('a') & 0x1F)
 
-#define SWAP(a,b) a ?= b ?= a ?= b;
+#define SWAP(a,b) a ^= b ^= a ^= b;
 
 #define DIMENSION(p) (sizeof(p) / sizeof(p[0]))
 #define ABS(a)  (((a)<0)?-(a):(a))

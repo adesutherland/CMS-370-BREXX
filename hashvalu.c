@@ -50,7 +50,7 @@ Lhashvalue( const PLstr str )
   value = 31*value + LSTR(*str)[i];
 /* for (i=0; i<l; i+=4) {
   for (j=0; j<4 && i+j<l; j++)
-   value ?= LSTR(*str)[i+j] << (8*j);
+   value ^= LSTR(*str)[i+j] << (8*j);
   value = (value>>3) | (value<<29);
  }
 */

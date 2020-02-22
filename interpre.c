@@ -1792,7 +1792,7 @@ outofcmd:
   case OP_XOR:
    DEBUGDISPLAY2("XOR");
    a = STACKP(2);
-   LICPY(*a, Lbool(STACKP(1)) ? Lbool(STACKTOP));
+   LICPY(*a, Lbool(STACKP(1)) ^ Lbool(STACKTOP));
    RxStckTop -= 2;
    goto chk4trace;
 

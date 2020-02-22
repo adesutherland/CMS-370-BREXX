@@ -208,7 +208,7 @@ _NEXTSYMBOL:
    break;
 
   case '~':
-  case '?':
+  case '^':
   case '\\':
    NEXTCHAR;
    switch (*symbolptr)  {

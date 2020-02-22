@@ -173,7 +173,7 @@ R_bitwise( const int func )
   if (func==f_or)
    LINT(*ARGR) |= num;
   else
-   LINT(*ARGR) ?= num;
+   LINT(*ARGR) ^= num;
  }
 } /* R_bitwise */
 

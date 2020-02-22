@@ -44,7 +44,7 @@ enum symboltype {
  ,not_sy    /*  ? or \  */ /* ------------ */
 
  ,eq_sy       ,deq_sy  /*   =  ==  */ /* eq_sy - first */
- ,ne_sy       ,dne_sy  /*  ?= ?==  */
+ ,ne_sy       ,dne_sy  /*  ^= ^==  */
  ,le_sy       ,ge_sy  /*  <=  =>  */
  ,lt_sy       ,gt_sy  /*   <  >   */
  ,dle_sy      ,dge_sy            /* <<=  =>> */

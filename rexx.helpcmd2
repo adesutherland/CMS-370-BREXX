@@ -1,0 +1,12 @@
+Usage Notes:
+
+1.  The BREXX interpreter is somewhat flaky.  Please report any problems you
+    encounter to the H390-VM group on Yahoo.  Try out REXXTRY EXEC!
+
+2.  Note that loading REXX and the GCCLIB runtime (required for REXX) into
+    memory consumes 250K of memory.  Thus you may want to run in a larger
+    virtual machine than you previously used.  You can remove these programs
+    from memory by using the RESLIB commands:
+       RESLIB DELETE DMSREX
+       RESLIB DELETE GCCLIB
+    Doing this of course means that you cannot run REXX EXECs.
