@@ -1,0 +1,114 @@
+REXX Overview
+
+Version 2.1.9 - 22 Feb 2020
+
+The VM/370 Sixpack features an integrated version of BREXX.  REXX procedures
+have a filetype of EXEC, and must begin with "/* on the first line.
+
+Note that this is an incomplete port of BREXX to VM/370.  In particular the
+external variable and subcommand interfaces are not operational.
+
+
+The following instructions are supported (except for those marked with **):
+   ADDRESS CMS
+   ADDRESS SYSTEM
+   ARG [template]
+   CALL name [expression] [,expression] ...
+   DO [repetitor] [conditional]; [statement-list] END [symbol]
+   DROP name [name] ...
+   EXIT [expression]
+   IF expression THEN statement1; [ELSE statement2]
+   INTERPRET expression
+   ITERATE [symbol]
+   LEAVE [symbol]
+   NOP
+   NUMERIC DIGITS [expression]
+   NUMERIC FORM [form]
+   NUMERIC FUZZ [expression]
+   PARSE [UPPER] source [template]
+   PROCEDURE [EXPOSE name [name] ...]
+   PULL [template]
+   PUSH [expression]
+   QUEUE [expression]
+   RETURN [expression]
+   SAY [expression]
+   SELECT; when-list [OTHERWISE [statement-list]] END
+   SIGNAL name
+** SIGNAL VALUE expression
+** SIGNAL ON condition [NAME handler]
+** SIGNAL OFF condition
+   TRACE [VALUE] expression
+
+The following built-in functions are provided:
+   ABBREV(string1, string2, [length])
+   ABS(number)
+   ADDRESS()
+   ARG([argument-number], [option])
+   BITAND(string1, [string2], [pad])
+   BITOR(string1, [string2], [pad])
+   BITXOR(string1, [string2], [pad])
+   B2X(binary-string)
+   CENTER(string, length, [pad])
+   CHANGESTR(substring, string, substring)
+   CHARIN([name], [start], [length])
+   CHAROUT([name], [string], [start]) *** 'start' is ignored, treated as 1
+   CHARS([name])
+   CMSFLAG(flag)
+   COMPARE(string1, string2, [pad])
+   CONDITION([option])
+   COPIES(string, count)
+   COUNTSTR(substring, string)
+   C2D(data, [length])
+   C2X(data)
+   DATATYPE(string, [type])
+   DATE([option])
+   DELSTR(string, start, [length])
+   DELWORD(string, start, [length])
+   DIGITS()
+   D2C(number, [length])
+   D2X(number, [length])
+   ERRORTEXT(number)
+   FORM()
+   FORMAT(number, [m], [n], [exp1], [exp2])
+   FUZZ()
+   INSERT(string1, string2, [pos], [length], [pad])
+   LASTPOS(target, string, [start])
+   LEFT(string, length, [pad])
+   LENGTH(string)
+   LINEIN([name], [line], [count])
+   LINEOUT([name], [string], [line]) *** 'line' is ignored, treated as 1
+   LINES([name])
+   LINESIZE()
+   MAX(number, [number], ...)
+   MIN(number, [number], ...)
+   OVERLAY(string1, string2, [pos], length], [pad])
+   POS(target, string, [start])
+   QUEUED()
+   RANDOM([min], [max], [seed])
+   REVERSE(string)
+   RIGHT(string, length, [pad])
+   SIGN(number)
+   SOURCELINE([number])
+   SPACE(string, [count], [pad])
+   SQRT(number)
+   STORAGE()
+   STRIP(string, [option], [character])
+   SUBSTR(string, start, [length], [pad])
+   SUBWORD(string, start, [length])
+   SYMBOL(name)
+   TIME([option])
+   TRACE([type])
+   TRANSLATE(string, [output], [input], [pad])
+   TRUNC(number, [digits])
+   VALUE(]name, [value], [type])
+   VERIFY(string, search, [option], [start])
+   USERID()
+   WORD(string, number)
+   WORDINDEX(string, number)
+   WORDLENGTH(string, number)
+   WORDPOS(phrase, string, [start])
+   WORDS(string)
+   XRANGE([first], [last])
+   X2B(hex-string) (not working)
+   X2C(hex-string)
+   X2D(hex-string, [length])

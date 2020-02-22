@@ -47,13 +47,13 @@ Ld2c( const PLstr to, const PLstr from, long n )
  for (i=0; num && i<n2; i++) {
   LSTR(*to)[i] = (char)(num & 0xFF);
   if (negative)
-   LSTR(*to)[i] ?= 0xFF;
+   LSTR(*to)[i] ^= 0xFF;
   num >>= 8;
  }
  if (i==0) {
   LSTR(*to)[i] = 0x00;
   if (negative)
-   LSTR(*to)[i] ?= 0xFF;
+   LSTR(*to)[i] ^= 0xFF;
   i++;
  }
 

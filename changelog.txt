@@ -1,0 +1,7 @@
+BREXX CMS Change LOG
+====================
+
+2.1.9 - 22 Feb 2020
+F0001 - Automated Build and Install
+
+<=2.1.8 - Prehistory Versions

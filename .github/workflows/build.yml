@@ -1,0 +1,91 @@
+name: Build GCCLIB
+
+on: [push]
+
+jobs:
+
+#**************************************************#
+  build-cms:
+    name: Build for CMS
+    runs-on: [ubuntu-latest]
+    container: adriansutherland/vm370:1.4.1
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Move Source
+      run: |
+        mkdir /opt/hercules/vm370/io
+        mv * /opt/hercules/vm370/io
+      shell: bash
+
+    - name: Build
+      working-directory: /opt/hercules/vm370
+      run: |
+        chmod -R ugo+rw *
+        hercules -f hercules.conf -d >/dev/null 2>/dev/null &
+        cd io
+        chmod +x cmsbuild.sh
+        echo "Running CMSBUILD"
+        ./cmsbuild.sh
+      shell: bash
+
+    - name: Get Executable
+      run: |
+        mkdir -p exe
+        cp /opt/hercules/vm370/io/brexxbin.aws exe
+        cp /opt/hercules/vm370/io/LICENSE exe
+        cp /opt/hercules/vm370/io/README.md exe
+        cp /opt/hercules/vm370/io/cmsinstall.sh exe
+        cp /opt/hercules/vm370/io/changelog.txt exe
+        chmod -R ugo+r exe
+      shell: bash
+
+    - name: Upload Executable
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-artifact@v1
+      with:
+        name: BREXX
+        path: ./exe
+
+#**************************************************#
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Release
+    needs: [build-cms]
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Get CMS binary
+        uses: actions/download-artifact@v1
+        with:
+          name: BREXX
+
+      - name: ZIP CMS binary
+        run:
+          zip -r BREXX.zip BREXX
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: true
+
+      - name: Upload Release Asset - CMS
+        id: upload-release-asset-CMS
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./BREXX.zip
+          asset_name: BREXX.zip
+          asset_content_type: application/zip
