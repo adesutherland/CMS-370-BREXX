@@ -1,4 +1,6 @@
 REM Copy and build source files to VM370
+REM This tests the cmsbuild.sh and cmsinstall.sh scripts
+REM that are used by the automated build process
 yata -c -f tmp.txt
 echo USERID  CMSUSER > yata.txt
 echo :READ  YATA     TXT      >> yata.txt

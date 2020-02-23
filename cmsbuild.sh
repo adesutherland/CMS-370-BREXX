@@ -28,11 +28,11 @@ herccontrol "/read *" -w "^Ready;"
 # Build
 herccontrol "/yata -x -d f" -w "^Ready;"
 herccontrol "/erase yata txt a" -w "^Ready;"
-herccontrol "/mkbrexx" -w "^Ready;"
+herccontrol "/mkbrexx" -w "^Ready;" -t 120
 herccontrol "/rename * * e = = e2" -w "^Ready;"
 
 # Sanity test
-herccontrol "/copy * * e = = a" -w "^Ready;"
+herccontrol "/copy * * e = = a ( replace" -w "^Ready;"
 herccontrol "/copy sysprof exec s = = a" -w "^Ready;"
 herccontrol "/ipl cms" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"

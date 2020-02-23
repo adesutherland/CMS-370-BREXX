@@ -1,4 +1,8 @@
 /* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
+
+/* The one version to rule them all! */
+#define CMS_VERSION "F0002"
+
 #include "rxmvs.h"
 
 /* inc/config.h.  Generated from config.h.in by configure.  */
@@ -118,23 +122,23 @@
 #undef OLD_MYSQL
 
 /* Name of package */
-#define PACKAGE "bREXX"
+#define PACKAGE "CMS-bREXX"
 
 /* Define to the address where bug reports for this package should be sent. */
 // #define PACKAGE_BUGREPORT "Vasilis.Vlachoudis@cern.ch"
 #define PACKAGE_BUGREPORT "rpohara@msn.com"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "VM/370 SixPack bREXX Interpreter"
+#define PACKAGE_NAME "VM/370 bREXX Interpreter"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "bREXX 2.1.9"
+#define PACKAGE_STRING "CMS bREXX "CMS_VERSION
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "bREXX"
+#define PACKAGE_TARNAME "CMS-bREXX"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.1.9"
+#define PACKAGE_VERSION "CMS "CMS_VERSION
 
 /* Remove the trailing CR from system commands */
 #define RMLAST 1
@@ -155,7 +159,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.1.9"
+#define VERSION "CMS "CMS_VERSION
 
 /* Enable debuging information */
 /* #undef __DEBUG__ */
