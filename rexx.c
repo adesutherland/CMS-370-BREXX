@@ -240,10 +240,12 @@ RxFileLoad( RxFile *rxf )
 /* DMSEXC, which already knows the exact file.  But for now, let's figure it out for ourselves.   */
 char fileid[28];
 CMSFILEINFO * fst;
+int rc;
 
 strcpy(fileid, "        EXEC    * ");
 strncpy(fileid, LSTR(rxf->name), strlen(LSTR(rxf->name)));
-CMSfileState(fileid, &fst);                           // determine on which disk the program resides
+rc = CMSfileState(fileid, &fst);                           // determine on which disk the program resides
+if (rc) return FALSE;
 strncpy(fileid, fst->filename, 8);
 fileid[8] = ' ';
 strncpy(fileid + 9, fst->filetype, 8);
