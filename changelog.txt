@@ -1,6 +1,7 @@
 BREXX CMS Change LOG
 ====================
 
+F0003 - Fix Issue 1 (SAY - Trailing junk)
 F0002 - Added mkonvm.bat (Make On VM/370) to help development workflow
         (Allows the a VM to be prepped with source and a build)
         Fixed MKBREXX EXEC to use the A Drive to detect UpToDate.
