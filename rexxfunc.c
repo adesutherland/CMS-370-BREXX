@@ -42,6 +42,7 @@
 #include "rexx.h"
 #include "rxdefs.h"
 #include "compile.h"
+#include "context.h"
 
 #define DECL( A )  void __CDECL R_##A ( const int );
 
@@ -107,10 +108,10 @@ DECL( not )
 #undef DECL
 
 /* ------------- Register Functions Tree ----------- */
-static BinTree *ExtraFuncs = NULL;
+#define ExtraFuncs (currentContext->rexxfunc_ExtraFuncs)
 /* !!!!!!!!!!!! WARNING THE LIST MUST BE SORTED !!!!!!!!!!! */
 /* !!!!!! EBCDIC SORT ORDER IS NOT THE SAME AS ASCII */
-static
+static const
 TBltFunc
 rexx_routine[] = {
 #ifdef WCE
@@ -326,7 +327,7 @@ C_isBuiltin( PLstr func )
  while (first<=last)   {
   middle = (first+last)/2;
   if ((cmp=Lcmp(func,rexx_routine[middle].name))==0)
-   return (rexx_routine+middle);
+   return (TBltFunc*)(rexx_routine+middle); /* Get rid of const warning */
   else
   if (cmp<0)
    last  = middle-1;

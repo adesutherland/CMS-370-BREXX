@@ -58,8 +58,9 @@
 #endif
 #include "lerror.h"
 #include "lstring.h"
+#include "context.h"
 
-static double elapsed=0.0;
+#define elapsed (currentContext->ltime_elapsed)
 
 /* ------------------ _Ltimeinit ----------------- */
 void __CDECL

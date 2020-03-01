@@ -55,11 +55,13 @@ day_of_year(LPSYSTEMTIME time)
 } /* day_of_year */
 #endif
 
-static TCHAR *WeekDays[] = {
+/* Keep Global as constant */
+static const TCHAR *WeekDays[] = {
  TEXT("Sunday"), TEXT("Monday"), TEXT("Tuesday"), TEXT("Wednesday"),
  TEXT("Thursday"), TEXT("Friday"), TEXT("Saturday") };
 
-static TCHAR *months[] = {
+ /* Keep Global as constant */
+static const TCHAR *months[] = {
  TEXT("January"), TEXT("February"), TEXT("March"),
  TEXT("April"), TEXT("May"), TEXT("June"),
  TEXT("July"), TEXT("August"), TEXT("September"),
@@ -72,7 +74,7 @@ Ldate( const PLstr datestr, char option )
  static TCHAR *fmt = TEXT("%02d/%02d/%02d");
  static TCHAR *iso = TEXT("%4d%02d%02d");
  long length;
- TCHAR *chptr;
+ const TCHAR *chptr;
 
 #ifndef WCE
  time_t now ;

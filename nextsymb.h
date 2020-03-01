@@ -18,17 +18,10 @@
  *
  */
 
-#ifndef __NEXTSYMBOL_H__
-#define __NEXTSYMBOL_H__
-
 #include "lstring.h"
 
-#ifdef __NEXTSYMB_C__
-# define EXTERN
-#else
-# define EXTERN extern
-#endif
-
+#ifndef __NEXTSYMBOL_H__
+#define __NEXTSYMBOL_H__
 
 enum symboltype {
   ident_sy   /* identifier symbol */
@@ -103,19 +96,11 @@ enum  stat_type {
  ,in_parse_value_st
 };
 
-EXTERN enum symboltype symbol; /* contains the symbol  */
-EXTERN Lstr symbolstr;  /* symbol identifier  */
-EXTERN bool symbolisstr;  /* if litteral was inside quotes*/
-EXTERN bool symbolPrevBlank; /* previous blank  */
-EXTERN int symbolhasdot;  /* is symbol has a dot->stem */
-EXTERN char *symbolptr;  /* current symbol pointer */
-EXTERN char *symbolprevptr;  /* start of current symbol */
-EXTERN int symboline;  /* current line number  */
-EXTERN enum stat_type  symbolstat; /* statement type  */
+/* "Globals" */
+#include "context.h"
 
 /* -------- function prototypes ----------- */
 void __CDECL InitNextsymbol( PLstr str );
 void __CDECL nextsymbol(void);
 
-#undef EXTERN
 #endif

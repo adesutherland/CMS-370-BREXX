@@ -55,6 +55,7 @@
 #include "compile.h"
 #include "interpre.h"
 #include "nextsymb.h"
+#include "context.h"
 
 #if defined(UNIX)
 # include <dlfcn.h>
@@ -71,9 +72,6 @@ void __CDECL Rerror(const int,const int,...);
 void    __CDECL RxInitFiles(void);
 void    __CDECL RxDoneFiles(void);
 void __CDECL RxRegFunctionDone(void);
-
-/* ----------- External variables ------------- */
-extern Lstr errmsg;
 
 /* ---------------- RxInitProc ---------------- */
 static void
@@ -263,7 +261,7 @@ if ((f=FOPEN(fileid, "r")) == NULL)
 } /* RxFileLoad */
 
 /* --- _LoadRexxLibrary --- */
-static jmp_buf old_trap;
+#define old_trap (currentContext->rexx_old_trap)
 static int
 _LoadRexxLibrary(RxFile *rxf, PLstr libname)
 {

@@ -42,9 +42,7 @@
 #include "interpre.h"
 #include "variable.h"
 #include "nextsymb.h"
-
-/* --- Global variable --- */
-Lstr errmsg;   /* initialise string from beggining  */
+#include "context.h"
 
 /* ---------------- RxHaltTrap ----------------- */
 void __CDECL

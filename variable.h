@@ -22,10 +22,10 @@
  *
  */
 
+#include "bintree.h"
+
 #ifndef __VARIABLE_H__
 #define __VARIABLE_H__
-
-#include "bintree.h"
 
 /* ------------ some defines ------------------ */
 #define VARTREES 7
@@ -77,5 +77,4 @@ int __CDECL RxRegPool(char *poolname, int (*getf)(PLstr,PLstr),
 int __CDECL RxPoolGet(PLstr,PLstr,PLstr);
 int __CDECL RxPoolSet(PLstr,PLstr,PLstr);
 
-#undef EXTERN
 #endif

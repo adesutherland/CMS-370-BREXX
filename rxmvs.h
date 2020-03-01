@@ -15,13 +15,8 @@
 
 #define BinDisposeLeaf BiDiLeaf
 #define BinDisposeLeaf BiDiLeaf
+
 /* compile.c */
-#define CompileCode CmpC
-#define CompileCurClause CmpCuCl
-#define CompileCodeLen CmpCoLn
-#define CompileClause  CmpCl
-#define CompileClauseItems  CmpClIt
-#define CompileCodePtr  CmpCoPt
 #define _CodeAddPtr _CoAdPt
 #define _CodeAddDWord _CoAdDw
 /*
@@ -36,12 +31,8 @@
 /*
   Nextsymbol and Compile
 */
-#define InitNextch InNech
 #define InitNextSymbol InNeSymbol
-#define symbolstr symbstr
-#define symbolstat symbstat
-#define symbolPrevBlank symbPrBl
-#define symbolprevptr symbprptr
+
 /*
  RxFunction
 */

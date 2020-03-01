@@ -18,8 +18,6 @@
 #ifndef __DEQUEUE_H__
 #define __DEQUEUE_H__
 
-#include "lstring.h"
-
 /* ============= type definitions ================= */
 typedef struct dequeue_elem_st {
  void *dat;
@@ -31,6 +29,8 @@ typedef struct {
  DQueueElem *head;
  DQueueElem *tail;
 } DQueue;
+
+#include "lstring.h"
 
 #define DQINIT(q) {(q).items=0; (q).head=NULL; (q).tail=NULL;}
 #define DQQUEUE(q,s) DQAdd2Head(q,s)

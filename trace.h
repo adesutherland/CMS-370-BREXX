@@ -27,13 +27,6 @@
 #include "lstring.h"
 #include "interpre.h"
 
-#ifdef __TRACE_C__
-# define EXTERN
-#else
-# define EXTERN extern
-#endif
-
-
 /* ------------------ tracing --------------------- */
 enum tracetype { all_trace  = BIT0,
    commands_trace  = BIT1,
@@ -83,5 +76,4 @@ void __CDECL TraceClause( void );
 void __CDECL TraceInstruction( CIPTYPE inst );
 int __CDECL TraceInteractive( int );
 
-#undef EXTERN
 #endif

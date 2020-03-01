@@ -55,6 +55,7 @@
 #include "bintree.h"
 #include "interpre.h"
 #include "variable.h"
+#include "context.h"
 
 typedef
 struct tpoolfunc {
@@ -62,15 +63,11 @@ struct tpoolfunc {
  int (*set)(PLstr,PLstr);
 } TPoolFunc;
 
-extern int _trace;  /* from interpret.c  */
-
-static int hashchar[256]; /* use the first char as hash value */
-static PLstr varname; /* variable name of prev find */
-static Lstr varidx;  /* index of previous find */
-static Lstr int_varname; /* used for the old RxFindVar */
-static BinTree PoolTree; /* external pools tree  */
-
-Lstr stemvaluenotfound; /* this is the value of a stem if */
+#define hashchar (currentContext->variable_hashchar) /* use the first char as hash value */
+#define varname (currentContext->variable_varname) /* variable name of prev find */
+#define varidx  (currentContext->variable_varidx) /* index of previous find */
+#define int_varname (currentContext->variable_int_varname) /* used for the old RxFindVar */
+#define PoolTree (currentContext->variable_PoolTree) /* external pools tree  */
 
 /* --- local function prototypes --- */
 static int SystemPoolGet(PLstr name, PLstr value);

@@ -53,6 +53,7 @@
 #if !defined(__CMS__) && !defined(__MVS__)
 # include <sys/stat.h>
 #endif
+#include "context.h"
 
 /* ------- Includes for any other external library ------- */
 #ifdef RXCONIO
@@ -70,19 +71,22 @@ main(int ac, char *av[])
  Lstr args[MAXARGS], tracestr, file;
  int ia,ir,iaa;
  bool input, loop_over_stdin, parse_args;
+ int returnCode;
 #if defined(HAVE_READLINE)
  Lstr line;
  LINITSTR(line);
 #endif
+ PushContext();
 
  /* Interim code for f0006 - Print arguments */
+ /*
  {
    int i;
    for (i=0; i<ac; i++) {
      printf("Arg %d is (%s)\n", i, av[i]);
    }
  }
-
+ */
  input = loop_over_stdin = parse_args = FALSE;
  for (ia=0; ia<MAXARGS; ia++) LINITSTR(args[ia]);
  LINITSTR(tracestr);
@@ -100,6 +104,7 @@ main(int ac, char *av[])
   puts("Author: "AUTHOR);
   puts("Please report bugs, errors or comments to the above address.\n");
 #endif
+  PopContext();
   return 0;
  }
 #ifdef __DEBUG__
@@ -206,5 +211,7 @@ main(int ac, char *av[])
  }
 #endif
 
- return rxReturnCode;
+ returnCode = rxReturnCode; /* The Global Context will die on the next line ... */
+ PopContext();
+ return returnCode;
 } /* main */

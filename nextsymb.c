@@ -33,12 +33,11 @@
 #include "lstring.h"
 #include "nextsymb.h"
 
-static PLstr ProgStr; /* pointer that holds the program string*/
-static int InitNextch; /* NextChar initialised?  */
-static bool NextBlank; /* Next char is blank   */
-static bool commentfound; /* if comment found in nextchar  */
-
-bool _in_nextsymbol;  /* Used only to track error inside nextsymb*/
+/* Local Defines */
+#define ProgStr (currentContext->nextsymb_ProgStr) /* pointer that holds the program string*/
+#define InitNextch (currentContext->nextsymb_InitNextch) /* NextChar initialised?  */
+#define NextBlank (currentContext->nextsymb_NextBlank) /* Next char is blank   */
+#define commentfound (currentContext->nextsymb_commentfound) /* if comment found in nextchar  */
 
 /* ------------------- function prototypes ----------------------- */
 static void literal(void);

@@ -6,6 +6,10 @@ REM       container is IPLed
 REM       Reader is started - start c
 REM       CMSUSER is NOT logged on
 
+REM Notwithstanding the above - IPL VM
+herccontrol "ipl 141" -w "USER DSC LOGOFF AS AUTOLOG1"
+herccontrol "/cp start c" -w "RDR"
+
 REM Create the Source Archive Deck
 yata -c -f tmp.txt
 echo USERID  CMSUSER > yata.txt

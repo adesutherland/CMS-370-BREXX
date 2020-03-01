@@ -30,7 +30,8 @@
 #include "lstring.h"
 
 /* ============= Error messages =============== */
-ErrorMsg errortext[] = {
+/* As const keep Global */
+const ErrorMsg errortext[] = {
 #ifndef WCE
  { ERRNUM(0,1), "Error <value> running <source>, line <linenumber>:" },
  { ERRNUM(0,2), "Error <value> in interactive trace:" },

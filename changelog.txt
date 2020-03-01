@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+
+F0004 - Make Re-entrant
 F0006 - Fix error reading the REXX file actually being interpreted
         Fix when program file not found the extra "STAT" Error message
 F0003 - Fix Issue 1 (SAY - Trailing junk)

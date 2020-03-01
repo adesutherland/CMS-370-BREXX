@@ -67,6 +67,7 @@
 #include "trace.h"
 #include "compile.h"
 #include "nextsymb.h"
+#include "context.h"
 
 /*
 //
@@ -93,8 +94,9 @@ void __CDECL C_template( void );
 TBltFunc* __CDECL C_isBuiltin( PLstr );
 
 /* --- static Variables --- */
-static int str_interpreted; /* is it a string interpreted */
-static int checked_semicolon; /* if instruction has checked the semicolon likeIF */
+#define str_interpreted (currentContext->compile_str_interpreted) /* is it a string interpreted */
+#define checked_semicolon (currentContext->compile_checked_semicolon) /* if instruction has checked the semicolon likeIF */
+#define Loop (currentContext->compile_Loop)
 
 typedef struct loop_st {
  size_t Citerate;
@@ -102,7 +104,6 @@ typedef struct loop_st {
  int noofvars;
  PLstr ctrlvar;
 } LoopCtrl;
-static DQueue  Loop;
 
 /* ------------ local prototypes ------------ */
 static bool C_instr(bool);
@@ -135,7 +136,8 @@ static void C_trace(void);
 static void C_upper(void);
 
 /* ---------------------------------------------------------- */
-static
+/* because ths is const we shall keep it really global */
+static const
 struct sort_list_st {
  char *name;
  void (*func)(void);

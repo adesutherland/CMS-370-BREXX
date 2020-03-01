@@ -21,9 +21,6 @@
  *
  */
 
-#ifndef __COMPILE_H__
-#define __COMPILE_H__
-
 #ifndef WIN
 # include "bmem.h"
 #endif
@@ -31,11 +28,8 @@
 #include "bintree.h"
 #include "nextsymb.h"
 
-#ifdef __COMPILE_C__
-# define EXTERN
-#else
-# define EXTERN extern
-#endif
+#ifndef __COMPILE_H__
+#define __COMPILE_H__
 
 /* ----------- local defines --------------- */
 #define UNKNOWN_LABEL  0xFFFF
@@ -64,21 +58,7 @@ typedef struct tfunction {
 } RxFunc;
 
 /* ------------ Global Variables ------------ */
-/* --- Compile Variables --- */
-EXTERN RxFile *CompileRxFile;  /* Rexx file pointer */
-EXTERN byte *CompileCodePtr; /* code pointer  */
-EXTERN PLstr CompileCode;  /* code space  */
-#ifndef ALIGN
-EXTERN word CompileCodeLen;  /* code length  */
-#else
-EXTERN dword CompileCodeLen;  /* code length  */
-#endif
-
-EXTERN Clause *CompileClause;  /* compile clauses */
-EXTERN int CompileCurClause; /* current clause */
-EXTERN int CompileClauseItems; /* maximum clause len */
-
-EXTERN int CompileNesting;  /* current nesting */
+#include "context.h"
 
 /* --------------- rexx options ----------------- */
 enum options_type {
@@ -232,5 +212,4 @@ void  *_Add2Lits( PLstr lit, int hasdot );
 void __CDECL _mustbe( enum symboltype sym, int err, int subno);
 PBinLeaf _AddLabel( int type, size_t position );
 
-#undef EXTERN
 #endif

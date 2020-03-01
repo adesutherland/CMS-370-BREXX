@@ -88,33 +88,26 @@
 #include "bintree.h"
 #include "compile.h"
 #include "interpre.h"
+#include "context.h"
 
 #ifdef WCE
 # define MAX_EVENT_COUNT 50
 #endif
 
-/* ---------------- global variables ------------------ */
-int _trace;   /* if trace is enabled */
-PLstr   RxStck[STCK_SIZE]; /* Array of PLstr       */
-int     RxStckTop;  /* top item of stack    */
-Lstr _tmpstr[STCK_SIZE]; /* temporary strings */
-
-/*extern int _interrupt;*/ /* if any interrupt is pending */
 /*void ProcessInterrupt();*/
 
 /* ---------------- Local variables ------------------- */
-static Scope VarScope; /* Variables Scope      */
-static PLstr ToParse; /* Parsing variables */
-static int DataStart,
-  DataEnd,
-  BreakStart,
-  BreakEnd,
-  SourceEnd; /* Length of string+1 */
-
-
-static jmp_buf  old_error; /* keep old value of errortrap */
-
-extern Lstr stemvaluenotfound; /* from variable.c */
+#define VarScope (currentContext->interpre_VarScope) /* Variables Scope      */
+#define ToParse (currentContext->interpre_ToParse) /* Parsing variables */
+#define DataStart (currentContext->interpre_DataStart)
+#define DataEnd (currentContext->interpre_DataEnd)
+#define BreakStart (currentContext->interpre_BreakStart)
+#define BreakEnd (currentContext->interpre_BreakEnd)
+#define SourceEnd (currentContext->interpre_SourceEnd) /* Length of string+1 */
+#define old_error (currentContext->interpre_old_error) /* keep old value of errortrap */
+#ifdef __PROFILE__
+#define instr_cnt (currentContext->interpre_instr_cnt)  /* instruction counter */
+#endif
 
 #define STACKTOP RxStck[RxStckTop]
 #define STACKP(i) RxStck[RxStckTop-(i)]
@@ -135,10 +128,6 @@ extern Lstr stemvaluenotfound; /* from variable.c */
 # define DEBUGDISPLAY(a)
 # define DEBUGDISPLAYi(a,b)
 # define DEBUGDISPLAY2(a)
-#endif
-
-#ifdef __PROFILE__
-int instr_cnt[256];  /* instruction counter */
 #endif
 
 #define CHKERROR if (RxStckTop==STCK_SIZE-1) Lerror(ERR_STORAGE_EXHAUSTED,0)

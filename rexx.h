@@ -54,10 +54,6 @@
  * ALIGN  to enable DWORD align instead of byte
  * INLINE  to inline some functions
  */
-#ifndef __REXX_H_
-#define __REXX_H_
-
-#include <setjmp.h>
 
 #include "lerror.h"
 #include "lstring.h"
@@ -66,14 +62,10 @@
 #include "bintree.h"
 #include "variable.h"
 
-#ifdef  __REXX_C__
-# define EXTERN
-# ifdef __BORLANDC__
-  extern unsigned _stklen = 32000U;
-# endif
-#else
-# define EXTERN extern
-#endif
+#ifndef __REXX_H_
+#define __REXX_H_
+
+#include <setjmp.h>
 
 /* ------------ some defines ------------------ */
 #define VERSIONSTR PACKAGE_STRING" "__DATE__
@@ -191,45 +183,7 @@ struct trxproc {
 } RxProc;
 
 /* ------------- global variables ----------------- */
-#ifdef __DEBUG__
-EXTERN int __debug__;
-#endif
-#if defined(WIN32) || defined(WCE)
-EXTERN TCHAR *_szRxAppKey;
-#endif
-EXTERN char *_prgname; /* point to argv[0]  */
-EXTERN jmp_buf _error_trap; /* error trap for compile */
-EXTERN jmp_buf _exit_trap; /* exit from prg  */
-
-EXTERN DQueue rxStackList; /* dble queue of dble queues */
-
-EXTERN RxFile *rxFileList; /* rexx file list  */
-EXTERN int rxReturnCode; /* Global return code  */
-
-EXTERN int _procidcnt; /* procedure id counter  */
-EXTERN RxProc *_proc;  /* procedure & function array */
-EXTERN int _nesting; /* cur nesting set by TraceCurline */
-EXTERN int _rx_proc; /* current procedure id  */
-EXTERN int _proc_size; /* number of items in proc list */
-
-EXTERN PLstr _code;  /* code of program  */
-EXTERN BinTree _labels; /* Labels   */
-
-EXTERN Args rxArg;  /* global arguments for internal routines */
-
-EXTERN BinTree rxLitterals; /* Litterals   */
-EXTERN BinLeaf *nullStr, /* basic leaf Lstrings  */
-  *zeroStr,
-  *oneStr,
-  *resultStr,
-  *siglStr,
-  *RCStr,
-  *errorStr,
-  *haltStr,
-  *syntaxStr,
-  *systemStr,
-  *noValueStr,
-  *notReadyStr;
+#include "context.h"
 
 /* ============= function prototypes ============== */
 #ifdef __cplusplus
@@ -260,5 +214,4 @@ int __CDECL RxExecuteCmd( PLstr cmd, PLstr env );
 }
 #endif
 
-#undef EXTERN
 #endif

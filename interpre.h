@@ -18,17 +18,11 @@
  *
  */
 
-#ifndef __INTERPRET_H__
-#define __INTERPRET_H__
-
 #include "lstring.h"
 #include "bintree.h"
 
-#ifdef  __INTERPRET_C__
-# define EXTERN
-#else
-# define EXTERN extern
-#endif
+#ifndef __INTERPRET_H__
+#define __INTERPRET_H__
 
 #ifndef ALIGN
 # define CIPTYPE byte
@@ -37,15 +31,11 @@
 #endif
 
 /* -------- variables definitions ------ */
-EXTERN int Rx_proc;  /* current procedure */
-EXTERN int Rx_id;   /* current program id */
-EXTERN CIPTYPE *Rxcodestart;  /* actual code          */
-EXTERN CIPTYPE *Rxcip;   /* instruction pointer */
+#include "context.h"
 
 /* -------- function prototypes ------- */
 void __CDECL RxInitInterpret( void );
 void __CDECL RxDoneInterpret( void );
 int __CDECL RxInterpret( void );
 
-#undef EXTERN
 #endif

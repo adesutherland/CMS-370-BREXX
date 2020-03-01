@@ -55,9 +55,6 @@
  *
  */
 
-#ifndef __LSTRING_H__
-#define __LSTRING_H__
-
 #include "ldefs.h"
 #include "os.h"
 
@@ -76,18 +73,18 @@
 # endif
 #endif
 
-#ifdef WCE
-# include "bstr.h"
-#else
-# include <ctype.h>
-# include <stdio.h>
-#endif
+#include <ctype.h>
+#include <stdio.h>
 
 #if defined(__CMS__) || defined(__MVS__)
 # include "lmvs.h"
 #endif
 
 #include "bmem.h"
+
+#ifndef __LSTRING_H__
+#define __LSTRING_H__
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -411,9 +408,12 @@ DECLMATH( tanh );
 #undef DECLMATH
 #endif
 
+#include "context.h"
+
 /* ====================== Some variables ================ */
 #ifdef __LSTRING_C__
- char
+ /* Keep Constants Global */
+ const char
 # ifdef GREEK
 #    ifdef MSDOS
 // I truncated the next two lines because they did not translate to EBCDIC correctly, and are    rpo
@@ -431,27 +431,14 @@ DECLMATH( tanh );
   *cdigits = "0123456789",
   *chex    = "0123456789ABCDEFabcdef",
   *crxsymb = "@#$_.?!";
-
- double lLastScannedNumber=0.0;
-#ifdef __CMS__
- int lNumericDigits = 9;
 #else
- int lNumericDigits = LMAXNUMERICDIGITS;
-#endif
- /* int  form */
- byte l2u[256], u2l[256];
- LerrorFunc Lerror;
-#else
- extern char
-  *clower,
-  *cUPPER,
-  *cdigits,
-  *chex,
-  *crxsymb;
- extern double lLastScannedNumber;
- extern int  lNumericDigits;
- extern byte l2u[], u2l[];
- extern LerrorFunc Lerror;
+ /* Keep Constants Global */
+ extern const char
+   *clower,
+   *cUPPER,
+   *cdigits,
+   *chex,
+   *crxsymb;
 #endif
 
 #ifdef __cplusplus

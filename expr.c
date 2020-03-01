@@ -47,8 +47,8 @@ static void __CDECL Exp8( void );
 static void __CDECL C_function( void );
 
 /* ----------- local variables ----------- */
-static int exp_ct;
-static size_t exp_pos;
+#define exp_ct (currentContext->expr_exp_ct)
+#define exp_pos (currentContext->expr_exp_pos)
 
 /* ========================= C_expr ========================== */
 /* return if it had exited with another code than OP_COPY */

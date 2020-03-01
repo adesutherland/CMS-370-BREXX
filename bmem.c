@@ -73,8 +73,9 @@ typedef struct tmemory_st {
  byte data[sizeof(void*)];
 } Memory;
 
-static Memory *mem_head = NULL;
-static long total_mem = 0L;
+#include "context.h"
+#define mem_head ((Memory*)(currentContext->bmem_mem_head))
+#define total_mem (currentContext->bmem_total_mem)
 
 void mem_list(void);
 
@@ -242,7 +243,11 @@ mem_list(void)
   mem_print(count++,mem);
   mem = mem->prev;
   if (++y==15) {
-   if (getchar()=='q') exit(0);
+   if (getchar()=='q')
+   {
+     PopContext();
+     exit(0);
+   }
    y = 0;
   }
  }

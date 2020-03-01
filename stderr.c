@@ -22,6 +22,7 @@
  */
 
 #include "lstring.h"
+#include "context.h"
 
 #ifdef WCE
 # error "Lstderr: should not be included in the CE version"
@@ -30,25 +31,26 @@
 void __CDECL
 Lstderr( const int errno, const int subno, ... )
 {
- Lstr errmsg;
+ Lstr local_errmsg;
  va_list ap;
 
- LINITSTR(errmsg);
+ LINITSTR(local_errmsg);
 
  va_start(ap,subno);
- Lerrortext(&errmsg,errno,subno,&ap);
+ Lerrortext(&local_errmsg,errno,subno,&ap);
  va_end(ap);
 
- if (LLEN(errmsg)==0)
+ if (LLEN(local_errmsg)==0)
   fprintf(STDERR,"Ooops unknown error %d.%d!!!\n",errno,subno);
  else {
-  LASCIIZ(errmsg);
+  LASCIIZ(local_errmsg);
   if (subno==0)
-   fprintf(STDERR,"Error %d: %s\n",errno,LSTR(errmsg));
+   fprintf(STDERR,"Error %d: %s\n",errno,LSTR(local_errmsg));
   else
-   fprintf(STDERR,"Error %d.%d: %s\n",errno,subno,LSTR(errmsg));
+   fprintf(STDERR,"Error %d.%d: %s\n",errno,subno,LSTR(local_errmsg));
  }
 
- LFREESTR(errmsg);
+ LFREESTR(local_errmsg);
+ PopContext();
  exit(errno);
 } /* Lstderr */

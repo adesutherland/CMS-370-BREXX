@@ -53,6 +53,7 @@
 
 #include "rexx.h"
 #include "rxdefs.h"
+#include "context.h"
 
 #define FSTDIN 0
 #define FSTDOUT 1
@@ -61,18 +62,19 @@
 #define FSTDPRN 4
 
 #define FILE_INC 10
-int file_size; /* file size in filelist structure */
+
+#define file_size (currentContext->rxfiles_file_size) /* file size in filelist structure */
 
 /* there are two types of files, std unix files and rexx files */
 /* std unix files like old BRexx have one position pointer */
 /* rexx files have 4 position pointers    */
 
-static
 struct files_st {
  PLstr name; /* IN STRUCTURE */
  FILEP f;
  long line;
-} *file;
+};
+#define file ((struct files_st *)(currentContext->rxfiles_file))
 
 /* ------------------------* RxInitFiles *------------------------ */
 void __CDECL

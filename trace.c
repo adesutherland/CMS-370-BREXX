@@ -44,16 +44,10 @@
 void    __CDECL RxInitInterStr();
 
 /* ---------- Extern variables ---------------- */
-extern Clause *CompileClause;  /* compile clauses */
-extern int CompileCurClause; /* current clause */
-extern ErrorMsg errortext[];  /* from lstring/errortxt.c */
-extern bool _in_nextsymbol;  /* from nextsymb.c */
-extern int _trace;   /* from interpret.c */
-extern PLstr RxStck[];  /*     -//-  */
-extern int RxStckTop;  /*     -//-  */
-extern Lstr    _tmpstr[];  /*     -//-  */
+#include "context.h"
+extern const ErrorMsg errortext[];  /* CONST - from lstring/errortxt.c */
 
-static char TraceChar[] = {' ','>','L','V','C','O','F','.'};
+static const char TraceChar[] = {' ','>','L','V','C','O','F','.'}; /* CONST */
 
 /* ----------------- TraceCurline ----------------- */
 int __CDECL

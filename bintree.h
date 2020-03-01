@@ -15,16 +15,10 @@
  *
  */
 
-#ifndef __BINTREE_H__
-#define __BINTREE_H__
-
 #include "lstring.h"
 
-#ifdef __BINTREE_C__
-# define EXTERN
-#else
-# define EXTERN extern
-#endif
+#ifndef __BINTREE_H__
+#define __BINTREE_H__
 
 #define BALANCE_START 7
 #define BALANCE_INC 8
@@ -59,5 +53,4 @@ void __CDECL BinDel( BinTree *tree, PLstr name,
 void __CDECL BinPrint( PBinLeaf leaf );
 void __CDECL BinBalance( BinTree *tree );
 
-#undef EXTERN
 #endif
