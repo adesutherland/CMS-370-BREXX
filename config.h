@@ -1,7 +1,7 @@
 /* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 
 /* The one version to rule them all! */
-#define CMS_VERSION "F0004"
+#define CMS_VERSION "CMS-0.9.0"
 
 #include "rxmvs.h"
 

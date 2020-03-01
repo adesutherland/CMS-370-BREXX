@@ -1,7 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
-
+CMS-0.9.0 - 1 Mar 2020
+F0007 - Changed version scheme / point to avoid confusion with BREXX proper
 F0004 - Make Re-entrant
 F0006 - Fix error reading the REXX file actually being interpreted
         Fix when program file not found the extra "STAT" Error message
