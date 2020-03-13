@@ -79,14 +79,12 @@ main(int ac, char *av[])
  PushContext();
 
  /* Interim code for f0006 - Print arguments */
- /*
  {
    int i;
    for (i=0; i<ac; i++) {
      printf("Arg %d is (%s)\n", i, av[i]);
    }
  }
- */
  input = loop_over_stdin = parse_args = FALSE;
  for (ia=0; ia<MAXARGS; ia++) LINITSTR(args[ia]);
  LINITSTR(tracestr);
