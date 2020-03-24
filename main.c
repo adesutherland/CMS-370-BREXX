@@ -46,6 +46,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "lstring.h"
 #include "rexx.h"
@@ -63,6 +64,15 @@ extern void __CDECL RxConIOInitialize();
 #ifdef RXMYSQLSTATIC
 # include "rxmysql.c"
 #endif
+
+/* Compare argument */
+int issamearg(const char* arg, const char* val)
+{
+  const char *c1 = arg;
+  const char *c2 = val;
+  while (*c1++ == toupper(*c2++)) if (*c1 == 0) return 1;
+  return 0;
+}
 
 /* --------------------- main ---------------------- */
 int __CDECL
@@ -83,7 +93,7 @@ main(int ac, char *av[])
  {
    int i;
    for (i=0; i<ac; i++) {
-     printf("Arg %d is (%s)\n", i, av[i]);
+     printf("Arg to BREXX #%d is (%s)\n", i, av[i]);
    }
  }
  */
@@ -122,8 +132,14 @@ main(int ac, char *av[])
  RxConIOInitialize();
 #endif
 
+
  /* --- scan arguments --- */
  ia = 1;
+
+ /* Detct DMSREX EXEC */
+ if ( issamearg("DMSREX", av[0]) &&
+      issamearg("EXEC", av[1]) ) ia++;
+
  if (av[ia][0]=='-') {
   if (av[ia][1]==0)
    input = TRUE;

@@ -1,6 +1,13 @@
 BREXX CMS Change LOG
 ====================
 
+CMS-0.9.2 - 24 Mar 2020
+F0008 - Arguments Fixes
+        Display arguments for debugging purposes
+
+CMS-0.9.1 - 1 Mar 2020
+        Updated to latest VM/370 Docker image
+
 CMS-0.9.0 - 1 Mar 2020
 F0007 - Changed version scheme / point to avoid confusion with BREXX proper
 F0004 - Make Re-entrant
