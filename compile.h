@@ -47,7 +47,7 @@ enum functypes {
  FT_FUNCTION,
  FT_BUILTIN,
  FT_INTERNAL,
- FT_EXTERNAL,
+ FT_EXTERNAL, /* For other REXX Program Files */
  FT_SYSTEM
 };
 

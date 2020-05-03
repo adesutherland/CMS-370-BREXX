@@ -472,10 +472,17 @@ _AddLabel( int type, size_t offset )
   func->label   = offset;
 
   /* we want to add a function */
+  /* TODO - This is not enough. This is a attribute of the call itself
+     not of the label. (symbolinstr)
+     we might need to store the label with the speech marks so as to
+     not mixed up with internal labels of the same name, e.g.
+        say x2d(20)
+        say "x2d"(20)
+     in the same program */
   if (symbolisstr)
    func->type = FT_SYSTEM;
-  else
-  if (type==FT_FUNCTION) {
+
+  else if (type==FT_FUNCTION) {
    isbuiltin = C_isBuiltin(&symbolstr);
    if (isbuiltin==NULL) {
     /* then it might be internal external or system */
@@ -487,12 +494,22 @@ _AddLabel( int type, size_t offset )
     func->builtin = isbuiltin;
    }
   }
+
+  else if (type==FT_EXTERNAL) {
+    /* Need to check if this is a builtin function */
+   isbuiltin = C_isBuiltin(&symbolstr);
+   if (isbuiltin) {
+     func->type = FT_BUILTIN;
+     func->builtin = isbuiltin;
+   }
+  }
+
   leaf = BinAdd(&_labels, &newstr, func);
  } else
  if (offset != UNKNOWN_LABEL) {
   func = (RxFunc*)(leaf->value);
   if (func->label == UNKNOWN_LABEL) {
-   /* label found change function type */
+   /* label found change function type - Internal calls have priority */
    if (func->type==FT_BUILTIN || func->type==FT_SYSTEM)
     func->type = FT_INTERNAL;
    func->label = offset;
@@ -1875,6 +1892,7 @@ RxInitCompile( RxFile *rxf, PLstr src )
   InitNextsymbol(src);
  else {
   /* Mark with a label the begining of the program */
+  /* so that these are marked as RX_EXTERNAL programs */
   if (rxf->filename) {
    Lscpy(&symbolstr,rxf->filename);
    Lupper(&symbolstr);
@@ -1886,7 +1904,7 @@ RxInitCompile( RxFile *rxf, PLstr src )
     }
    symbolisstr = FALSE;
    symbol = label_sy;
-   _AddLabel(FT_LABEL, CompileCodeLen);
+   _AddLabel(FT_EXTERNAL, CompileCodeLen);
   }
   InitNextsymbol(&(rxf->file));
  }
