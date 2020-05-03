@@ -36,6 +36,9 @@ jobs:
       run: |
         mkdir -p exe
         cp /opt/hercules/vm370/io/brexxbin.aws exe
+        cp /opt/hercules/vm370/io/brexxsrc.aws exe
+        cp /opt/hercules/vm370/io/brexxbin.vmarc exe
+        cp /opt/hercules/vm370/io/brexxsrc.vmarc exe
         cp /opt/hercules/vm370/io/LICENSE exe
         cp /opt/hercules/vm370/io/README.md exe
         cp /opt/hercules/vm370/io/cmsinstall.sh exe
