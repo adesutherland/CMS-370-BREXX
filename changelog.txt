@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+F0010 - Mote tests
+
 CMS-0.9.3 - 6 May 2020
 F0011 - REXX Test Suite - hot Fix
         Add source (including tests to BREXX 191)
