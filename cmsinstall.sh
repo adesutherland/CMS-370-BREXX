@@ -52,6 +52,18 @@ herccontrol "/savesys cms" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"
 herccontrol "/logoff" -w "^VM/370 Online"
 
+# Load source
+herccontrol "/logon maint cpcms" -w "^CMS VERSION"
+herccontrol "/" -w "^Ready;"
+herccontrol "devinit 480 io/brexxsrc.aws" -w "^HHCPN098I"
+herccontrol "/attach 480 to maint as 181" -w "TAPE 480 ATTACH"
+herccontrol "/link brexx 191 291 mr mult" -w "^Ready;"
+herccontrol "/access 291 g (erase" -w "^Ready;"
+herccontrol "/tape load * * g" -w "^Ready;"
+herccontrol "/detach 291" -w "^Ready;"
+herccontrol "/detach 181" -w "^Ready;"
+herccontrol "/logoff" -w "^VM/370 Online"
+
 # LOGON CMSUSER
 herccontrol "/logon cmsuser cmsuser" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"

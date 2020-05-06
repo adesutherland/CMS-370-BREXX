@@ -1,8 +1,13 @@
 BREXX CMS Change LOG
 ====================
 
+CMS-0.9.3 - 6 May 2020
+F0011 - REXX Test Suite - hot Fix
+        Add source (including tests to BREXX 191)
+        Remove NOVALUE from REXXTRY EXEC
 F0005 - REXX Test Suite
         Build: VMARC Files
+        Build: Add test suite to source tape and VMARC
 F0009 - External Calls to REXX Refactoring
 
 CMS-0.9.2 - 24 Mar 2020

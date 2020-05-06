@@ -69,8 +69,8 @@ herccontrol "/parse version myver" -w "^Rexxtry;"
 herccontrol "/say myver" -w "^Rexxtry;"
 herccontrol "/exit" -w "^Ready;"
 
-# Test suit - fails
-# herccontrol "/runtests" -w "^Ready;"
+# Test suite
+herccontrol "/runtest_" -w "^Ready;"
 
 # Make binary tape and vmarc
 herccontrol "/cp disc" -w "^VM/370 Online"
