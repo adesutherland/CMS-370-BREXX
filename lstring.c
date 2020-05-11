@@ -82,14 +82,7 @@ Linit( LerrorFunc Lerr)
  size_t i;
 
  /* setup error function */
-#ifndef WIN
- if (Lerr)
-  Lerror = Lerr;
- else
-  Lerror = Lstderr;
-#else
  Lerror = Lerr;
-#endif
 
  /* setup upper */
  for (i=0; i<256; i++)  u2l[i] = l2u[i] = i;

@@ -48,6 +48,7 @@
 #endif
 
 #include <stdlib.h>
+#include <cmssys.h>
 
 #include "os.h"
 #include "bmem.h"
@@ -246,6 +247,11 @@ mem_list(void)
    if (getchar()=='q')
    {
      PopContext();
+     if (!currentContext) {
+       /* Base call from CMS */
+       CMSSetFlag(HALTFLAG,0);
+       CMSSetFlag(TRACEFLAG,0);
+     }
      exit(0);
    }
    y = 0;

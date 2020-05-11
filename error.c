@@ -34,6 +34,7 @@
  */
 
 #include <stdarg.h>
+#include <cmssys.h>
 #include "lstring.h"
 
 #include "rexx.h"
@@ -48,10 +49,11 @@
 void __CDECL
 RxHaltTrap( int cnd )
 {
- if (_proc[_rx_proc].condition & SC_HALT)
+ if (_proc[_rx_proc].condition & SC_HALT) {
+  /* Reset HI */
+  CMSSetFlag(HALTFLAG,0);
   RxSignalCondition(SC_HALT);
- else
-  Lerror(ERR_PROG_INTERRUPT,0);
+ } else Lerror(ERR_PROG_INTERRUPT,0);
 } /* RxHaltTrap */
 
 /* ---------------- RxSignalCondition -------------- */

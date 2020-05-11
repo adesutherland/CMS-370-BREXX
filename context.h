@@ -150,12 +150,10 @@ struct Context {
 };
 
 #ifdef __CONTEXT_C__
-# define EXTERN
+Context *currentContext = 0;
 #else
-# define EXTERN extern
+extern Context *currentContext;
 #endif
-EXTERN Context *currentContext;
-#undef EXTERN
 
 void PopContext();
 void PushContext();

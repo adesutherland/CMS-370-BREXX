@@ -328,7 +328,6 @@ void  __CDECL Lreverse( const PLstr s);
 void  __CDECL Lright  ( const PLstr to, const PLstr str, const long length,
    const char pad);
 void  __CDECL Lsoundex( const PLstr to, const PLstr str );
-void  __CDECL Lstderr ( const int errno, const int subno, ... );
 void  __CDECL Lstrip  ( const PLstr to, const PLstr str, const char action,
    const char pad);
 void  __CDECL Lspace  ( const PLstr to, const PLstr str, long n,

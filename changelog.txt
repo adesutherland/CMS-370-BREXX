@@ -1,6 +1,11 @@
 BREXX CMS Change LOG
 ====================
 
+CMS-0.9.4 - 10 May 2020
+F0012 - HI/TS/TE Immediate Command Support
+        Cleanups in main.c
+        Removed stderr.c
+
 CMS-0.9.3 - 6 May 2020
 F0011 - REXX Test Suite - hot Fix
         Add source (including tests to BREXX 191)

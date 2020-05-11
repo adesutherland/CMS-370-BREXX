@@ -102,7 +102,7 @@ lLastScannedNumber = 0.0;
 #endif
 
  /* do the basic initialisation */
- Linit(Rerror);  /* initialise with Lstderr as error function */
+ Linit(Rerror);  /* initialise with Rerror as error function */
  LINITSTR(symbolstr);
   Lfx(&symbolstr,250); /* create symbol string */
  LINITSTR(errmsg);

@@ -78,6 +78,7 @@
 # include <stdio.h>
 # include <signal.h>
 #endif
+#include <cmssys.h>
 
 #include "lerror.h"
 #include "lstring.h"
@@ -875,6 +876,8 @@ RxInterpret( void )
 #ifdef WCE
  int event_count = 0;
 #endif
+ int oldTraceFlag = CMSGetFlag(TRACEFLAG);
+ int newTraceFlag;
 
  rxReturnCode = 0;
  Rx_id  = _proc[_rx_proc].id;
@@ -910,6 +913,17 @@ RxInterpret( void )
 
  while (1) {
 main_loop:
+
+ /* Poll Flags - HALT */
+ if (CMSGetFlag(HALTFLAG)) raise(SIGINT);
+
+ /* Poll Flag - TRACE */
+ newTraceFlag = CMSGetFlag(TRACEFLAG);
+ if (newTraceFlag != oldTraceFlag) {
+   oldTraceFlag = newTraceFlag;
+   if (newTraceFlag) _trace = TRUE;
+   else _trace = FALSE;
+ }
 
 #ifdef __DEBUG__
  if (__debug__) {
