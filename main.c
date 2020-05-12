@@ -52,25 +52,24 @@ main(int ac, char *av[])
  /* Start Processing arguments */
  ia = 1;
 
- /* No program name */
- if (ac < 2) {
-  PopContext();
-  return 0;
- }
-
  /* Detct "DMSREX EXEC" and skip extra word */
- if ( issamearg("DMSREX", av[0]) &&
-      issamearg("EXEC", av[1]) ) ia++;
+ if ( ac>1 && issamearg("DMSREX", av[0]) && issamearg("EXEC", av[1]) ) ia++;
 
- /* No program name after "DMSREX EXEC" */
- if (ac < 1 + ia) {
+ /* Debug flag */
+ if (issamearg("-D", av[ia])) {
+   ia++;
+   #ifdef __DEBUG__
+    __debug__ = TRUE;
+   #else
+     printf("WARNING: BREXX not compiled with debug, -D ignored\n");
+   #endif
+ }
+
+ /* No program name */
+ if (ia >= ac) {
   PopContext();
   return 0;
  }
-
-#ifdef __DEBUG__
- __debug__ = FALSE;
-#endif
 
  /* --- Initialise --- */
  RxInitialize(av[ia]);
@@ -91,7 +90,7 @@ main(int ac, char *av[])
  LFREESTR(tracestr);
 
 #ifdef __DEBUG__
- if (mem_allocated()!=0) {
+ if (__debug__ && mem_allocated()!=0) {
   fprintf(STDERR,"\nMemory left allocated: %ld\n",mem_allocated());
   mem_list();
  }

@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+F0013 - Possibility to turn on debug and turn off optimser
+
 CMS-0.9.4 - 10 May 2020
 F0012 - HI/TS/TE Immediate Command Support
         Cleanups in main.c
