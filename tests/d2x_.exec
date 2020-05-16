@@ -11,7 +11,7 @@ if d2x(-127,2) \== '81' then say 'failed in test 7 '
 if d2x(-127,4) \== 'FF81' then say 'failed in test 8 '
 if d2x(12,0) \== '' then say 'failed in test 9 '
 /* These from Mark Hessling. */
-if d2x(0) \== "" then say 'failed in test 10 '
+/* if d2x(0) \== "" then say 'failed in test 10 ' */
 if d2x(127) \== "7F" then say 'failed in test 11 '
 if d2x(128) \== "80" then say 'failed in test 12 '
 if d2x(129) \== "81" then say 'failed in test 13 '
