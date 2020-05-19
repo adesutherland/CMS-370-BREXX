@@ -1,6 +1,7 @@
 /* REXX */
 /* Test case generated from t_mult.in */
-/* by Walter Pachl                    */
+numeric digits 9
+
 Signal On Syntax
 cnt.=0
 Call ver  123456789 * 0.00005 * 3333.333 * 21.43 , 440946453
