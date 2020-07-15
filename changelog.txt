@@ -1,6 +1,7 @@
 BREXX CMS Change LOG
 ====================
 
+F0014 - Fix Memory leak on error in X2C
 F0013 - Possibility to turn on debug and turn off optimser
 
 CMS-0.9.4 - 10 May 2020

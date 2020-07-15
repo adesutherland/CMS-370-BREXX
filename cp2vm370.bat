@@ -1,6 +1,11 @@
 REM Copy and build source files to VM370
 REM This tests the cmsbuild.sh and cmsinstall.sh scripts
 REM that are used by the automated build process
+
+docker kill vm370
+docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370:latest
+REM docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370x:latest
+
 yata -c -f tmp.txt
 echo USERID  CMSUSER > yata.txt
 echo :READ  YATA     TXT      >> yata.txt

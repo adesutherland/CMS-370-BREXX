@@ -45,8 +45,10 @@ Lx2c( const PLstr to, const PLstr from )
   for (j=i; ISXDIGIT(f[j]) && (j<LLEN(*from)); j++) ;; /* find hexdigits */
 
   if ((i<LLEN(*from)) && (j==i)) { /* Ooops wrong character */
+   LZEROSTR(*to);  /* Free memory */
+   LFREESTR(*to);
    Lerror(ERR_INVALID_HEX_CONST,0);
-   LZEROSTR(*to);  /* return null when error occures */
+   /* Lerror does not return */
    return;
   }
 
