@@ -3,6 +3,7 @@ REM This tests the cmsbuild.sh and cmsinstall.sh scripts
 REM that are used by the automated build process
 
 docker kill vm370
+REM docker pull adriansutherland/vm370:latest
 docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370:latest
 REM docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370x:latest
 

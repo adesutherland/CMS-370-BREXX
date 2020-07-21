@@ -108,7 +108,7 @@ _Lfree(void *str)
 
 /* ---------------- Lfx -------------------- */
 void __CDECL
-Lfx( const PLstr s, const size_t len )
+Lfx( const PLstr s, size_t len )
 {
  size_t max;
 
@@ -127,10 +127,11 @@ Lfx( const PLstr s, const size_t len )
   LMAXLEN(*s) = max;
  }
 #else
- if (LMAXLEN(*s)<len) {
+ if (LMAXLEN(*s) < len) {
   LSTR(*s) = (char *) REALLOC( LSTR(*s), (max=LNORMALISE(len))+LEXTRA);
   LMAXLEN(*s) = max;
  }
+
 #endif
 } /* Lfx */
 

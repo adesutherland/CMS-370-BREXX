@@ -57,45 +57,34 @@ DECL( SSoI     )   DECL( SIoC  )  DECL( S   )   DECL( SIoI )
 DECL( SSoIoIoC )   DECL( SoSoC )  DECL( SoI )   DECL( IoI  )
 DECL( O        )   DECL( SI    )  DECL( C   )   DECL( oSoS )
 DECL( SS       )   DECL( SoSoS )
-
 DECL( arg       )  DECL( compare   )  DECL( copies    )
-#ifndef __CMS__
 DECL( close     )
-#endif
 DECL( datatype  )  DECL( eof       )  DECL( errortext )
 DECL( filesize  )  DECL( format    )  DECL( intr      )
 DECL( max       )  DECL( min       )
-#ifndef __CMS__
 DECL( open      )
-#endif
 DECL( random    )
-#ifndef __CMS__
 DECL( read      )
 DECL( seek      )
-#endif
 DECL( substr    )  DECL( sourceline)  DECL( strip     )
 DECL( storage   )  DECL( space     )  DECL( translate )
 DECL( trunc     )  DECL( verify    )
-#ifndef __CMS__
 DECL( write     )
-#endif
 DECL( xrange    )
 
 #ifndef __CMS__
 DECL( dropbuf   )
 #endif
 DECL( changestr )
-#ifndef __CMS__
 DECL( flush     )
+#ifndef __CMS__
 DECL( port      )
 #endif
 
 DECL( charslines )
 DECL( charlinein )
 DECL( charlineout )
-#ifndef __CMS__
 DECL( stream )
-#endif
 
 /* Math routines */
 DECL( abs_sign  )
@@ -148,9 +137,7 @@ rexx_routine[] = {
  { "CHARIN", R_charlinein ,f_charin },
  { "CHAROUT", R_charlineout ,f_charout },
  { "CHARS", R_charslines ,f_chars },
-#ifndef __CMS__
  { "CLOSE", R_close  ,f_close },
-#endif
 #ifdef __CMS__
  { "CMSFLAG", VM_O  ,f_cmsflag },
 #endif
@@ -183,17 +170,13 @@ rexx_routine[] = {
  { "D2C", R_IoI  ,f_d2c  },
  { "D2X", R_IoI  ,f_d2x  },
 #endif
-#ifndef __CMS__
  { "EOF", R_eof  ,f_eof  },
-#endif
  { "ERRORTEXT", R_errortext ,f_errortext },
 #ifndef __CMS__
  { "EXP", R_math  ,f_exp  },
 #endif
  { "FIND", R_SSoI  ,f_find  },
-#ifndef __CMS__
  { "FLUSH", R_flush  ,f_flush },
-#endif
  { "FORM", R_O  ,f_form  },
  { "FORMAT", R_format ,f_format },
  { "FUZZ", R_O  ,f_fuzz  },
@@ -234,9 +217,7 @@ rexx_routine[] = {
 #endif
  { "MAX", R_max  ,f_max  },
  { "MIN", R_min  ,f_min  },
-#ifndef __CMS__
  { "OPEN", R_open  ,f_open  },
-#endif
  { "OVERLAY", R_SSoIoIoC ,f_overlay },
 #if defined(__BORLANDC__) && !defined(__WIN32__) && !defined(WCE) && !defined(__CMS__)
  { "PORT", R_port  ,f_port  },
@@ -251,14 +232,10 @@ rexx_routine[] = {
 #endif
  { "QUEUED", R_C  ,f_queued },
  { "RANDOM", R_random ,f_random },
-#ifndef __CMS__
  { "READ", R_read  ,f_read  },
-#endif
  { "REVERSE", R_S  ,f_reverse },
  { "RIGHT", R_SIoC  ,f_right },
-#ifndef __CMS__
  { "SEEK", R_seek  ,f_seek  },
-#endif
  { "SIGN", R_abs_sign ,f_sign  },
 #ifndef __CMS__
  { "SIN", R_math  ,f_sin  },
@@ -269,9 +246,7 @@ rexx_routine[] = {
  { "SPACE", R_space  ,f_space },
  { "SQRT", R_math  ,f_sqrt  },
  { "STORAGE", R_storage ,f_storage },
-#ifndef __CMS__
  { "STREAM", R_stream ,f_stream },
-#endif
  { "STRIP", R_strip  ,f_strip },
  { "SUBSTR", R_substr ,f_substr },
  { "SUBWORD", R_SIoI  ,f_subword },
@@ -298,9 +273,7 @@ rexx_routine[] = {
  { "WORDLENGTH", R_SI  ,f_wordlength },
  { "WORDPOS", R_SSoI  ,f_wordpos },
  { "WORDS", R_S  ,f_words },
-#ifndef __CMS__
  { "WRITE", R_write  ,f_write },
-#endif
 #ifdef __CMS__
  { "XRANGE", R_xrange ,f_xrange },
  { "X2B", R_S  ,f_x2b  },

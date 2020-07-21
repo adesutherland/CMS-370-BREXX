@@ -214,7 +214,7 @@ typedef Lstr *PLstr;
 
 /* --- file options --- */
 #define LSTARTPOS -1
-#define LREADINCSIZE 32
+#define LREADINCSIZE 250
 #define LREADLINE 0
 #define LREADFILE -1
 
@@ -315,9 +315,8 @@ void  __CDECL Linsert ( const PLstr to, const PLstr target, const PLstr newstr,
    long n, long length, const char pad);
 void  __CDECL Ljustify( const PLstr to, const PLstr str, long length, char pad);
 long  __CDECL Llastpos( const PLstr needle, const PLstr haystack, long p );
-void  __CDECL Llinein ( FILEP f, const PLstr line, long *curline,
-   long start, long length );
-int   __CDECL Llineout( FILEP f, const PLstr line, long *curline, long start );
+void  __CDECL Llinein ( FILEP f, const PLstr line, long start, long length );
+int   __CDECL Llineout( FILEP f, const PLstr line, long start );
 long  __CDECL Llines  ( FILEP f );
 void  __CDECL Llower  ( const PLstr s );
 void  __CDECL Loverlay( const PLstr to, const PLstr str, const PLstr target,

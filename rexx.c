@@ -69,8 +69,6 @@
 
 /* ----------- Function prototypes ------------ */
 void __CDECL Rerror(const int,const int,...);
-void    __CDECL RxInitFiles(void);
-void    __CDECL RxDoneFiles(void);
 void __CDECL RxRegFunctionDone(void);
 
 /* ---------------- RxInitProc ---------------- */
@@ -124,7 +122,6 @@ lLastScannedNumber = 0.0;
 
  RxInitProc();  /* initialize prg list */
  RxInitInterpret(); /* initialise interpreter*/
- RxInitFiles();  /* initialise files */
  RxInitVariables(); /* initialise hash table for variables */
 
  BINTREEINIT(_labels); /* initialise labels */
@@ -164,8 +161,6 @@ RxFinalize( void )
  while (rxStackList.items>0) DeleteStack();
 #endif
  LPFREE(_code); _code = NULL;
-
- RxDoneFiles();  /* close all files */
 
   /* will free also nullStr, zeroStr and oneStr */
  BinDisposeLeaf(&rxLitterals,rxLitterals.parent,FREE);

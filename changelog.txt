@@ -1,6 +1,12 @@
 BREXX CMS Change LOG
 ====================
 
+CMS-0.9.5 - 21 July 2020
+F0015 - IO Updates to leverage GCCLIB >= 0.7.13 / f0029
+        (Stability and performance)
+        Initial Test Scripts
+      - Changed LREADINCSIZE from 32 to 250 to improve whole
+        file reading performance
 F0014 - Fix Memory leak on error in X2C
 F0013 - Possibility to turn on debug and turn off optimser
 

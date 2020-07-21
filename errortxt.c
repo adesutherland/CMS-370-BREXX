@@ -341,7 +341,9 @@ const ErrorMsg errortext[] = {
 
  { ERRNUM(57,0), "Cannot open file" },
  { ERRNUM(58,0), "File not found" },
- { ERRNUM(59,0), "File not opened" }
+ { ERRNUM(59,0), "File not opened" },
+ { ERRNUM(60,0), "File does not support random character access" },
+ { ERRNUM(61,0), "File does not support random record access" }
 };
 
 /* ------------------ Lerrortext ------------------- */

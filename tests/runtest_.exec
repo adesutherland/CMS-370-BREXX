@@ -80,4 +80,10 @@ interpreter ' xrange_'||suffix
 interpreter ' x2b_'||suffix
 interpreter ' x2c_'||suffix
 interpreter ' x2d_'||suffix
+interpreter ' lineout_'||suffix
+interpreter ' linein_'||suffix
+interpreter ' lines_'||suffix
+interpreter ' charout_'||suffix
+interpreter ' charin_'||suffix
+interpreter ' chars_'||suffix
 if system='CMS' then "SPOOL CONS STOP CLOSE"

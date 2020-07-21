@@ -25,10 +25,11 @@
 void __CDECL
 Lcharout( FILEP f, const PLstr line, const long start )
 {
-#ifndef __CMS__
- if (start>=0)
-  FSEEK(f,start,SEEK_SET);
-#endif
+  int l;
+  if (start>=0) {
+    l = FSEEK(f,start,SEEK_SET);
+    if (l) Lerror(ERR_NOT_RANDOM_ACCESS,0);
+  }
 
  Lwrite(f,line,FALSE);
 } /* Lcharout */

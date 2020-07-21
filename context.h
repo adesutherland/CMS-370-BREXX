@@ -141,10 +141,6 @@ struct Context {
    /* rexxfunc.c */
    BinTree *rexxfunc_ExtraFuncs;
 
-   /* rxfiles.c */
-   int rxfiles_file_size; /* file size in filelist structure */
-   void* rxfiles_file;
-
    /* Previous Context */
    Context *previous;
 };

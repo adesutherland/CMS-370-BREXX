@@ -90,9 +90,7 @@ enum functions {
  f_abbrev,        f_addr,          f_address,       f_arg,
  f_bitand,        f_bitor,         f_bitxor,        f_compare,
  f_copies,        f_center,
-#ifndef __CMS__
  f_close,
-#endif
  f_c2d,
  f_c2x,           f_date,          f_datatype,      f_delstr,
  f_delword,       f_d2c,           f_d2x,           f_digits,
@@ -108,30 +106,22 @@ enum functions {
  f_makebuf,
 #endif
  f_min,
-#ifndef __CMS__
  f_open,
-#endif
  f_overlay,       f_value,
  f_pos,
 #ifndef __CMS__
  f_putenv,
 #endif
  f_queued,        f_random,
-#ifndef __CMS__
  f_read,
-#endif
  f_reverse,       f_right,         f_time,
  f_trace,         f_translate,     f_trunc,
-#ifndef __CMS__
  f_seek,
-#endif
  f_sourceline,    f_space,         f_storage,       f_strip,
  f_subword,       f_substr,        f_symbol,        f_vartree,
  f_verify,        f_word,          f_wordindex,     f_wordlength,
  f_wordpos,       f_words,
-#ifndef __CMS__
  f_write,
-#endif
  f_x2c,
  f_x2d,           f_xrange,
 #ifndef __CMS__
@@ -145,14 +135,12 @@ enum functions {
 #ifndef __CMS__
  f_import,
 #endif
-
  f_changestr,     f_countstr,
  f_b2x,           f_x2b,
  f_charin,        f_charout,
  f_linein,        f_lineout,
  f_chars,         f_lines,
  f_stream,
-
 #ifdef __MSDOS__
  f_intr, f_port,
 #endif
