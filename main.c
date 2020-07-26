@@ -11,6 +11,8 @@
 #include "rxdefs.h"
 #include "context.h"
 
+void __CRT0(void); /* Entry Point pointer */
+
 /* ------- Includes for any other external library ------- */
 #ifdef RXCONIO
 extern void __CDECL RxConIOInitialize();
@@ -40,9 +42,29 @@ main(int ac, char *av[])
  Lstr args[MAXARGS], tracestr;
  int ia, ir;
  int returnCode;
+ int entry_point;
 
- /* Reset HI Flag */
- if (CMSGetFlag(HALTFLAG)) CMSSetFlag(HALTFLAG,0);
+ if (!ac) return -1; /* Should never happen! */
+
+ if (ac==1) {
+   printf("BREXX Version %s\n", CMS_VERSION);
+
+   if (issamearg("DMSREX", av[0])) {
+     /* Temporary aid to register entry point for HRC402DS           */
+     /* Will be removed once BREXX CMS deployment approach confirmed */
+
+     /* Entry point for REXX is stored @ 0x90 - NUCRSV6 */
+     #define REXX_ENTRY_HANDLE 0x90
+
+     /* Register Entry Point Address */
+     entry_point = (int)__CRT0;
+     CMSSetNUCON((void*)REXX_ENTRY_HANDLE, entry_point);
+
+     printf("BREXX Entry Address is %x saved in NUCON at %x\n", entry_point, REXX_ENTRY_HANDLE);
+   }
+
+   return 0;
+ }
 
  PushContext();
 
@@ -51,9 +73,6 @@ main(int ac, char *av[])
 
  /* Start Processing arguments */
  ia = 1;
-
- /* Detct "DMSREX EXEC" and skip extra word */
- if ( ac>1 && issamearg("DMSREX", av[0]) && issamearg("EXEC", av[1]) ) ia++;
 
  /* Debug flag */
  if (issamearg("-D", av[ia])) {
@@ -99,10 +118,5 @@ main(int ac, char *av[])
  returnCode = rxReturnCode; /* The Global Context will die on the next line ... */
  PopContext();
 
- if (!currentContext) {
-   /* Base call from CMS */
-   CMSSetFlag(HALTFLAG,0);
-   CMSSetFlag(TRACEFLAG,0);
- }
  return returnCode;
 } /* main */

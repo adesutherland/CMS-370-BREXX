@@ -24,9 +24,7 @@ netcat -q 0 localhost 3505 < tmp
 rm tmp
 herccontrol -w "HHCRD012I" -f $mark
 herccontrol "/" -w "RDR FILE"
-herccontrol "/read *" -w "^Ready;"
-herccontrol "/yata -x -d f" -w "^Ready;"
-herccontrol "/erase yata txt a" -w "^Ready;"
+herccontrol "/yata -x -f READER -d f" -w "^Ready;"
 
 # Get test suite
 yata -c -d tests
@@ -64,6 +62,7 @@ herccontrol "/copy * * e = = a ( replace" -w "^Ready;"
 herccontrol "/copy sysprof exec s = = a" -w "^Ready;"
 herccontrol "/ipl cms" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"
+herccontrol "/DMSREX" -w "^Ready;"
 herccontrol "/rexxtry" -w "^Rexxtry;"
 herccontrol "/parse version myver" -w "^Rexxtry;"
 herccontrol "/say myver" -w "^Rexxtry;"

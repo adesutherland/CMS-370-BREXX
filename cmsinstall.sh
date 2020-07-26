@@ -69,6 +69,7 @@ herccontrol "/logon cmsuser cmsuser" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"
 
 # Sanity test
+herccontrol "/DMSREX" -w "^Ready;"
 herccontrol "/rexxtry" -w "^Rexxtry;"
 herccontrol "/parse version myver" -w "^Rexxtry;"
 herccontrol "/say myver" -w "^Rexxtry;"
