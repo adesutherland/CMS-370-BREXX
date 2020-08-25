@@ -156,7 +156,7 @@ Rerror( const int errno, const int subno, ... )
    PUTCHAR('\n');
   }
 #endif
-  rxReturnCode = errno;
+  rxReturnCode = errno + 20000;
   longjmp(_exit_trap,JMP_EXIT);
  }
 } /* Rerror */

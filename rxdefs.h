@@ -132,9 +132,7 @@ enum functions {
  f_dropbuf,
 #endif
  f_hashvalue,
-#ifndef __CMS__
  f_import,
-#endif
  f_changestr,     f_countstr,
  f_b2x,           f_x2b,
  f_charin,        f_charout,

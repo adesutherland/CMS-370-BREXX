@@ -42,6 +42,10 @@ void PushContext()
   /* rexxfunc.c */
   currentContext->rexxfunc_ExtraFuncs = NULL;
 
+  /* interpre.c */
+  currentContext->interpre_no_user_fp = 0;
+  currentContext->interpre_no_loc_fp = 0;
+  currentContext->interpre_no_sys_fp = 0;
 }
 
 #undef __CONTEXT_C__

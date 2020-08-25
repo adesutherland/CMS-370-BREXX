@@ -471,16 +471,10 @@ _AddLabel( int type, size_t offset )
   func->builtin = NULL;
   func->label   = offset;
 
-  /* we want to add a function */
-  /* TODO - This is not enough. This is a attribute of the call itself
-     not of the label. (symbolinstr)
-     we might need to store the label with the speech marks so as to
-     not mixed up with internal labels of the same name, e.g.
-        say x2d(20)
-        say "x2d"(20)
-     in the same program */
-  if (symbolisstr)
+  if (symbolisstr) {
    func->type = FT_SYSTEM;
+   func->systype = SYST_UNKNOWN;
+  }
 
   else if (type==FT_FUNCTION) {
    isbuiltin = C_isBuiltin(&symbolstr);
@@ -489,18 +483,8 @@ _AddLabel( int type, size_t offset )
     func->type = FT_FUNCTION;
     func->label = offset;
    } else {
-    /* add it as builtin but ... */
     func->type = FT_BUILTIN;
     func->builtin = isbuiltin;
-   }
-  }
-
-  else if (type==FT_EXTERNAL) {
-    /* Need to check if this is a builtin function */
-   isbuiltin = C_isBuiltin(&symbolstr);
-   if (isbuiltin) {
-     func->type = FT_BUILTIN;
-     func->builtin = isbuiltin;
    }
   }
 
@@ -1801,10 +1785,8 @@ C_instr(bool until_end)
   if (str_interpreted)
    _CodeAddByte(OP_INTER_END);
   else {
-   _CodeAddByte(OP_PUSH);
-    _CodeAddPtr(&(zeroStr->key));
-    TraceByte( nothing_middle );
-   _CodeAddByte(OP_EXIT);
+    CreateClause();
+   _CodeAddByte(OP_IEXIT);
   }
   CompileNesting--;
   longjmp(_error_trap,1); /* Everything is Ok */
@@ -1888,26 +1870,9 @@ RxInitCompile( RxFile *rxf, PLstr src )
  CompileNesting = 0;
 
  /* Initialise next symbol */
- if (str_interpreted)
-  InitNextsymbol(src);
- else {
-  /* Mark with a label the begining of the program */
-  /* so that these are marked as RX_EXTERNAL programs */
-  if (rxf->filename) {
-   Lscpy(&symbolstr,rxf->filename);
-   Lupper(&symbolstr);
-   /* Remove the extension */
-   for (i=0; i<LLEN(symbolstr); i++)
-    if (LSTR(symbolstr)[i]=='.') {
-     LLEN(symbolstr)=i;
-     break;
-    }
-   symbolisstr = FALSE;
-   symbol = label_sy;
-   _AddLabel(FT_EXTERNAL, CompileCodeLen);
-  }
-  InitNextsymbol(&(rxf->file));
- }
+ if (str_interpreted) InitNextsymbol(src);
+ else InitNextsymbol(&(rxf->file));
+
 } /* RxInitCompile */
 
 /* -------------- RxCompile ----------------- */

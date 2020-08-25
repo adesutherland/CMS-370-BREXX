@@ -47,12 +47,19 @@ enum functypes {
  FT_FUNCTION,
  FT_BUILTIN,
  FT_INTERNAL,
- FT_EXTERNAL, /* For other REXX Program Files */
  FT_SYSTEM
+};
+
+enum systargettypes {
+  SYST_UNKNOWN,
+  SYST_BARE,
+  SYST_RX,
+  SYST_EXEC,
 };
 
 typedef struct tfunction {
  int type;   /* function type */
+ enum systargettypes systype; /* Type of system target: FUNC, RXFUNC or EXEC FUNC */
  TBltFunc *builtin;  /* builtin function */
  size_t label;   /* offset in code */
 } RxFunc;
@@ -133,6 +140,7 @@ enum mnemonic_type {
  ,OP_SAY  /* print on stdout */
  ,OP_SYSTEM /* execute a system command */
  ,OP_EXIT /* normal terminate prg */
+ ,OP_IEXIT /* implicit exit - terminate prg */
 
  ,OP_PARSE /* load a template to parse */
  ,OP_PVAR /* parse into a variable */

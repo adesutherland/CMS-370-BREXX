@@ -513,13 +513,18 @@ I_CallFunction( void )
 {
  PBinLeaf leaf,litleaf;
  RxFunc *func;
- int ct,nargs,realarg;
+ int ct, nargs, realarg, i;
+ char *ret_string;
+ char *cmd_string;
+ char **argv;
  CTYPE existarg, line;
  Lstr cmd;
  PLstr res = NULL;
-#ifndef WCE
  int st;
-#endif
+ char physical[21];
+ char logical[21];
+ char load_package_cmd[25];
+ FILEP f;
 #ifdef __DEBUG__
  size_t inst_ip;
 #endif
@@ -554,61 +559,179 @@ I_CallFunction( void )
   } else
    RxStckTop = nargs;
   return TRUE;
+
  } else {
+
+  /* If a function is not linked up by now treat it as a system call */
   if (func->type!=FT_SYSTEM && func->label == UNKNOWN_LABEL) {
-   /* Try to find if there is a program to be loaded */
-   LINITSTR(cmd);
-   Lstrcpy(&cmd,&leaf->key);
    func->type = FT_SYSTEM;
-   if (!RxLoadLibrary(&cmd,FALSE))
-    goto ICF_LOADED;
-   /* Try in lowercase */
-   Llower(&cmd);
-   if (!RxLoadLibrary(&cmd,FALSE))
-    goto ICF_LOADED;
-   if (rxFileList->filetype) {
-    Lcat(&cmd,rxFileList->filetype);
-    if (!RxLoadLibrary(&cmd,FALSE))
-     goto ICF_LOADED;
-    Lupper(&cmd);
-    if (!RxLoadLibrary(&cmd,FALSE))
-     goto ICF_LOADED;
-   }
-  ICF_LOADED:
-   LFREESTR(cmd);
+   func->systype = SYST_UNKNOWN;
   }
+
   if (func->type == FT_SYSTEM) {
-#ifndef WIN
-   /* try an external function */
-/***
-/// First check to see if this prg exist with
-/// the extension of the calling program
-/// but this should be done in compiling time..
-***/
-   st = RxStckTop-realarg;
-   res = RxStck[st++];
-   LINITSTR(cmd);
-   Lstrcpy(&cmd,&(leaf->key));
-   while (st<=RxStckTop) {
-    Lcat(&cmd," \"");
-    Lstrcat(&cmd,RxStck[st++]);
-    Lcat(&cmd,"\"");
-   }
-#ifndef __CMS__
-   RxRedirectCmd(&cmd,FALSE,TRUE,res);
-#else
-   printf("I_CallFuncation in Interpre.c would have called RxRedirectCmd...\n");
-#endif
-   LFREESTR(cmd);
-   RxStckTop -= realarg;
-#else
-   Lerror(ERR_INVALID_FUNCTION,0);
-#endif
-   if (ct==CT_PROCEDURE) {
-    RxVarSet(VarScope,resultStr,res);
-    RxStckTop--;
-   }
-   return TRUE;
+
+    /* Make the calltype 5 Arguments and prepare command string */
+    L2STR(&(leaf->key)); LASCIIZ(leaf->key);
+    argv = malloc(realarg * sizeof(char*));
+    st = RxStckTop-realarg;
+    res = RxStck[st++];
+    i=0;
+    while (st<=RxStckTop) {
+     L2STR(RxStck[st]); LASCIIZ(*(RxStck[st]));
+     argv[i] = LSTR(*(RxStck[st]));
+     st++; i++;
+    }
+
+    switch (func->systype) {
+      case SYST_UNKNOWN:
+       /* Need to go through the (rather brain dead) IBM call convention */
+       /* 1. RX is prefixed to the func name */
+       sprintf(physical, "RX%.6s", LSTR(leaf->key));
+       sprintf(logical, "RX%.6s %s", LSTR(leaf->key), LSTR(leaf->key));
+
+       /* 2. Attempt to call function (i.e. with the RX) */
+       i = CMSfunctionArray(physical,
+                            logical,
+                            ct==CT_PROCEDURE,
+                            &ret_string,
+                            realarg,
+                            argv);
+       if (!i) func->systype = SYST_RX;
+
+       /* 3. Function packaged loaded and attempt to call function (x3) */
+       if (i && !no_user_fp) { /* Not found (yet) */
+         sprintf(load_package_cmd, "RXUSERFN LOAD RX%.6s", LSTR(leaf->key));
+         i = CMScommand(load_package_cmd, 0);
+         if (i == -3) no_user_fp = 1;
+         if (!i) {
+           i = CMSfunctionArray(physical,
+                                logical,
+                                ct==CT_PROCEDURE,
+                                &ret_string,
+                                realarg,
+                                argv);
+           if (!i) func->systype = SYST_RX;
+         }
+       }
+
+       if (i && !no_loc_fp) { /* Not found (yet) */
+         sprintf(load_package_cmd, "RXLOCFN LOAD RX%.6s", LSTR(leaf->key));
+         i = CMScommand(load_package_cmd, 0);
+         if (i == -3) no_loc_fp = 1;
+         if (!i) {
+           i = CMSfunctionArray(physical,
+                                logical,
+                                ct==CT_PROCEDURE,
+                                &ret_string,
+                                realarg,
+                                argv);
+           if (!i) func->systype = SYST_RX;
+         }
+       }
+
+       if (i && !no_sys_fp) { /* Not found (yet) */
+         sprintf(load_package_cmd, "RXSYSFN LOAD RX%.6s", LSTR(leaf->key));
+         i = CMScommand(load_package_cmd, 0);
+         if (i == -3) no_sys_fp = 1;
+         if (!i) {
+           i = CMSfunctionArray(physical,
+                                logical,
+                                ct==CT_PROCEDURE,
+                                &ret_string,
+                                realarg,
+                                argv);
+           if (!i) func->systype = SYST_RX;
+         }
+       }
+
+       /* 4. RX is removed and the REXX function (i.e. an EXEC) searched for */
+       /*    and run (without the RX) */
+       if (i) {
+         /* Does the exec exist? */
+         CMSFILEINFO* existingFileState;
+         sprintf(physical,"%-8s%-8s%-2s", LSTR(leaf->key), "EXEC", "*");
+         if (CMSfileState(physical, &existingFileState)) {
+           /* File does not exist (or some other error) */
+           i = 1;
+         }
+         else {
+           sprintf(physical, "EXEC %.8s", LSTR(leaf->key));
+           i = CMSfunctionArray(physical,
+                                physical,
+                                ct==CT_PROCEDURE,
+                                &ret_string,
+                                realarg,
+                                argv);
+           if (!i) func->systype = SYST_EXEC;
+          }
+       }
+
+       /* 5. Final attempt to call function (without the RX) */
+       if (i) {
+         i = CMSfunctionArray(LSTR(leaf->key),
+                            LSTR(leaf->key),
+                            ct==CT_PROCEDURE,
+                            &ret_string,
+                            realarg,
+                            argv);
+         if (!i) func->systype = SYST_BARE;
+       }
+       break;
+
+       case SYST_BARE:
+         i = CMSfunctionArray(LSTR(leaf->key),
+                            LSTR(leaf->key),
+                            ct==CT_PROCEDURE,
+                            &ret_string,
+                            realarg,
+                            argv);
+       break;
+
+       case SYST_RX:
+       sprintf(physical, "RX%.6s", LSTR(leaf->key));
+       sprintf(logical, "RX%.6s %s", LSTR(leaf->key), LSTR(leaf->key));
+       i = CMSfunctionArray(physical,
+                            logical,
+                            ct==CT_PROCEDURE,
+                            &ret_string,
+                            realarg,
+                            argv);
+       break;
+
+       case SYST_EXEC:
+        sprintf(physical, "EXEC %.8s", LSTR(leaf->key));
+        i = CMSfunctionArray(physical,
+                            physical,
+                            ct==CT_PROCEDURE,
+                            &ret_string,
+                            realarg,
+                            argv);
+       break;
+    }
+
+    /* Cleanup */
+    free(argv);
+    if (ret_string) {
+      Lscpy(res,ret_string);
+      free(ret_string);
+    }
+
+    /* Function not found */
+    if (i) {
+      Lerror(ERR_ROUTINE_NOT_FOUND,0);
+    }
+
+    if (!ret_string) {
+      if (ct==CT_FUNCTION) Lerror(ERR_NO_DATA_RETURNED,0);
+    }
+    RxStckTop -= realarg;
+
+    if (ct==CT_PROCEDURE) {
+     RxVarSet(VarScope,resultStr,res);
+     RxStckTop--;
+    }
+    return TRUE;
+
   } else {
    Rxcip++;
    RxSetSpecialVar(SIGLVAR,line);
@@ -617,7 +740,7 @@ I_CallFunction( void )
    Rxcip++; /* skip the OP_NEWCLAUSE */
    if (_trace) TraceClause();
 
-   /* handle OP_PROC code */
+   /* Handle Procedure Context */
    if (*Rxcip == OP_PROC) {
     int exposed;
 
@@ -914,17 +1037,6 @@ RxInterpret( void )
  while (1) {
 main_loop:
 
- /* Poll Flags - HALT */
- if (CMSGetFlag(HALTFLAG)) raise(SIGINT);
-
- /* Poll Flag - TRACE */
- newTraceFlag = CMSGetFlag(TRACEFLAG);
- if (newTraceFlag != oldTraceFlag) {
-   oldTraceFlag = newTraceFlag;
-   if (newTraceFlag) _trace = TRUE;
-   else _trace = FALSE;
- }
-
 #ifdef __DEBUG__
  if (__debug__) {
   while (1) {
@@ -962,6 +1074,18 @@ outofcmd:
   case OP_NEWCLAUSE:
    DEBUGDISPLAY0("NEWCLAUSE");
    if (_trace) TraceClause();
+
+   /* Poll Flags - HALT */
+   if (CMSGetFlag(HALTFLAG)) raise(SIGINT);
+
+   /* Poll Flag - TRACE */
+   newTraceFlag = CMSGetFlag(TRACEFLAG);
+   if (newTraceFlag != oldTraceFlag) {
+     oldTraceFlag = newTraceFlag;
+     if (newTraceFlag) _trace = TRUE;
+     else _trace = FALSE;
+   }
+
 #ifdef WCE
    /* Check for messages in the event queue */
    if (++event_count == MAX_EVENT_COUNT) {
@@ -1360,6 +1484,7 @@ outofcmd:
     Lerror(ERR_NO_DATA_RETURNED,0);
    if (_rx_proc==0) { /* root program */
     rxReturnCode = 0;
+    if (CMScalltype()==5) Lscpy(&rxReturnResult,"0");
     goto interpreter_fin;
    }
    I_ReturnProc();
@@ -1372,7 +1497,8 @@ outofcmd:
   case OP_RETURNF:
    DEBUGDISPLAY0("RETURNF");
    if (_rx_proc==0) { /* Root program */
-    rxReturnCode = (int)Lrdint(RxStck[RxStckTop--]);
+    if (CMScalltype()==5) Lstrcpy(&rxReturnResult, RxStck[RxStckTop--]);
+    else rxReturnCode = (int)Lrdint(RxStck[RxStckTop--]);
     goto interpreter_fin;
    } else
    if (_proc[_rx_proc].calltype != CT_PROCEDURE)
@@ -1447,12 +1573,27 @@ outofcmd:
     /* exit prg with RC */
   case OP_EXIT:
    DEBUGDISPLAY("EXIT");
-   rxReturnCode = (int)Lrdint(RxStck[RxStckTop--]);
+   if (CMScalltype()==5) Lstrcpy(&rxReturnResult, RxStck[RxStckTop--]);
+   else rxReturnCode = (int)Lrdint(RxStck[RxStckTop--]);
    /* free everything from stack */
 #ifndef __DEBUG__
    RxStckTop = -1;
 #endif
    goto interpreter_fin;
+
+   /* IEXIT   */
+   /* Implicit exit prg */
+ case OP_IEXIT:
+  DEBUGDISPLAY("IEXIT");
+  if (_proc[_rx_proc].calltype == CT_FUNCTION)
+   Lerror(ERR_NO_DATA_RETURNED,0);
+  rxReturnCode = 0;
+  if (CMScalltype()==5) Lscpy(&rxReturnResult,"0");
+  /* free everything from stack */
+#ifndef __DEBUG__
+  RxStckTop = -1;
+#endif
+  goto interpreter_fin;
 
     /* PARSE  */
     /* Initialise PARSING */
@@ -1902,5 +2043,27 @@ chk4trace:
  }
 interpreter_fin:
  SIGNAL(SIGINT,SIG_IGN);
+
+ /* Unwind and free any procedure contexts */
+ while (_rx_proc>0) {
+   /* free everything that it is new */
+  if (VarScope!=_proc[_rx_proc-1].scope) {
+   RxScopeFree(VarScope);
+   FREE(VarScope);
+  }
+
+  if (_proc[_rx_proc].env != _proc[_rx_proc-1].env)
+   LPFREE(_proc[_rx_proc].env);
+
+  _rx_proc--;
+  Rx_id = _proc[_rx_proc].id;
+  VarScope = _proc[_rx_proc].scope;
+  lNumericDigits = _proc[_rx_proc].digits;
+  if (_proc[_rx_proc].trace & (normal_trace | off_trace | error_trace))
+    _trace = FALSE;
+  else
+    _trace = TRUE;
+ }
+
  return rxReturnCode;
 } /* RxInterpret */

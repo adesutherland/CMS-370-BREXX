@@ -40,13 +40,13 @@ int __CDECL
 main(int ac, char *av[])
 {
  Lstr args[MAXARGS], tracestr;
- int ia, ir;
+ int ia, ir, i;
  int returnCode;
  int entry_point;
 
  if (!ac) return -1; /* Should never happen! */
 
- if (ac==1) {
+ if (ac==1 && CMScalltype()!=5) {
    printf("BREXX Version %s\n", CMS_VERSION);
 
    if (issamearg("DMSREX", av[0])) {
@@ -71,17 +71,23 @@ main(int ac, char *av[])
  for (ia=0; ia<MAXARGS; ia++) LINITSTR(args[ia]);
  LINITSTR(tracestr);
 
- /* Start Processing arguments */
- ia = 1;
+  /* Start Processing arguments */
+  if (CMScalltype()==5) ia = 0;
+  else {
+    ia = 1;
 
- /* Debug flag */
- if (issamearg("-D", av[ia])) {
-   ia++;
+   /* Debug flag */
    #ifdef __DEBUG__
-    __debug__ = TRUE;
-   #else
-     printf("WARNING: BREXX not compiled with debug, -D ignored\n");
+     __debug__ = FALSE;
    #endif
+   if (issamearg("-D", av[ia])) {
+     ia++;
+     #ifdef __DEBUG__
+       __debug__ = TRUE;
+     #else
+       printf("WARNING: BREXX not compiled with debug, -D ignored\n");
+     #endif
+   }
  }
 
  /* No program name */
@@ -94,17 +100,35 @@ main(int ac, char *av[])
  RxInitialize(av[ia]);
 
  /* Trace Flag */
- if (CMSGetFlag(TRACEFLAG)) Lscpy(&tracestr,"A"); /* Trace All? */
+ if (CMSGetFlag(TRACEFLAG)) Lscpy(&tracestr,"?A"); /* Trace All? */
 
  /* prepare arguments for program */
- for (ir=ia+1; ir<ac; ir++) {
-   Lcat(&args[0], av[ir]);
-   if (ir<ac-1) Lcat(&args[0]," ");
+ if (CMScalltype()==5) {
+   for (i=0, ir=ia+1; ir<ac; ir++, i++) {
+     Lscpy(&args[i], av[ir]);
+   }
  }
+ else {
+   for (ir=ia+1; ir<ac; ir++) {
+     Lcat(&args[0], av[ir]);
+     if (ir<ac-1) Lcat(&args[0]," ");
+   }
+ }
+
+ Lscpy(&rxReturnResult,"0");
+ rxReturnCode = 0;
+
  RxRun(av[ia],NULL,args,&tracestr,NULL);
+
+ /* Need to get the result here before RxFinalise() */
+ returnCode = rxReturnCode; /* The Global Context will die on the next line ... */
+ L2STR(&rxReturnResult);
+ LASCIIZ(rxReturnResult); /* Make sure its a C str */
+ CMSreturnvalue(LSTR(rxReturnResult)); /* If calltype 5 */
 
  /* --- Free everything --- */
  RxFinalize();
+
  for (ia=0; ia<MAXARGS; ia++) LFREESTR(args[ia]);
  LFREESTR(tracestr);
 
@@ -115,7 +139,6 @@ main(int ac, char *av[])
  }
 #endif
 
- returnCode = rxReturnCode; /* The Global Context will die on the next line ... */
  PopContext();
 
  return returnCode;

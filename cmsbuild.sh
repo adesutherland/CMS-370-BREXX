@@ -54,6 +54,7 @@ herccontrol "/detach 181" -w "^Ready;"
 herccontrol "/vmarc pack * * f (pun" -w "^Ready;"
 
 # Build
+herccontrol "/ACC 193 E (ERASE" -w "^Ready;"
 herccontrol "/mkbrexx" -w "^Ready;" -t 250
 herccontrol "/rename * * e = = e2" -w "^Ready;"
 

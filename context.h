@@ -66,6 +66,7 @@ struct Context {
    DQueue rexxrxStackList; /* dble queue of dble queues */
    RxFile *rexxrxFileList; /* rexx file list  */
    int rexxrxReturnCode; /* Global return code  */
+   Lstr rexxrxReturnResult;  /* Global Return Result  */
    int rexx_procidcnt; /* procedure id counter  */
    RxProc *rexx_proc;  /* procedure & function array */
    int rexx_nesting; /* cur nesting set by TraceCurline */
@@ -124,6 +125,9 @@ struct Context {
 #ifdef __PROFILE__
    int interpre_instr_cnt[256];  /* instruction counter */
 #endif
+   int interpre_no_user_fp;
+   int interpre_no_loc_fp;
+   int interpre_no_sys_fp;
 
    /* lstring.h */
    double lstring_lLastScannedNumber;
@@ -196,6 +200,7 @@ void PushContext();
 #define rxStackList (currentContext->rexxrxStackList) /* dble queue of dble queues */
 #define rxFileList (currentContext->rexxrxFileList) /* rexx file list  */
 #define rxReturnCode (currentContext->rexxrxReturnCode) /* Global return code  */
+#define rxReturnResult (currentContext->rexxrxReturnResult) /* Global return result  */
 #define _procidcnt (currentContext->rexx_procidcnt) /* procedure id counter  */
 #define _proc  (currentContext->rexx_proc) /* procedure & function array */
 #define _nesting (currentContext->rexx_nesting) /* cur nesting set by TraceCurline */
@@ -230,6 +235,9 @@ void PushContext();
 #define RxStckTop (currentContext->interpre_RxStckTop)  /* top item of stack    */
 #define _tmpstr (currentContext->interpre__tmpstr) /* temporary strings */
 /* #define _interrupt (currentContext->interpre__interrupt) */ /* if any interrupt is pending */
+#define no_user_fp (currentContext->interpre_no_user_fp)  /* No USER Function Package File */
+#define no_loc_fp (currentContext->interpre_no_loc_fp)  /* No LOCATION Function Package File */
+#define no_sys_fp (currentContext->interpre_no_sys_fp)  /* No SYSTEM Function Package File */
 
 /* lstring.h */
 #define lLastScannedNumber (currentContext->lstring_lLastScannedNumber)

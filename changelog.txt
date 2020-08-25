@@ -1,11 +1,23 @@
 BREXX CMS Change LOG
 ====================
 
+F0017 - All things Call Type 5:
+          Requires GCCLIB >= 0.7.17 (Call Type 5 features)
+          Receiving Type 5 Calls
+          Error if a Function does not return anything for call type 5
+          Removed direct REXX to REXX Calling (flawed)
+          Implemented Call Type 5 calling and function package search order
+        Moved Halt and Trace flag polling to start of clauses (rather
+        than each op code)
+        Added OP_IEXIT to support different behavour for implicit EOF EXIT
+        ERROR Condition on negative RCs only
+        Enabled LOAD and IMPORT functions (REXX Function Packages)
+
 CMS-0.9.6 - 26 July 2020
 F0016 - Mod HRC402DS support
         1/ Registering Entry Point (temporary)
         2/ Arguments changes
-        3/ HI/HT changes
+        3/ HI/TS/TE changes
       - YATA Reads directly from READER (build script)
       - Builds on vm/370 container with builder tag (i.e. not latest)
 CMS-0.9.5 - 21 July 2020

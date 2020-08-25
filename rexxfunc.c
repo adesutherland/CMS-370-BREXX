@@ -185,9 +185,7 @@ rexx_routine[] = {
 #endif
  { "HASHVALUE", R_S  ,f_hashvalue },
  { "IAND", R_bitwise ,f_and  },
-#ifndef __CMS__
  { "IMPORT", R_S  ,f_import },
-#endif
  { "INDEX", R_SSoI  ,f_index },
  { "INOT", R_not  ,0  },
  { "INSERT", R_SSoIoIoC ,f_insert },

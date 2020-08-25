@@ -277,12 +277,10 @@ R_S( const int func )
    Licpy(ARGR,Lhashvalue(ARG1));
    break;
 
-#ifndef __CMS__
   case f_load:
   case f_import:
-   Licpy(ARGR,RxLoadLibrary(ARG1,func==f_import));
+   Licpy(ARGR,RxLoadLibrary(ARG1));
    break;
-#endif
 
   default:
    Lerror(ERR_INTERPRETER_FAILURE,0);

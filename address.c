@@ -268,7 +268,7 @@ LASCIIZ(* env);
  rxReturnCode = CMScommand(LSTR(* cmd), how);                                 // execute the command
 
  RxSetSpecialVar(RCVAR,rxReturnCode);                                 // set the returncode variable
- if (rxReturnCode && !(_proc[_rx_proc].trace & off_trace)) {       // do the right thing for tracing
+ if ((rxReturnCode < 0) && !(_proc[_rx_proc].trace & off_trace)) {       // do the right thing for tracing
   if (_proc[_rx_proc].trace & (error_trace | normal_trace)) {
    TraceCurline(NULL,TRUE);
    fprintf(STDERR,"       +++ RC(%d) +++\n",rxReturnCode);

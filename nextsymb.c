@@ -431,6 +431,7 @@ _NEXTSYMBOL:
    if (symbolstat != normal_st)
     Lerror(ERR_SYMBOL_EXPECTED,0);
    symbol = exit_sy;
+   symboline--; /* Seems to add a line number ... */
    break;
 
   default:
