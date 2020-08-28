@@ -19,10 +19,11 @@ void __CDECL
 CreateStack( void )
 {
  DQueue *stck;
+ Context *context = (Context*)CMSGetPG();
 
  stck = (DQueue*) MALLOC(sizeof(DQueue),"Stack");
  DQINIT(*stck);
- DQPUSH(&rxStackList,stck);
+ DQPUSH(&(context->rexxrxStackList),stck);
 } /* CreateStack */
 
 /* ----------------- DeleteStack ----------------------- */
@@ -30,7 +31,8 @@ void __CDECL
 DeleteStack( void )
 {
  DQueue *stck;
- stck = DQPop(&rxStackList);
+ Context *context = (Context*)CMSGetPG();
+ stck = DQPop(&(context->rexxrxStackList));
  DQFlush(stck,_Lfree);
  FREE(stck);
 } /* DeleteStack */
@@ -45,7 +47,8 @@ LSTR(* str)[LLEN(* str)] = '\0';                                       // rpo:ad
 CMSstackLine(LSTR(*str), CMS_STACKFIFO);
 #else
  DQueue *stck;
- stck = DQPEEK(&rxStackList);
+ Context *context = (Context*)CMSGetPG();
+ stck = DQPEEK(&(context->rexxrxStackList));
  DQAdd2Head(stck,str);
 #endif
 } /* Queue2Stack */
@@ -59,7 +62,8 @@ LSTR(* str)[LLEN(* str)] = '\0';                                       // rpo:ad
 CMSstackLine(LSTR(* str), CMS_STACKLIFO);
 #else
  DQueue *stck;
- stck = DQPEEK(&rxStackList);
+ Context *context = (Context*)CMSGetPG();
+ stck = DQPEEK(&(context->rexxrxStackList));
  DQAdd2Tail(stck,str);
 #endif
 } /* Push2Stack */
@@ -76,7 +80,8 @@ CMSconsoleRead(LSTR(*str));
 return str;
 #else
  DQueue *stck;
- stck = DQPEEK(&rxStackList);
+ Context *context = (Context*)CMSGetPG();
+ stck = DQPEEK(&(context->rexxrxStackList));
  return (PLstr)DQPop(stck);
 #endif
 } /* PullFromStack */
@@ -93,7 +98,8 @@ StackQueued( void )
  return items;
 #else
  DQueue *stck;
- stck = DQPEEK(&rxStackList);
+ Context *context = (Context*)CMSGetPG();
+ stck = DQPEEK(&(context->rexxrxStackList));
  return stck->items;
 #endif
 } /* StackQueued*/

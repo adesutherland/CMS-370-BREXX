@@ -75,8 +75,6 @@ typedef struct tmemory_st {
 } Memory;
 
 #include "context.h"
-#define mem_head ((Memory*)(currentContext->bmem_mem_head))
-#define total_mem (currentContext->bmem_total_mem)
 
 void mem_list(void);
 
@@ -85,6 +83,7 @@ void *
 mem_malloc(size_t size, char *desc)
 {
  Memory *mem;
+ Context *context = (Context*)CMSGetPG();
 
  /* add space for the header */
 #if defined(__BORLANDC__)&&(defined(__HUGE__)||defined(__LARGE__))
@@ -98,12 +97,12 @@ mem_malloc(size_t size, char *desc)
   mem->desc = desc;
   mem->size = size;
   mem->next = NULL;
-  mem->prev = mem_head;
-  if (mem_head)
-   mem_head->next = mem;
+  mem->prev = ((Memory*)(context->bmem_mem_head));
+  if (((Memory*)(context->bmem_mem_head)))
+   ((Memory*)(context->bmem_mem_head))->next = mem;
 
-  mem_head = mem;
-  total_mem += size;
+  ((Memory*)(context->bmem_mem_head)) = mem;
+  (context->bmem_total_mem) += size;
 
   /* Mark also the END of data */
   *(dword *)((byte*)mem->data+mem->size) = MAGIC;
@@ -122,6 +121,7 @@ mem_realloc(void *ptr, size_t size)
 {
  Memory *mem, *other;
  int head;
+ Context *context = (Context*)CMSGetPG();
 
  /* find our header */
  mem = (Memory *)((char *)ptr - (sizeof(Memory)-sizeof(void*)));
@@ -139,8 +139,8 @@ mem_realloc(void *ptr, size_t size)
   raise(SIGSEGV);
  }
 
- total_mem -= mem->size;
- head = (mem==mem_head);
+ (context->bmem_total_mem) -= mem->size;
+ head = (mem==((Memory*)(context->bmem_mem_head)));
 
 #if defined(__BORLANDC__)&&(defined(__HUGE__)||defined(__LARGE__))
  mem = (Memory *)farrealloc(mem,size+sizeof(Memory));
@@ -154,9 +154,9 @@ mem_realloc(void *ptr, size_t size)
   return NULL;
  }
 
- if (head) mem_head = mem;
+ if (head) ((Memory*)(context->bmem_mem_head)) = mem;
  mem->size = size;
- total_mem += size;
+ (context->bmem_total_mem) += size;
 
  other = mem->prev;
  if (other) other->next = mem;
@@ -175,6 +175,7 @@ mem_free(void *ptr)
 {
  Memory *mem, *mem_prev, *mem_next;
  int head;
+ Context *context = (Context*)CMSGetPG();
 
  /* find our header */
  mem = (Memory *)((char *)ptr - (sizeof(Memory)-sizeof(void*)));
@@ -195,8 +196,8 @@ mem_free(void *ptr)
 
  mem_prev = mem->prev;
  mem_next = mem->next;
- total_mem -= mem->size;
- head = (mem==mem_head);
+ (context->bmem_total_mem) -= mem->size;
+ head = (mem==((Memory*)(context->bmem_mem_head)));
 
 #if defined(__BORLANDC__)&&(defined(__HUGE__)||defined(__LARGE__))
  farfree(mem);
@@ -206,7 +207,7 @@ mem_free(void *ptr)
 
  if (mem_next) mem_next->prev = mem_prev;
  if (mem_prev) mem_prev->next = mem_next;
- if (head) mem_head = mem_prev;
+ if (head) ((Memory*)(context->bmem_mem_head)) = mem_prev;
 
 } /* mem_free */
 
@@ -235,8 +236,9 @@ mem_list(void)
 {
  Memory *mem;
  int y, count;
+ Context *context = (Context*)CMSGetPG();
 
- mem = mem_head;
+ mem = ((Memory*)(context->bmem_mem_head));
  count = 0;
  fprintf(STDERR,"\nMemory list:\n");
  y = 0;
@@ -244,16 +246,7 @@ mem_list(void)
   mem_print(count++,mem);
   mem = mem->prev;
   if (++y==15) {
-   if (getchar()=='q')
-   {
-     PopContext();
-     if (!currentContext) {
-       /* Base call from CMS */
-       CMSSetFlag(HALTFLAG,0);
-       CMSSetFlag(TRACEFLAG,0);
-     }
-     exit(0);
-   }
+   if (getchar()=='q') exit(0);
    y = 0;
   }
  }
@@ -266,8 +259,9 @@ mem_chk( void )
 {
  Memory *mem;
  int i=0;
+ Context *context = (Context*)CMSGetPG();
 
- for (mem=mem_head; mem; mem = mem->prev,i++) {
+ for (mem=((Memory*)(context->bmem_mem_head)); mem; mem = mem->prev,i++) {
   if (mem->magic != MAGIC) {
    fprintf(STDERR,"PREFIX Magic number doesn't match! ID=%d\n",i);
    mem_print(i,mem);
@@ -286,5 +280,6 @@ mem_chk( void )
 long __CDECL
 mem_allocated( void )
 {
- return total_mem;
+ Context *context = (Context*)CMSGetPG();
+ return (context->bmem_total_mem);
 } /* mem_allocated */

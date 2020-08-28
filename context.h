@@ -43,7 +43,7 @@ struct Context {
    Lstr nextsymbsymbolstr;  /* symbol identifier  */
    bool nextsymbsymbolisstr;  /* if litteral was inside quotes*/
    bool nextsymbsymbolPrevBlank; /* previous blank  */
-   int nextsymbsymbolhasdot;  /* is symbol has a dot->stem */
+   int nextsymbsymbolhasdot;  /* symbol has a dot->stem */
    char *nextsymbsymbolptr;  /* current symbol pointer */
    char *nextsymbsymbolprevptr;  /* start of current symbol */
    int nextsymbsymboline;  /* current line number  */
@@ -113,7 +113,6 @@ struct Context {
    PLstr interpre_RxStck[STCK_SIZE]; /* Array of PLstr       */
    int interpre_RxStckTop;  /* top item of stack    */
    Lstr interpre__tmpstr[STCK_SIZE]; /* temporary strings */
-   /* int interpre__interrupt; */ /* if any interrupt is pending */
    Scope interpre_VarScope; /* Variables Scope      */
    PLstr interpre_ToParse; /* Parsing variables */
    int interpre_DataStart;
@@ -144,106 +143,8 @@ struct Context {
 
    /* rexxfunc.c */
    BinTree *rexxfunc_ExtraFuncs;
-
-   /* Previous Context */
-   Context *previous;
 };
 
-#ifdef __CONTEXT_C__
-Context *currentContext = 0;
-#else
-extern Context *currentContext;
-#endif
-
-void PopContext();
-void PushContext();
-
-/* Global Defines */
-
-/* interpre.h */
-#define Rx_proc (currentContext->interpreRx_proc)    /* current procedure */
-#define Rx_id (currentContext->interpreRx_id)       /* current program id */
-#define Rxcodestart (currentContext->interpreRxcodestart)  /* actual code */
-#define Rxcip (currentContext->interpreRxcip)      /* instruction pointer */
-
-/* compile.h */
-#define CompileRxFile (currentContext->compileCompileRxFile)  /* Rexx file pointer */
-#define CompileCodePtr (currentContext->compileCompileCodePtr) /* code pointer  */
-#define CompileCode (currentContext->compileCompileCode) /* code space  */
-#define CompileCodeLen (currentContext->compileCompileCodeLen) /* code length  */
-#define CompileClause (currentContext->compileCompileClause) /* compile clauses */
-#define CompileCurClause (currentContext->compileCompileCurClause) /* current clause */
-#define CompileClauseItems (currentContext->compileCompileClauseItems) /* maximum clause len */
-#define CompileNesting (currentContext->compileCompileNesting) /* current nesting */
-
-/* nextsymb.h */
-#define symbol (currentContext->nextsymbsymbol) /* contains the symbol  */
-#define symbolstr (currentContext->nextsymbsymbolstr) /* symbol identifier  */
-#define symbolisstr (currentContext->nextsymbsymbolisstr) /* if litteral was inside quotes*/
-#define symbolhasdot (currentContext->nextsymbsymbolhasdot) /* is symbol has a dot->stem */
-#define symbolPrevBlank (currentContext->nextsymbsymbolPrevBlank) /* previous blank  */
-#define symbolptr (currentContext->nextsymbsymbolptr) /* current symbol pointer */
-#define symbolprevptr (currentContext->nextsymbsymbolprevptr) /* start of current symbol */
-#define symboline (currentContext->nextsymbsymboline) /* current line number  */
-#define symbolstat (currentContext->nextsymbsymbolstat) /* statement type  */
-
-/* nextsymb.c */
-#define _in_nextsymbol (currentContext->nextsymb__in_nextsymbol)  /* Used only to track error inside nextsymb*/
-
-/* rexx.h */
-#ifdef __DEBUG__
-#define __debug__ (currentContext->rexx__debug__)
-#endif
-#define _prgname (currentContext->rexx_prgname) /* point to argv[0]  */
-#define _error_trap (currentContext->rexx_error_trap) /* error trap for compile */
-#define _exit_trap (currentContext->rexx_exit_trap) /* exit from prg  */
-#define rxStackList (currentContext->rexxrxStackList) /* dble queue of dble queues */
-#define rxFileList (currentContext->rexxrxFileList) /* rexx file list  */
-#define rxReturnCode (currentContext->rexxrxReturnCode) /* Global return code  */
-#define rxReturnResult (currentContext->rexxrxReturnResult) /* Global return result  */
-#define _procidcnt (currentContext->rexx_procidcnt) /* procedure id counter  */
-#define _proc  (currentContext->rexx_proc) /* procedure & function array */
-#define _nesting (currentContext->rexx_nesting) /* cur nesting set by TraceCurline */
-#define _rx_proc (currentContext->rexx_rx_proc) /* current procedure id  */
-#define _proc_size (currentContext->rexx_proc_size) /* number of items in proc list */
-#define _code  (currentContext->rexx_code) /* code of program  */
-#define _labels (currentContext->rexx_labels) /* Labels   */
-#define rxArg  (currentContext->rexxrxArg) /* global arguments for internal routines */
-#define rxLitterals (currentContext->rexxrxLitterals) /* Litterals   */
-#define nullStr (currentContext->rexxnullStr) /* basic leaf Lstrings  */
-#define zeroStr (currentContext->rexxzeroStr)
-#define oneStr (currentContext->rexxoneStr)
-#define resultStr (currentContext->rexxresultStr)
-#define siglStr (currentContext->rexxsiglStr)
-#define RCStr (currentContext->rexxRCStr)
-#define errorStr (currentContext->rexxerrorStr)
-#define haltStr (currentContext->rexxhaltStr)
-#define syntaxStr (currentContext->rexxsyntaxStr)
-#define systemStr (currentContext->rexxsystemStr)
-#define noValueStr (currentContext->rexxnoValueStr)
-#define notReadyStr (currentContext->rexxnotReadyStr)
-
-/* error.c */
-#define errmsg (currentContext->error_errmsg)   /* initialise string from begining  */
-
-/* variable.c */
-#define stemvaluenotfound (currentContext->variable_stemvaluenotfound) /* this is the value of a stem if */
-
-/* interpre.c */
-#define _trace  (currentContext->interpre__trace)  /* if trace is enabled */
-#define RxStck (currentContext->interpre_RxStck) /* Array of PLstr       */
-#define RxStckTop (currentContext->interpre_RxStckTop)  /* top item of stack    */
-#define _tmpstr (currentContext->interpre__tmpstr) /* temporary strings */
-/* #define _interrupt (currentContext->interpre__interrupt) */ /* if any interrupt is pending */
-#define no_user_fp (currentContext->interpre_no_user_fp)  /* No USER Function Package File */
-#define no_loc_fp (currentContext->interpre_no_loc_fp)  /* No LOCATION Function Package File */
-#define no_sys_fp (currentContext->interpre_no_sys_fp)  /* No SYSTEM Function Package File */
-
-/* lstring.h */
-#define lLastScannedNumber (currentContext->lstring_lLastScannedNumber)
-#define lNumericDigits (currentContext->lstring_lNumericDigits)
-#define l2u (currentContext->lstring_l2u)
-#define u2l (currentContext->lstring_u2l)
-#define Lerror (currentContext->lstring_Lerror)
+void InitContext();
 
 #endif

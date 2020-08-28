@@ -168,6 +168,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
  int filein, fileout;
  FILE *f;
  PLstr str;
+ Context *context = (Context*)CMSGetPG();
 
  /* --- redirect input --- */
  if (in) {
@@ -201,9 +202,9 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
  /* --- Execute the command --- */
  LASCIIZ(*cmd);
 #if defined(__BORLANDC__) && !defined(__WIN32__)
- rxReturnCode = systemx(LSTR(*cmd));
+ (context->rexxrxReturnCode) = systemx(LSTR(*cmd));
 #else
- rxReturnCode = system(LSTR(*cmd));
+ (context->rexxrxReturnCode) = system(LSTR(*cmd));
 #endif
 
  /* --- restore input --- */
@@ -250,7 +251,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
   }
  }
 
- return rxReturnCode;
+ return (context->rexxrxReturnCode);
 } /* RxRedirectCmd */
 #endif
 
@@ -258,6 +259,7 @@ RxRedirectCmd(PLstr cmd, int in, int out, PLstr outputstr)
 int __CDECL
 RxExecuteCmd( PLstr cmd, PLstr env )
 {
+ Context *context = (Context*)CMSGetPG();
 #if defined(__CMS__)
  int how;
 
@@ -265,21 +267,21 @@ LASCIIZ(* env);
  // Right now we support the CMS and COMMAND environments.
  if (!Lcmp(env, "CMS")) how = CMS_CONSOLE;
  else how = CMS_COMMAND;
- rxReturnCode = CMScommand(LSTR(* cmd), how);                                 // execute the command
+ (context->rexxrxReturnCode) = CMScommand(LSTR(* cmd), how);                                 // execute the command
 
- RxSetSpecialVar(RCVAR,rxReturnCode);                                 // set the returncode variable
- if ((rxReturnCode < 0) && !(_proc[_rx_proc].trace & off_trace)) {       // do the right thing for tracing
-  if (_proc[_rx_proc].trace & (error_trace | normal_trace)) {
+ RxSetSpecialVar(RCVAR,(context->rexxrxReturnCode));                                 // set the returncode variable
+ if (((context->rexxrxReturnCode) < 0) && !((context->rexx_proc)[(context->rexx_rx_proc)].trace & off_trace)) {       // do the right thing for tracing
+  if ((context->rexx_proc)[(context->rexx_rx_proc)].trace & (error_trace | normal_trace)) {
    TraceCurline(NULL,TRUE);
-   fprintf(STDERR,"       +++ RC(%d) +++\n",rxReturnCode);
-   if (_proc[_rx_proc].interactive_trace)
+   fprintf(STDERR,"       +++ RC(%d) +++\n",(context->rexxrxReturnCode));
+   if ((context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace)
     TraceInteractive(FALSE);
   }
-  if (_proc[_rx_proc].condition & SC_ERROR)
+  if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_ERROR)
    RxSignalCondition(SC_ERROR);
  }
 #elif defined(__MVS__)
- rxReturnCode = system(LSTR(* cmd));
+ (context->rexxrxReturnCode) = system(LSTR(* cmd));
 #else
 #ifndef WIN
  int in,out;
@@ -292,14 +294,14 @@ LASCIIZ(* env);
  LASCIIZ(cmdN);
  if (env==NULL) {
   chkcmd4stack(&cmdN,&in,&out);
-  rxReturnCode = RxRedirectCmd(&cmdN,in,out,FALSE);
+  (context->rexxrxReturnCode) = RxRedirectCmd(&cmdN,in,out,FALSE);
  } else
  if ( !Lcmp(env,"COMMAND") ||
   !Lcmp(env,"DOS")     ||
   !Lcmp(env,"CMS")     ||
-  !Lstrcmp(env,&(systemStr->key))) {
+  !Lstrcmp(env,&((context->rexxsystemStr)->key))) {
    chkcmd4stack(&cmdN,&in,&out);
-   rxReturnCode = RxRedirectCmd(&cmdN,in,out,FALSE);
+   (context->rexxrxReturnCode) = RxRedirectCmd(&cmdN,in,out,FALSE);
  }
 #if defined(__BORLANDC__) && !defined(__WIN32__)
  else
@@ -309,20 +311,20 @@ LASCIIZ(* env);
  else
   if (!Lcmp(env,"EXEC"))  ; /*execl(...); */
  else
-  rxReturnCode = -3;
+  (context->rexxrxReturnCode) = -3;
 
  /* free string */
  LFREESTR(cmdN);
 
- RxSetSpecialVar(RCVAR,rxReturnCode);
- if (rxReturnCode && !(_proc[_rx_proc].trace & off_trace)) {
-  if (_proc[_rx_proc].trace & (error_trace | normal_trace)) {
+ RxSetSpecialVar(RCVAR,(context->rexxrxReturnCode));
+ if ((context->rexxrxReturnCode) && !((context->rexx_proc)[(context->rexx_rx_proc)].trace & off_trace)) {
+  if ((context->rexx_proc)[(context->rexx_rx_proc)].trace & (error_trace | normal_trace)) {
    TraceCurline(NULL,TRUE);
-   fprintf(STDERR,"       +++ RC(%d) +++\n",rxReturnCode);
-   if (_proc[_rx_proc].interactive_trace)
+   fprintf(STDERR,"       +++ RC(%d) +++\n",(context->rexxrxReturnCode));
+   if ((context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace)
     TraceInteractive(FALSE);
   }
-  if (_proc[_rx_proc].condition & SC_ERROR)
+  if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_ERROR)
    RxSignalCondition(SC_ERROR);
  }
 #else
@@ -364,7 +366,7 @@ LASCIIZ(* env);
  LFREESTR(args);
 #endif
 #endif
- return rxReturnCode;
+ return (context->rexxrxReturnCode);
 } /* RxExecuteCmd */
 
 #endif

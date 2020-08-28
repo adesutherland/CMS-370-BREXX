@@ -43,6 +43,7 @@ main(int ac, char *av[])
  int ia, ir, i;
  int returnCode;
  int entry_point;
+ Context *context;
 
  if (!ac) return -1; /* Should never happen! */
 
@@ -60,13 +61,14 @@ main(int ac, char *av[])
      entry_point = (int)__CRT0;
      CMSSetNUCON((void*)REXX_ENTRY_HANDLE, entry_point);
 
-     printf("BREXX Entry Address is %x saved in NUCON at %x\n", entry_point, REXX_ENTRY_HANDLE);
+     printf("BREXX Entry Address is 0x%x saved in NUCON at 0x%x\n", entry_point, REXX_ENTRY_HANDLE);
    }
 
    return 0;
  }
 
- PushContext();
+ InitContext();
+ context = (Context*)CMSGetPG();
 
  for (ia=0; ia<MAXARGS; ia++) LINITSTR(args[ia]);
  LINITSTR(tracestr);
@@ -78,12 +80,12 @@ main(int ac, char *av[])
 
    /* Debug flag */
    #ifdef __DEBUG__
-     __debug__ = FALSE;
+     (context->rexx__debug__) = FALSE;
    #endif
    if (issamearg("-D", av[ia])) {
      ia++;
      #ifdef __DEBUG__
-       __debug__ = TRUE;
+       (context->rexx__debug__) = TRUE;
      #else
        printf("WARNING: BREXX not compiled with debug, -D ignored\n");
      #endif
@@ -92,7 +94,6 @@ main(int ac, char *av[])
 
  /* No program name */
  if (ia >= ac) {
-  PopContext();
   return 0;
  }
 
@@ -115,16 +116,16 @@ main(int ac, char *av[])
    }
  }
 
- Lscpy(&rxReturnResult,"0");
- rxReturnCode = 0;
+ Lscpy(&(context->rexxrxReturnResult),"0");
+ (context->rexxrxReturnCode) = 0;
 
  RxRun(av[ia],NULL,args,&tracestr,NULL);
 
  /* Need to get the result here before RxFinalise() */
- returnCode = rxReturnCode; /* The Global Context will die on the next line ... */
- L2STR(&rxReturnResult);
- LASCIIZ(rxReturnResult); /* Make sure its a C str */
- CMSreturnvalue(LSTR(rxReturnResult)); /* If calltype 5 */
+ returnCode = (context->rexxrxReturnCode);
+ L2STR(&(context->rexxrxReturnResult));
+ LASCIIZ((context->rexxrxReturnResult)); /* Make sure its a C str */
+ CMSreturnvalue(LSTR((context->rexxrxReturnResult))); /* If calltype 5 */
 
  /* --- Free everything --- */
  RxFinalize();
@@ -133,13 +134,11 @@ main(int ac, char *av[])
  LFREESTR(tracestr);
 
 #ifdef __DEBUG__
- if (__debug__ && mem_allocated()!=0) {
+ if ((context->rexx__debug__) && mem_allocated()!=0) {
   fprintf(STDERR,"\nMemory left allocated: %ld\n",mem_allocated());
   mem_list();
  }
 #endif
-
- PopContext();
 
  return returnCode;
 } /* main */

@@ -30,6 +30,7 @@
 #ifdef MSDOS
 # include <dos.h>
 #endif
+#include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
 
@@ -75,6 +76,7 @@ Ldate( const PLstr datestr, char option )
  static TCHAR *iso = TEXT("%4d%02d%02d");
  long length;
  const TCHAR *chptr;
+ Context *context = (Context*)CMSGetPG();
 
 #ifndef WCE
  time_t now ;
@@ -84,7 +86,7 @@ Ldate( const PLstr datestr, char option )
  SYSTEMTIME time;
 #endif
 
- option = l2u[(byte)option];
+ option = (context->lstring_l2u)[(byte)option];
  Lfx(datestr,30); LZEROSTR(*datestr);
 
 #ifndef WCE
@@ -196,7 +198,7 @@ Ldate( const PLstr datestr, char option )
    break;
 
   default:
-   Lerror(ERR_INCORRECT_CALL,0);
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  }
 #ifndef WCE
  LLEN(*datestr) = STRLEN(LSTR(*datestr));

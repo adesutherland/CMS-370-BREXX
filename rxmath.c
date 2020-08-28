@@ -31,7 +31,7 @@
 
 #include <math.h>
 #include <stdlib.h>
-
+#include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
 
@@ -46,7 +46,8 @@
 void __CDECL
 R_abs_sign( const int func )
 {
- if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
+ Context *context = (Context*)CMSGetPG();
+ if (ARGN!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  if (func==f_abs)
   Labs(ARGR,ARG1);
@@ -58,7 +59,8 @@ R_abs_sign( const int func )
 void __CDECL
 R_math( const int func )
 {
- if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
+ Context *context = (Context*)CMSGetPG();
+ if (ARGN!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  L2REAL(ARG1);
  Lstrcpy(ARGR,ARG1);
  switch (func) {
@@ -124,7 +126,7 @@ R_math( const int func )
 #endif
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_math */
 
@@ -137,7 +139,8 @@ R_math( const int func )
 void __CDECL
 R_atanpow( const int func )
 {
- if (ARGN!=2) Lerror(ERR_INCORRECT_CALL,0);
+ Context *context = (Context*)CMSGetPG();
+ if (ARGN!=2) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  L2REAL(ARG1);
  L2REAL(ARG2);
  Lstrcpy(ARGR,ARG1);
@@ -160,13 +163,15 @@ R_bitwise( const int func )
 {
  int i;
  int num;
- if (ARGN<2) Lerror(ERR_INCORRECT_CALL,0);
+ Context *context = (Context*)CMSGetPG();
+
+ if (ARGN<2) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  Lstrcpy(ARGR,ARG1);
  L2INT(ARGR);
 
  for (i=1; i<ARGN; i++) {
-  num = Lrdint(rxArg.a[i]);
+  num = Lrdint((context->rexxrxArg).a[i]);
   if (func==f_and)
    LINT(*ARGR) &= num;
   else
@@ -183,7 +188,9 @@ R_bitwise( const int func )
 void __CDECL
 R_not( const int func )
 {
- if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
+ Context *context = (Context*)CMSGetPG();
+ 
+ if (ARGN!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  Lstrcpy(ARGR,ARG1);
  L2INT(ARGR);

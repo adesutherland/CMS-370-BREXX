@@ -3,49 +3,36 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <cmssys.h>
 #include "context.h"
 
-void PopContext()
+void InitContext()
 {
-  Context *oldContext;
-  /* printf("PopContext()\n"); */
-  if (currentContext) {
-    oldContext = currentContext;
-    currentContext = oldContext->previous;
-    free(oldContext);
-  }
-  else printf("currentContext is null\n");
-}
-
-void PushContext()
-{
-  /* printf("PushContext()\n"); */
-  Context *newContext = malloc(sizeof(Context));
-  newContext->previous = currentContext;
-  currentContext = newContext;
+  /* printf("InitContext()\n"); */
+  Context *context = (Context*)CMSPGAll(sizeof(Context));
 
   /* bmem.c */
-  currentContext->bmem_mem_head = NULL;
-  currentContext->bmem_total_mem = 0L;
+  context->bmem_mem_head = NULL;
+  context->bmem_total_mem = 0L;
 
   /* lstring.h */
-  currentContext->lstring_lLastScannedNumber=0.0;
+  context->lstring_lLastScannedNumber=0.0;
 #ifdef __CMS__
-  currentContext->lstring_lNumericDigits = 9;
+  context->lstring_lNumericDigits = 9;
 #else
-  currentContext->lstring_lNumericDigits = LMAXNUMERICDIGITS;
+  context->lstring_lNumericDigits = LMAXNUMERICDIGITS;
 #endif
 
   /* ltime.c */
-  currentContext->ltime_elapsed=0.0;
+  context->ltime_elapsed=0.0;
 
   /* rexxfunc.c */
-  currentContext->rexxfunc_ExtraFuncs = NULL;
+  context->rexxfunc_ExtraFuncs = NULL;
 
   /* interpre.c */
-  currentContext->interpre_no_user_fp = 0;
-  currentContext->interpre_no_loc_fp = 0;
-  currentContext->interpre_no_sys_fp = 0;
+  context->interpre_no_user_fp = 0;
+  context->interpre_no_loc_fp = 0;
+  context->interpre_no_sys_fp = 0;
 }
 
 #undef __CONTEXT_C__

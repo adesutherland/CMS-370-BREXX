@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "lstring.h"
+#include <cmssys.h>
 
 /* ------------------------* Soundex *--------------------------- */
 #define MAX_LENGTH     20 /* max # of chars to check */
@@ -39,6 +40,7 @@ Lsoundex( const PLstr to, const PLstr str )
  char  prior=' ', c;
  short  i, y=0;
  word  len;
+ Context *context = (Context*)CMSGetPG();
 
 
  /* ---- initialise ---- */
@@ -55,19 +57,19 @@ Lsoundex( const PLstr to, const PLstr str )
  if (len > MAX_LENGTH) len = MAX_LENGTH;
 
  /* generate 1st character of Soundex code */
- code[0] = l2u[(byte)name[0]];
+ code[0] = (context->lstring_l2u)[(byte)name[0]];
  y=1;
 
 
- if (l2u[(byte)name[0]]=='K') /* modifications */
+ if ((context->lstring_l2u)[(byte)name[0]]=='K') /* modifications */
   code[0] = 'C';
  else
- if (l2u[(byte)name[0]]=='P' && l2u[(byte)name[1]]=='H')
+ if ((context->lstring_l2u)[(byte)name[0]]=='P' && (context->lstring_l2u)[(byte)name[1]]=='H')
   code[0] = 'F';
 
  /* loop through the rest of name, until code complete */
  for (i=1; i<len; i++) {
-  c = l2u[(byte)name[i]];
+  c = (context->lstring_l2u)[(byte)name[i]];
    /* skip non alpha */
   if (!ISALPHA(c))
    continue;

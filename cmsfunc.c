@@ -8,6 +8,7 @@
 */
 #include "lstring.h"
 #include "lerror.h"
+#include <cmssys.h>
 
 /* following are C equivalents of flags in the NUCON macro */
 /*  CMS OPtions Byte */
@@ -83,6 +84,7 @@ char *sflag;
      subbyte=optptr[9];
      optptr = (unsigned char *) DOSFLAGS;
      dosbyte = optptr[0];
+     Context *context = (Context*)CMSGetPG();
 
      L2STR(flag);
      Lupper(flag);
@@ -120,7 +122,7 @@ char *sflag;
      else
      {
 /*        fprintf(stderr,"Illegal CMS sflag %s\n",sflag); */
-          Lerror(ERR_INCORRECT_CALL,0);
+          (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
      }
 
      Licpy(value,optval);

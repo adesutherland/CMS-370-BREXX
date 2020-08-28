@@ -46,6 +46,7 @@
 #include "ldefs.h"
 #include <string.h>
 #include <stdlib.h>
+#include <cmssys.h>
 
 #include "lerror.h"
 #include "lstring.h"
@@ -63,12 +64,6 @@ struct tpoolfunc {
  int (*set)(PLstr,PLstr);
 } TPoolFunc;
 
-#define hashchar (currentContext->variable_hashchar) /* use the first char as hash value */
-#define varname (currentContext->variable_varname) /* variable name of prev find */
-#define varidx  (currentContext->variable_varidx) /* index of previous find */
-#define int_varname (currentContext->variable_int_varname) /* used for the old RxFindVar */
-#define PoolTree (currentContext->variable_PoolTree) /* external pools tree  */
-
 /* --- local function prototypes --- */
 static int SystemPoolGet(PLstr name, PLstr value);
 static int SystemPoolSet(PLstr name,PLstr value);
@@ -78,15 +73,16 @@ void __CDECL
 RxInitVariables(void)
 {
  int i;
+ Context *context = (Context*)CMSGetPG();
 
  /* initialise hash table */
  for (i=0; i<255; i++)
-  hashchar[i] = i % VARTREES;
+  (context->variable_hashchar)[i] = i % VARTREES;
 
- LINITSTR(int_varname);
- LINITSTR(varidx); Lfx(&varidx,250);
- LINITSTR(stemvaluenotfound);
- BINTREEINIT(PoolTree);
+ LINITSTR((context->variable_int_varname));
+ LINITSTR((context->variable_varidx)); Lfx(&(context->variable_varidx),250);
+ LINITSTR((context->variable_stemvaluenotfound));
+ BINTREEINIT((context->variable_PoolTree));
 
  RxRegPool("SYSTEM",SystemPoolGet,SystemPoolSet);
 } /* RxInitVariables */
@@ -95,10 +91,11 @@ RxInitVariables(void)
 void __CDECL
 RxDoneVariables(void)
 {
- LFREESTR(int_varname);
- LFREESTR(varidx);
- LFREESTR(stemvaluenotfound);
- BinDisposeLeaf(&PoolTree,PoolTree.parent,FREE);
+ Context *context = (Context*)CMSGetPG();
+ LFREESTR((context->variable_int_varname));
+ LFREESTR((context->variable_varidx));
+ LFREESTR((context->variable_stemvaluenotfound));
+ BinDisposeLeaf(&(context->variable_PoolTree),(context->variable_PoolTree).parent,FREE);
 } /* RxDoneVariables */
 
 /* ---------------- RxVarFree -------------------- */
@@ -106,6 +103,7 @@ void __CDECL
 RxVarFree(void *var)
 {
  Variable *v;
+ Context *context = (Context*)CMSGetPG();
 
  v = (Variable*)var;
  if (v->exposed==NO_PROC) {
@@ -116,7 +114,7 @@ RxVarFree(void *var)
   LFREESTR(v->value);
   FREE(var);
  } else
- if (v->exposed == _rx_proc-1)
+ if (v->exposed == (context->rexx_rx_proc)-1)
   v->exposed = NO_PROC;
 } /* RxVarFree */
 
@@ -132,12 +130,13 @@ RxVarAdd(Scope scope, PLstr name, int hasdot, PBinLeaf stemleaf )
  Variable *var,*var2;
  BinTree *tree;
  Lstr aux;
+ Context *context = (Context*)CMSGetPG();
 
  if (hasdot==0) {
   LINITSTR(aux);  /* create memory */
   Lstrcpy(&aux,name);
   LASCIIZ(aux);
-  tree = scope + hashchar[ (byte)LSTR(aux)[0] ];
+  tree = scope + (context->variable_hashchar)[ (byte)LSTR(aux)[0] ];
   var = (Variable *)MALLOC(sizeof(Variable),"Var");
   LINITSTR(var->value);
   Lfx(&(var->value),1);
@@ -145,15 +144,15 @@ RxVarAdd(Scope scope, PLstr name, int hasdot, PBinLeaf stemleaf )
   var->stem    = NULL;
   return BinAdd(tree,&aux,var);
  } else {
-  /* and the "varidx" must have the index from */
+  /* and the "(context->variable_varidx)" must have the index from */
   /* from VarFind     */
   /* also "stemleaf" must be the stem of the leaf */
 
   if (stemleaf==NULL) { /* we must create the stem */
    LINITSTR(aux);
-   Lstrcpy(&aux,varname);
+   Lstrcpy(&aux,(context->variable_varname));
    LASCIIZ(aux);
-   tree = scope + hashchar[ (byte)LSTR(*varname)[0] ];
+   tree = scope + (context->variable_hashchar)[ (byte)LSTR(*(context->variable_varname))[0] ];
    var = (Variable *)MALLOC(sizeof(Variable),"StemVar");
    LINITSTR(var->value);
    var->exposed = NO_PROC;
@@ -163,7 +162,7 @@ RxVarAdd(Scope scope, PLstr name, int hasdot, PBinLeaf stemleaf )
    var = (Variable*)(stemleaf->value);
 
   LINITSTR(aux); Lfx(&aux,1);
-  Lstrcpy(&aux,&varidx); /* make a copy of idx */
+  Lstrcpy(&aux,&(context->variable_varidx)); /* make a copy of idx */
   LASCIIZ(aux);
 
   if (var->stem==NULL)
@@ -174,17 +173,17 @@ RxVarAdd(Scope scope, PLstr name, int hasdot, PBinLeaf stemleaf )
    char *se;
    int sum=0;
 
-   s = LSTR(varidx);
+   s = LSTR((context->variable_varidx));
    /* use only first 10 chars */
-   if (LLEN(varidx)<10)
-    se = s + LLEN(varidx);
+   if (LLEN((context->variable_varidx))<10)
+    se = s + LLEN((context->variable_varidx));
    else
     se = s + 10;
    while (s<se) sum += *(s++);
    sum %= VARTREES;
    tree = var->stem + sum;
   }
-/*//  tree = var->stem + hashchar[ (byte)LSTR(varidx)[0] ];*/
+/*//  tree = var->stem + (context->variable_hashchar)[ (byte)LSTR((context->variable_varidx))[0] ];*/
   var2 = (Variable *)MALLOC(sizeof(Variable),"IdxVar");
   LINITSTR(var2->value);
   if (LLEN(var->value))
@@ -202,7 +201,7 @@ RxVarAdd(Scope scope, PLstr name, int hasdot, PBinLeaf stemleaf )
 /* On input:      */
 /* scope : scope to use    */
 /*  (for variables indexes it uses the */
-/*  current scope _proc[_rx_proc].scope */
+/*  current scope (context->rexx_proc)[(context->rexx_rx_proc)].scope */
 /* litleaf : variables litleaf   */
 /* found : if variable is found   */
 /* Returns:      */
@@ -222,11 +221,12 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
  PLstr name,aux;
  int i,cmp;
  size_t l;
+ Context *context = (Context*)CMSGetPG();
 
  name = &(litleaf->key);
  inf = (IdentInfo*)(litleaf->value);
 
- tree = scope + hashchar[ (byte)LSTR(*name)[0] ];
+ tree = scope + (context->variable_hashchar)[ (byte)LSTR(*name)[0] ];
  if (!inf->stem) {  /* simple variable */
   /* inline version of BinFind */
   /* leaf = BinFind(tree,name); */
@@ -243,7 +243,7 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
   }
   *found = (leaf != NULL);
   if (*found) {
-   inf->id = Rx_id;
+   inf->id = (context->interpreRx_id);
    inf->leaf[0] = leaf;
   }
   return leaf;
@@ -252,17 +252,17 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
  /* ======= first find array ======= */
 
   leafidx = inf->leaf[0];
-  varname = &(leafidx->key);
+  (context->variable_varname) = &(leafidx->key);
   infidx = (IdentInfo*)(leafidx->value);
-  if (Rx_id!=NO_CACHE && infidx->id==Rx_id)
+  if ((context->interpreRx_id)!=NO_CACHE && infidx->id==(context->interpreRx_id))
    leaf = infidx->leaf[0];
   else {
 /**
-////   LASCIIZ(varname);
+////   LASCIIZ((context->variable_varname));
 **/
    leaf = tree->parent;
    while (leaf != NULL) {
-    cmp = STRCMP(LSTR(*varname), LSTR(leaf->key));
+    cmp = STRCMP(LSTR(*(context->variable_varname)), LSTR(leaf->key));
     if (cmp < 0)
      leaf = leaf->left;
     else
@@ -272,20 +272,20 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
      break;
    }
    if (leaf) {
-    infidx->id = Rx_id;
+    infidx->id = (context->interpreRx_id);
     infidx->leaf[0] = leaf;
    } else
     infidx->id = NO_CACHE;
   }
 
   /* construct index */
-  LZEROSTR(varidx);
-  curscope = _proc[_rx_proc].scope;
+  LZEROSTR((context->variable_varidx));
+  curscope = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
   for (i=1; i<inf->stem; i++) {
    if (i!=1) {
     /* append a dot '.' */
-    LSTR(varidx)[LLEN(varidx)] = '.';
-    LLEN(varidx)++;
+    LSTR((context->variable_varidx))[LLEN((context->variable_varidx))] = '.';
+    LLEN((context->variable_varidx))++;
    }
    leafidx = inf->leaf[i];
    if (leafidx==NULL) continue;
@@ -294,23 +294,23 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
    aux = &(leafidx->key);
    if (infidx==NULL) {
     L2STR(aux);
-    l = LLEN(varidx)+LLEN(*aux);
-    if (LMAXLEN(varidx) <= l) Lfx(&varidx, l);
-    MEMCPY(LSTR(varidx)+LLEN(varidx),LSTR(*aux),LLEN(*aux));
-    LLEN(varidx) = l;
+    l = LLEN((context->variable_varidx))+LLEN(*aux);
+    if (LMAXLEN((context->variable_varidx)) <= l) Lfx(&(context->variable_varidx), l);
+    MEMCPY(LSTR((context->variable_varidx))+LLEN((context->variable_varidx)),LSTR(*aux),LLEN(*aux));
+    LLEN((context->variable_varidx)) = l;
    } else
-   if (Rx_id!=NO_CACHE && infidx->id==Rx_id) {
+   if ((context->interpreRx_id)!=NO_CACHE && infidx->id==(context->interpreRx_id)) {
     register PLstr lptr;
     leafidx = infidx->leaf[0];
     lptr = LEAFVAL(leafidx);
     L2STR(lptr);
-    l = LLEN(varidx)+LLEN(*lptr);
-    if (LMAXLEN(varidx) <= l) Lfx(&varidx, l);
-    MEMCPY(LSTR(varidx)+LLEN(varidx),LSTR(*lptr),LLEN(*lptr));
-    LLEN(varidx) = l;
+    l = LLEN((context->variable_varidx))+LLEN(*lptr);
+    if (LMAXLEN((context->variable_varidx)) <= l) Lfx(&(context->variable_varidx), l);
+    MEMCPY(LSTR((context->variable_varidx))+LLEN((context->variable_varidx)),LSTR(*lptr),LLEN(*lptr));
+    LLEN((context->variable_varidx)) = l;
    } else {
     /* search for aux-variable */
-    tree = curscope+hashchar[ (byte)LSTR(*aux)[0] ];
+    tree = curscope+(context->variable_hashchar)[ (byte)LSTR(*aux)[0] ];
 
     /* inline version of BinFind */
     /* leafidx = BinFind(tree,&aux); */
@@ -328,47 +328,47 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
 
     if (leafidx) {
      register PLstr lptr;
-     infidx->id = Rx_id;
+     infidx->id = (context->interpreRx_id);
      infidx->leaf[0] = leafidx;
      lptr = LEAFVAL(leafidx);
      L2STR(lptr);
-     l = LLEN(varidx)+LLEN(*lptr);
-     if (LMAXLEN(varidx) <= l) Lfx(&varidx, l);
-     MEMCPY(LSTR(varidx)+LLEN(varidx),LSTR(*lptr),LLEN(*lptr));
-    LLEN(varidx) = l;
+     l = LLEN((context->variable_varidx))+LLEN(*lptr);
+     if (LMAXLEN((context->variable_varidx)) <= l) Lfx(&(context->variable_varidx), l);
+     MEMCPY(LSTR((context->variable_varidx))+LLEN((context->variable_varidx)),LSTR(*lptr),LLEN(*lptr));
+    LLEN((context->variable_varidx)) = l;
     } else {
      Lupper(aux);
-     Lstrcat(&varidx,aux);
+     Lstrcat(&(context->variable_varidx),aux);
     }
    }
   }
 
-  L2STR(&varidx);
-  if (_trace)
-   if (_proc[_rx_proc].trace == intermediates_trace) {
+  L2STR(&(context->variable_varidx));
+  if ((context->interpre__trace))
+   if ((context->rexx_proc)[(context->rexx_rx_proc)].trace == intermediates_trace) {
     int i;
     FPUTS("       >C>  ",STDERR);
-    for (i=0;i<_nesting; i++) FPUTC(' ',STDERR);
+    for (i=0;i<(context->rexx_nesting); i++) FPUTC(' ',STDERR);
     FPUTC('\"',STDERR);
-    Lprint(STDERR,varname);
-    Lprint(STDERR,&varidx);
+    Lprint(STDERR,(context->variable_varname));
+    Lprint(STDERR,&(context->variable_varidx));
     FPUTS("\"\n",STDERR);
    }
 
   if (leaf==NULL) {
    *found = FALSE;
-   Lstrcpy(&stemvaluenotfound,varname);
-   Lstrcat(&stemvaluenotfound,&varidx);
+   Lstrcpy(&(context->variable_stemvaluenotfound),(context->variable_varname));
+   Lstrcat(&(context->variable_stemvaluenotfound),&(context->variable_varidx));
    return NULL;
   }
   stemscope = ((Variable*)(leaf->value))->stem;
 
   if (stemscope==NULL) {
    if (!LISNULL(*LEAFVAL(leaf)))
-    Lstrcpy(&stemvaluenotfound, LEAFVAL(leaf));
+    Lstrcpy(&(context->variable_stemvaluenotfound), LEAFVAL(leaf));
    else {
-    Lstrcpy(&stemvaluenotfound,varname);
-    Lstrcat(&stemvaluenotfound,&varidx);
+    Lstrcpy(&(context->variable_stemvaluenotfound),(context->variable_varname));
+    Lstrcat(&(context->variable_stemvaluenotfound),&(context->variable_varidx));
    }
    *found = FALSE;
    return leaf;
@@ -379,27 +379,27 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
    char *se;
    int sum=0;
 
-   s = LSTR(varidx);
+   s = LSTR((context->variable_varidx));
    /* use only first 10 chars */
-   if (LLEN(varidx)<10)
-    se = s + LLEN(varidx);
+   if (LLEN((context->variable_varidx))<10)
+    se = s + LLEN((context->variable_varidx));
    else
     se = s + 10;
    while (s<se) sum += *(s++);
    sum %= VARTREES;
    tree = stemscope + sum;
   }
-/*//  tree = stemscope + hashchar[ (byte)LSTR(varidx)[0] ];*/
+/*//  tree = stemscope + (context->variable_hashchar)[ (byte)LSTR((context->variable_varidx))[0] ];*/
   /* inline version of BinFind */
-  /* leafidx = BinFind(tree,&varidx); */
+  /* leafidx = BinFind(tree,&(context->variable_varidx)); */
   leafidx = tree->parent;
   while (leafidx != NULL) {
    /* Inline version of Compare */
    {
     register char *a,*b;
     char *ae,*be;
-    a = LSTR(varidx);
-    ae = a + LLEN(varidx);
+    a = LSTR((context->variable_varidx));
+    ae = a + LLEN((context->variable_varidx));
     b = LSTR(leafidx->key);
     be = b + LLEN(leafidx->key);
     for(;(a<ae) && (b<be) && (*a==*b); a++,b++) ;
@@ -424,10 +424,10 @@ RxVarFind(const Scope scope, const PBinLeaf litleaf, bool *found)
   if (leafidx==NULL) { /* not found */
    *found = FALSE;
    if (!LISNULL(*LEAFVAL(leaf)))
-    Lstrcpy(&stemvaluenotfound, LEAFVAL(leaf));
+    Lstrcpy(&(context->variable_stemvaluenotfound), LEAFVAL(leaf));
    else {
-    Lstrcpy(&stemvaluenotfound,varname);
-    Lstrcat(&stemvaluenotfound,&varidx);
+    Lstrcpy(&(context->variable_stemvaluenotfound),(context->variable_varname));
+    Lstrcat(&(context->variable_stemvaluenotfound),&(context->variable_varidx));
    }
    return leaf; /* return stem leaf */
   } else {
@@ -447,6 +447,7 @@ RxVarFindName(Scope scope, PLstr name, bool *found)
  Lstr aux;
  int hasdot,start,stop;
  register char *ch;
+ Context *context = (Context*)CMSGetPG();
 
  /* search for a '.' except in the last character */
  ch = MEMCHR(LSTR(*name),'.',LLEN(*name)-1);
@@ -455,27 +456,27 @@ RxVarFindName(Scope scope, PLstr name, bool *found)
  else
   hasdot = 0;
 
- tree = scope + hashchar[ (byte)LSTR(*name)[0] ];
+ tree = scope + (context->variable_hashchar)[ (byte)LSTR(*name)[0] ];
  if (!hasdot) {  /* simple variable */
   leaf = BinFind(tree,name);
   *found = (leaf != NULL);
   return leaf;
  } else {
   LINITSTR(aux);
-  varname = &int_varname;
-  _Lsubstr(varname,name,1,hasdot);
-  leaf = BinFind(tree,varname);
+  (context->variable_varname) = &(context->variable_int_varname);
+  _Lsubstr((context->variable_varname),name,1,hasdot);
+  leaf = BinFind(tree,(context->variable_varname));
 
-  LZEROSTR(varidx);
+  LZEROSTR((context->variable_varidx));
   LASCIIZ(*name);
   stop = hasdot+1; /* after dot */
   ch++;
   while (1) {
    while (*ch=='.') {
     /* concatanate a dot '.' */
-    L2STR(&varidx);
-    LSTR(varidx)[LLEN(varidx)] = '.';
-    LLEN(varidx)++;
+    L2STR(&(context->variable_varidx));
+    LSTR((context->variable_varidx))[LLEN((context->variable_varidx))] = '.';
+    LLEN((context->variable_varidx))++;
     ch++; stop++;
    }
    if (!*ch) break;
@@ -486,14 +487,14 @@ RxVarFindName(Scope scope, PLstr name, bool *found)
    }
    _Lsubstr(&aux,name,start,stop-start);
    /* search for variable */
-   tree = scope + hashchar[ (byte)LSTR(aux)[0] ];
+   tree = scope + (context->variable_hashchar)[ (byte)LSTR(aux)[0] ];
    leafidx = BinFind(tree,&aux);
 
    if (leafidx)
-    Lstrcat(&varidx,LEAFVAL(leafidx));
+    Lstrcat(&(context->variable_varidx),LEAFVAL(leafidx));
    else {
     Lupper(&aux);
-    Lstrcat(&varidx,&aux);
+    Lstrcat(&(context->variable_varidx),&aux);
    }
   }
 
@@ -502,18 +503,18 @@ RxVarFindName(Scope scope, PLstr name, bool *found)
 
   if (leaf==NULL) {
    *found = FALSE;
-   Lstrcpy(&stemvaluenotfound,varname);
-   Lstrcat(&stemvaluenotfound,&varidx);
+   Lstrcpy(&(context->variable_stemvaluenotfound),(context->variable_varname));
+   Lstrcat(&(context->variable_stemvaluenotfound),&(context->variable_varidx));
    return NULL;
   }
   stemscope = ((Variable*)(leaf->value))->stem;
 
   if (stemscope==NULL) {
    if (!LISNULL(*LEAFVAL(leaf)))
-    Lstrcpy(&stemvaluenotfound,LEAFVAL(leaf));
+    Lstrcpy(&(context->variable_stemvaluenotfound),LEAFVAL(leaf));
    else {
-    Lstrcpy(&stemvaluenotfound,varname);
-    Lstrcat(&stemvaluenotfound,&varidx);
+    Lstrcpy(&(context->variable_stemvaluenotfound),(context->variable_varname));
+    Lstrcat(&(context->variable_stemvaluenotfound),&(context->variable_varidx));
    }
    *found = FALSE;
    return leaf;
@@ -524,26 +525,26 @@ RxVarFindName(Scope scope, PLstr name, bool *found)
    char *se;
    int sum=0;
 
-   s = LSTR(varidx);
+   s = LSTR((context->variable_varidx));
    /* use only first 10 chars */
-   if (LLEN(varidx)<10)
-    se = s + LLEN(varidx);
+   if (LLEN((context->variable_varidx))<10)
+    se = s + LLEN((context->variable_varidx));
    else
     se = s + 10;
    while (s<se) sum += *(s++);
    sum %= VARTREES;
    tree = stemscope + sum;
   }
-/*//  tree = stemscope + hashchar[ (byte)LSTR(varidx)[0] ]; */
-  leafidx = BinFind(tree,&varidx);
+/*//  tree = stemscope + (context->variable_hashchar)[ (byte)LSTR((context->variable_varidx))[0] ]; */
+  leafidx = BinFind(tree,&(context->variable_varidx));
 
   if (leafidx==NULL) { /* not found */
    *found = FALSE;
    if (!LISNULL(*LEAFVAL(leaf)))
-    Lstrcpy(&stemvaluenotfound,LEAFVAL(leaf));
+    Lstrcpy(&(context->variable_stemvaluenotfound),LEAFVAL(leaf));
    else {
-    Lstrcpy(&stemvaluenotfound,varname);
-    Lstrcat(&stemvaluenotfound,&varidx);
+    Lstrcpy(&(context->variable_stemvaluenotfound),(context->variable_varname));
+    Lstrcat(&(context->variable_stemvaluenotfound),&(context->variable_varidx));
    }
    return leaf; /* return stem leaf */
   } else {
@@ -561,6 +562,7 @@ RxVarDel(Scope scope, PBinLeaf litleaf, PBinLeaf varleaf)
  Variable *var;
  PLstr name;
  BinTree *tree;
+ Context *context = (Context*)CMSGetPG();
 
  name = &(litleaf->key);
  inf = (IdentInfo*)(litleaf->value);
@@ -576,7 +578,7 @@ RxVarDel(Scope scope, PBinLeaf litleaf, PBinLeaf varleaf)
    if (var->stem)
     RxScopeFree(var->stem);
   } else {
-   tree = scope + hashchar[ (byte)LSTR(*name)[0] ];
+   tree = scope + (context->variable_hashchar)[ (byte)LSTR(*name)[0] ];
    BinDel(tree,name,RxVarFree);
    inf->id = NO_CACHE;
   }
@@ -586,17 +588,17 @@ RxVarDel(Scope scope, PBinLeaf litleaf, PBinLeaf varleaf)
 **/
    LFREESTR(var->value);
    LINITSTR(var->value);
-   Lstrcpy(&(var->value),varname);
-   Lstrcat(&(var->value),&varidx);
+   Lstrcpy(&(var->value),(context->variable_varname));
+   Lstrcat(&(var->value),&(context->variable_varidx));
 /**
 //  } else {
 //    * find leaf of stem *
-//   tree = scope + hashchar[ (byte)LSTR(*name)[0] ];
-//   stemleaf = BinFind(tree,varname);
+//   tree = scope + (context->variable_hashchar)[ (byte)LSTR(*name)[0] ];
+//   stemleaf = BinFind(tree,(context->variable_varname));
 //   var = (Variable*)(stemleaf->value);
 //    * find the actual bintree of variable *
-//   tree = var->stem + hashchar[ (byte)LSTR(varidx)[0] ];
-//   BinDel(tree,&varidx,RxVarFree);
+//   tree = var->stem + (context->variable_hashchar)[ (byte)LSTR((context->variable_varidx))[0] ];
+//   BinDel(tree,&(context->variable_varidx),RxVarFree);
 //   inf->id = NO_CACHE;
 //  }
 **/
@@ -612,6 +614,7 @@ RxVarDelName(Scope scope, PLstr name, PBinLeaf varleaf)
  BinTree *tree;
  PBinLeaf leaf;
  char *ch;
+ Context *context = (Context*)CMSGetPG();
 
  var = (Variable*)(varleaf->value);
 
@@ -628,14 +631,14 @@ RxVarDelName(Scope scope, PLstr name, PBinLeaf varleaf)
  if (ch) {
   LFREESTR(var->value);
   LINITSTR(var->value);
-  Lstrcpy(&(var->value),varname);
-  Lstrcat(&(var->value),&varidx);
+  Lstrcpy(&(var->value),(context->variable_varname));
+  Lstrcat(&(var->value),&(context->variable_varidx));
  } else {
-  tree = scope + hashchar[ (byte)LSTR(*name)[0] ];
+  tree = scope + (context->variable_hashchar)[ (byte)LSTR(*name)[0] ];
   BinDel(tree,name,RxVarFree);
 
   /* Search in the litterals tree to see if it exist */
-  leaf = BinFind(&rxLitterals,name);
+  leaf = BinFind(&(context->rexxrxLitterals),name);
   if (leaf) {
    inf = (IdentInfo*)(leaf->value);
    inf->id = NO_CACHE;
@@ -676,6 +679,7 @@ RxVarExpose(Scope scope, PBinLeaf litleaf)
  Lstr aux;
  int oldcurid;
  int found;
+ Context *context = (Context*)CMSGetPG();
 
  inf = (IdentInfo*)(litleaf->value);
 
@@ -692,13 +696,13 @@ RxVarExpose(Scope scope, PBinLeaf litleaf)
  }
 
  /* --- else search in the old scope for variable --- */
- oldscope = _proc[ _rx_proc-1 ].scope;
+ oldscope = (context->rexx_proc)[ (context->rexx_rx_proc)-1 ].scope;
 
  /* --- change curid since we are dealing with old scope --- */
- oldcurid = Rx_id;
- Rx_id = NO_CACHE;  /* something that doesn't exist */
+ oldcurid = (context->interpreRx_id);
+ (context->interpreRx_id) = NO_CACHE;  /* something that doesn't exist */
  leaf = RxVarFind(oldscope,litleaf,&found);
- Rx_id = oldcurid;
+ (context->interpreRx_id) = oldcurid;
 
  if (!found) {
   /* added it to the tree */
@@ -707,14 +711,14 @@ RxVarExpose(Scope scope, PBinLeaf litleaf)
    inf->stem,
    leaf);
   if (inf->stem) {
-   Lstrcpy(LEAFVAL(leaf),varname);
-   Lstrcat(LEAFVAL(leaf),&varidx);
+   Lstrcpy(LEAFVAL(leaf),(context->variable_varname));
+   Lstrcat(LEAFVAL(leaf),&(context->variable_varidx));
   } else
    Lstrcpy(LEAFVAL(leaf),&(litleaf->key));
  }
  var = (Variable*)(leaf->value);
  if (var->exposed == NO_PROC)
-  var->exposed = _rx_proc-1; /* to who it belongs */
+  var->exposed = (context->rexx_rx_proc)-1; /* to who it belongs */
 
  /* === now create a node in the new variable scope === */
 
@@ -722,14 +726,14 @@ RxVarExpose(Scope scope, PBinLeaf litleaf)
   LINITSTR(aux);  /* create memory */
   Lstrcpy(&aux,&(litleaf->key));
   LASCIIZ(aux);
-  tree = scope + hashchar[ (byte)LSTR(aux)[0] ];
+  tree = scope + (context->variable_hashchar)[ (byte)LSTR(aux)[0] ];
   return BinAdd(tree,&aux,var);
  } else {
-  tree = scope + hashchar[ (byte)LSTR(*varname)[0] ];
-  stemleaf = BinFind(tree,varname);
+  tree = scope + (context->variable_hashchar)[ (byte)LSTR(*(context->variable_varname))[0] ];
+  stemleaf = BinFind(tree,(context->variable_varname));
   if (!stemleaf) {
    LINITSTR(aux);
-   Lstrcpy(&aux,varname);
+   Lstrcpy(&aux,(context->variable_varname));
    LASCIIZ(aux);
    stemvar = (Variable *)MALLOC(sizeof(Variable),"ExposedStemVar");
    LINITSTR(stemvar->value);
@@ -740,13 +744,13 @@ RxVarExpose(Scope scope, PBinLeaf litleaf)
    stemvar = (Variable*)(stemleaf->value);
 
   LINITSTR(aux);
-  Lstrcpy(&aux,&varidx); /* make a copy of idx */
+  Lstrcpy(&aux,&(context->variable_varidx)); /* make a copy of idx */
   LASCIIZ(aux);
 
   if (stemvar->stem==NULL)
    stemvar->stem = RxScopeMalloc();
 
-  tree = stemvar->stem + hashchar[ (byte)LSTR(varidx)[0] ];
+  tree = stemvar->stem + (context->variable_hashchar)[ (byte)LSTR((context->variable_varidx))[0] ];
   return BinAdd(tree,&aux,var);
  }
 } /* RxVarExpose */
@@ -758,13 +762,14 @@ RxVarExposeInd(Scope scope, PLstr vars)
  Lstr name;
  long w,i;
  PBinLeaf litleaf;
+ Context *context = (Context*)CMSGetPG();
 
  LINITSTR(name);
  w = Lwords(vars);
  for (i=1; i<=w; i++) {
   Lword(&name,vars,i);
   Lupper(&name);
-  litleaf = BinFind(&rxLitterals,&name);
+  litleaf = BinFind(&(context->rexxrxLitterals),&name);
   if (litleaf)
    RxVarExpose(scope,litleaf);
  }
@@ -778,9 +783,10 @@ RxVarSet( Scope scope, PBinLeaf varleaf, PLstr value )
  IdentInfo *inf;
  PBinLeaf leaf;
  int found;
+ Context *context = (Context*)CMSGetPG();
 
  inf = (IdentInfo*)(varleaf->value);
- if (inf->id == Rx_id) {
+ if (inf->id == (context->interpreRx_id)) {
   leaf = inf->leaf[0];
   Lstrcpy(LEAFVAL(leaf), value);
  } else {
@@ -796,7 +802,7 @@ RxVarSet( Scope scope, PBinLeaf varleaf, PLstr value )
    Lstrcpy(LEAFVAL(leaf),value);
 
    if (inf->stem==0) {
-    inf->id = Rx_id;
+    inf->id = (context->interpreRx_id);
     inf->leaf[0] = leaf;
    }
   }
@@ -809,20 +815,21 @@ RxSetSpecialVar( int rcsigl, long num )
 {
  PBinLeaf varleaf;
  Lstr  value;
+ Context *context = (Context*)CMSGetPG();
 
  switch (rcsigl) {
   case RCVAR:
-   varleaf = RCStr;
+   varleaf = (context->rexxRCStr);
    break;
   case SIGLVAR:
-   varleaf = siglStr;
+   varleaf = (context->rexxsiglStr);
    break;
  }
 
  LINITSTR(value);
  Lfx(&value,0);
  Licpy(&value,num);
- RxVarSet(_proc[_rx_proc].scope,varleaf,&value);
+ RxVarSet((context->rexx_proc)[(context->rexx_rx_proc)].scope,varleaf,&value);
  LFREESTR(value);
 } /* RxSetSpecialVar */
 
@@ -1016,6 +1023,7 @@ RxPoolGet( PLstr pool, PLstr name, PLstr value )
  PBinLeaf leaf;
  int poolnum;
  int found;
+ Context *context = (Context*)CMSGetPG();
 
  /* check to see if it is internal pool */
  if ( LTYPE(*pool)==LINTEGER_TY ||
@@ -1024,8 +1032,8 @@ RxPoolGet( PLstr pool, PLstr name, PLstr value )
   Lstr str;
   poolnum = (int)Lrdint(pool);
   if (poolnum<0)
-   poolnum = _rx_proc+poolnum;
-  if (poolnum<0 || poolnum>_rx_proc)
+   poolnum = (context->rexx_rx_proc)+poolnum;
+  if (poolnum<0 || poolnum>(context->rexx_rx_proc))
    return 'P';
 
   /* search if it is a valid name */
@@ -1036,7 +1044,7 @@ RxPoolGet( PLstr pool, PLstr name, PLstr value )
   /* search in the appropriate scope */
   LINITSTR(str); /* translate to upper case */
   Lstrcpy(&str,name); Lupper(&str);
-  leaf = RxVarFindName(_proc[poolnum].scope,&str,&found);
+  leaf = RxVarFindName((context->rexx_proc)[poolnum].scope,&str,&found);
   if (found) {
    Lstrcpy(value,LEAFVAL(leaf));
    LFREESTR(str);
@@ -1044,7 +1052,7 @@ RxPoolGet( PLstr pool, PLstr name, PLstr value )
   } else {
    /* search for dot except last character */
    if (MEMCHR(LSTR(str),'.',LLEN(str)-1)!=NULL)
-    Lstrcpy(value,&stemvaluenotfound);
+    Lstrcpy(value,&(context->variable_stemvaluenotfound));
    else
     Lstrcpy(value,&str);
    LFREESTR(str);
@@ -1053,7 +1061,7 @@ RxPoolGet( PLstr pool, PLstr name, PLstr value )
  }
 
  /* nope search the Pool tree */
- leaf = BinFind(&PoolTree,pool);
+ leaf = BinFind(&(context->variable_PoolTree),pool);
  if (!leaf) return 'P';
 
  if (((TPoolFunc*)(leaf->value))->get)
@@ -1069,22 +1077,23 @@ RxPoolSet( PLstr pool, PLstr name, PLstr value )
  PBinLeaf leaf;
  int poolnum;
  int found;
+ Context *context = (Context*)CMSGetPG();
 
  /* check to see if it is internal pool */
  if (LLEN(*name)==0)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  if ( LTYPE(*pool)==LINTEGER_TY ||
      (LTYPE(*pool)==LSTRING_TY && _Lisnum(pool)==LINTEGER_TY)) {
   Lstr str;
   poolnum = (int)Lrdint(pool);
   if (poolnum<0)
-   poolnum = _rx_proc+poolnum;
-  if (poolnum<0 || poolnum>_rx_proc)
+   poolnum = (context->rexx_rx_proc)+poolnum;
+  if (poolnum<0 || poolnum>(context->rexx_rx_proc))
    return 'P';
   /* search in the appropriate scope */
   LINITSTR(str); /* translate to upper case */
   Lstrcpy(&str,name); Lupper(&str);
-  leaf = RxVarFindName(_proc[poolnum].scope,&str,&found);
+  leaf = RxVarFindName((context->rexx_proc)[poolnum].scope,&str,&found);
 
   /* set the new value */
   if (found) {
@@ -1096,7 +1105,7 @@ RxPoolSet( PLstr pool, PLstr name, PLstr value )
    hasdot = (MEMCHR(LSTR(str),'.',LLEN(str)-1)!=NULL);
 
    /* added it to the tree */
-   leaf = RxVarAdd(_proc[poolnum].scope,
+   leaf = RxVarAdd((context->rexx_proc)[poolnum].scope,
     &str, hasdot, leaf);
    Lstrcpy(LEAFVAL(leaf),value);
   }
@@ -1105,7 +1114,7 @@ RxPoolSet( PLstr pool, PLstr name, PLstr value )
  }
 
  /* nope search the Pool tree */
- leaf = BinFind(&PoolTree,pool);
+ leaf = BinFind(&(context->variable_PoolTree),pool);
  if (!leaf) return 'P';
 
  if (((TPoolFunc*)(leaf->value))->set)
@@ -1121,6 +1130,7 @@ RxRegPool(char *poolname, int (*getf)(PLstr,PLstr),
 {
  Lstr pn;
  TPoolFunc *pf;
+ Context *context = (Context*)CMSGetPG();
 
  LINITSTR(pn);
  Lscpy(&pn,poolname);
@@ -1129,7 +1139,7 @@ RxRegPool(char *poolname, int (*getf)(PLstr,PLstr),
  pf = (TPoolFunc*)MALLOC(sizeof(TPoolFunc),"PoolFunc");
  pf->get = getf;
  pf->set = setf;
- BinAdd(&PoolTree,&pn,pf);
+ BinAdd(&(context->variable_PoolTree),&pn,pf);
 
  LFREESTR(pn);
  return 0;

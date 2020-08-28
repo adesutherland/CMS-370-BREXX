@@ -29,6 +29,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <string.h>
+#include <cmssys.h>
 #include "lstring.h"
 
 /* -------------------- Lequal ----------------- */
@@ -39,6 +40,7 @@ Lequal(const PLstr A, const PLstr B)
  byte *a, *b;  /* start position in string */
  byte *ae, *be; /* ending position in string */
  double ra, rb;
+ Context *context = (Context*)CMSGetPG();
 
  if (LTYPE(*A)==LSTRING_TY) {
   ta = _Lisnum(A);
@@ -49,7 +51,7 @@ Lequal(const PLstr A, const PLstr B)
    goto eq_str; /* go and check strings  */
   }
 
-  ra = lLastScannedNumber;
+  ra = (context->lstring_lLastScannedNumber);
  } else {
   ta = LTYPE(*A);
   ra = TOREAL(*A);
@@ -57,7 +59,7 @@ Lequal(const PLstr A, const PLstr B)
 
  if (LTYPE(*B)==LSTRING_TY) {
   tb = _Lisnum(B);
-  rb = lLastScannedNumber;
+  rb = (context->lstring_lLastScannedNumber);
  } else {
   tb = LTYPE(*B);
   rb = TOREAL(*B);

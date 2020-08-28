@@ -16,13 +16,15 @@
  */
 
 #include "lstring.h"
+#include <cmssys.h>
 
 /* --------------- Lupper ------------------ */
 void __CDECL
 Lupper( const PLstr s )
 {
  size_t i;
+ Context *context = (Context*)CMSGetPG();
  L2STR(s);
  for (i=0; i<LLEN(*s); i++)
-  LSTR(*s)[i] = l2u[ (byte) LSTR(*s)[i] ];
+  LSTR(*s)[i] = (context->lstring_l2u)[ (byte) LSTR(*s)[i] ];
 } /* Lupper */

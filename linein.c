@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <cmssys.h>
 #include "lstring.h"
 
 
@@ -11,6 +12,7 @@ Llinein( FILEP f, const PLstr line, long start, long length )
 {
   int l, i;
   char *c;
+  Context *context = (Context*)CMSGetPG();
 
   /* initialise line */
   LZEROSTR(*line);
@@ -18,8 +20,8 @@ Llinein( FILEP f, const PLstr line, long start, long length )
   /* find start line */
   if (start>=0) {
     if (!fsetrec(f,start)) {
-      if (errno==ENOTBLK) Lerror(ERR_NOT_RECORD_ACCESS,0);
-      else Lerror(ERR_INCORRECT_CALL,0);
+      if (errno==ENOTBLK) (context->lstring_Lerror)(ERR_NOT_RECORD_ACCESS,0);
+      else (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
     }
   }
 

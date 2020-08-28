@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <cmssys.h>
 
 #include "lerror.h"
 #include "lstring.h"
@@ -16,6 +17,7 @@ static FILE*
 find_file( const PLstr fn )
 {
  FILE *file = NULL;
+ Context *context = (Context*)CMSGetPG();
 
  /* search to see if it is a number - if so assume its a FILE* */
  if ((LTYPE(*fn)==LSTRING_TY) && (_Lisnum(fn) == LINTEGER_TY)) {
@@ -28,7 +30,7 @@ find_file( const PLstr fn )
   file = (FILE*)Lrdint(fn);
  }
  if (file) {
-   if (feof(file) == EOF) Lerror(ERR_FILE_NOT_OPENED,0 ); /* feof() is a cheap check to see if it is a valid FILE* */
+   if (feof(file) == EOF) (context->lstring_Lerror)(ERR_FILE_NOT_OPENED,0 ); /* feof() is a cheap check to see if it is a valid FILE* */
    return file;
  }
 
@@ -62,7 +64,8 @@ reopen_file( const PLstr fn, const char *mode, FILE *stream )
 void __CDECL
 R_open( )
 {
- if (ARGN != 2) Lerror(ERR_INCORRECT_CALL, 0 );
+ Context *context = (Context*)CMSGetPG();
+ if (ARGN != 2) (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0 );
  must_exist(1); L2STR(ARG1);
  must_exist(2); L2STR(ARG2);
  Llower(ARG2); LASCIIZ(*ARG2);
@@ -76,11 +79,12 @@ void __CDECL
 R_close( )
 {
  FILE* i;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN != 1)
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i=find_file(ARG1);
- if (i==NULL) Lerror(ERR_FILE_NOT_OPENED,0 );
+ if (i==NULL) (context->lstring_Lerror)(ERR_FILE_NOT_OPENED,0 );
 
  Licpy(ARGR,FCLOSE(i));
 } /* R_close */
@@ -92,8 +96,9 @@ void __CDECL
 R_eof( )
 {
  FILE* i;
+ Context *context = (Context*)CMSGetPG();
  if (ARGN!=1)
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i = find_file(ARG1);
  if (i==NULL)
   Licpy(ARGR,-1);
@@ -108,8 +113,9 @@ void __CDECL
 R_flush( )
 {
  FILE* i;
+ Context *context = (Context*)CMSGetPG();
  if (ARGN!=1)
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i = find_file(ARG1);
  if (i==NULL)
   Licpy(ARGR,-1);
@@ -126,27 +132,28 @@ R_stream( )
  char option;
  Lstr cmd;
  FILE* i;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
 
  must_exist(1);
  i = find_file(ARG1);
 
  if (exist(2)) {
   L2STR(ARG2);
-  option = l2u[(byte)LSTR(*ARG2)[0]];
+  option = (context->lstring_l2u)[(byte)LSTR(*ARG2)[0]];
  } else
   option = 'S'; /* Status */
 
  /* only with option='C' we must have a third argument */
  if (option != 'C' && exist(3))
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
 
  switch (option) {
   case 'C':  /* command */
    if (!exist(3))
-    Lerror(ERR_INCORRECT_CALL, 0);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
    LINITSTR(cmd); Lfx(&cmd,LLEN(*ARG3));
    Lstrip(&cmd,ARG3,LBOTH,' ');
    Lupper(&cmd);
@@ -154,52 +161,52 @@ R_stream( )
    if (!Lcmp(&cmd,"READ")) {
     if (i) i = reopen_file(ARG1,"r",i);
     else i = open_file(ARG1,"r");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"READBINARY")) {
      if (i) i = reopen_file(ARG1,"rb",i);
      else i = open_file(ARG1,"rb");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"WRITE")) {
      if (i) i = reopen_file(ARG1,"w",i);
      else i = open_file(ARG1,"w");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"WRITEBINARY")) {
      if (i) i = reopen_file(ARG1,"wb",i);
      else i = open_file(ARG1,"wb");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"APPEND")) {
      if (i) i = reopen_file(ARG1,"a+",i);
      else i = open_file(ARG1,"a+");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"APPENDBINARY")) {
      if (i) i = reopen_file(ARG1,"ab+",i);
      else i = open_file(ARG1,"ab+");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"UPDATE")) {
      if (i) i = reopen_file(ARG1,"r+",i);
      else i = open_file(ARG1,"r+");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"UPDATEBINARY")) {
      if (i) i = reopen_file(ARG1,"rb+",i);
      else i = open_file(ARG1,"rb+");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"CREATE")) {
      if (i) i = reopen_file(ARG1,"w+",i);
      else i = open_file(ARG1,"w+");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"CREATEBINARY")) {
      if (i) i = reopen_file(ARG1,"wb+",i);
      else i = open_file(ARG1,"wb+");
-    if (!i) Lerror(ERR_CANT_OPEN_FILE,0);
+    if (!i) (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
    } else
    if (!Lcmp(&cmd,"CLOSE")) {
     if (i) FCLOSE(i);
@@ -210,7 +217,7 @@ R_stream( )
    if (!Lcmp(&cmd,"RESET")) {
     if (i) rewind(i);
    } else
-    Lerror(ERR_INCORRECT_CALL, 0);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
 
    Lscpy(ARGR,"READY");
    LFREESTR(cmd);
@@ -228,7 +235,7 @@ R_stream( )
    /* ERROR??? where */
    break;
   default:
-   Lerror(ERR_INCORRECT_CALL, 0);
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  }
 } /* R_stream */
 
@@ -241,16 +248,17 @@ void __CDECL
 R_charslines( const int func )
 {
  FILE *i;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN > 1)
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i = stdin;
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
  if (!i) i = open_file(ARG1,"r+");
  if (!i) i = open_file(ARG1,"r");
  if (!i)
-  Lerror(ERR_CANT_OPEN_FILE,0);
+  (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
 
  if (func == f_chars)
   Licpy(ARGR,Lchars(i));
@@ -269,16 +277,17 @@ R_charlinein( const int func )
 {
  FILE *i;
  long start,length;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i = stdin;
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
  if (!i) i = open_file(ARG1,"r+");
  if (!i) i = open_file(ARG1,"r");
  if (!i)
-  Lerror(ERR_CANT_OPEN_FILE,0);
+  (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
  get_oiv(2,start,LSTARTPOS);
  get_oiv(3,length,1);
 
@@ -300,9 +309,10 @@ R_charlineout( const int func )
  FILE *i;
  long start;
  PLstr str;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i = stdout;
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
@@ -312,7 +322,7 @@ R_charlineout( const int func )
   else i = open_file(ARG1,"w+");
  }
  if (!i)
-  Lerror(ERR_CANT_OPEN_FILE,0);
+  (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
 
  if (exist(2)) {
   L2STR(ARG2);
@@ -341,15 +351,16 @@ void __CDECL
 R_write( )
 {
  FILE *i;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i = stdout;
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
  if (!i) i = open_file(ARG1,"w");
  if (!i)
-  Lerror(ERR_CANT_OPEN_FILE,0);
+  (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
  if (exist(2)) {
   Lwrite(i,ARG2,FALSE);
   Licpy(ARGR, LLEN(*ARG2));
@@ -373,15 +384,16 @@ R_read( )
 {
  FILE *i;
  long l;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(0,ARGN,2))
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  i = stdin;
  if (exist(1))
   if (LLEN(*ARG1)) i = find_file(ARG1);
  if (!i) i = open_file(ARG1,"r");
  if (!i)
-  Lerror(ERR_CANT_OPEN_FILE,0);
+  (context->lstring_Lerror)(ERR_CANT_OPEN_FILE,0);
 
  if (exist(2)) {
   /* search to see if it is a number */
@@ -395,7 +407,7 @@ R_read( )
    l = Lrdint(ARG2);
   else
   if (LTYPE(*ARG2) == LSTRING_TY) {
-   switch (l2u[(byte)LSTR(*ARG2)[0]]) {
+   switch ((context->lstring_l2u)[(byte)LSTR(*ARG2)[0]]) {
     case 'F':
      l = LREADFILE;
      break;
@@ -406,10 +418,10 @@ R_read( )
      l = 1;
      break;
     default:
-     Lerror(ERR_INCORRECT_CALL, 0);
+     (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
    }
   } else
-   Lerror(ERR_INCORRECT_CALL, 0);
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  } else
   l = LREADLINE;
 
@@ -425,18 +437,19 @@ R_seek( )
  FILE *i;
  long l;
  int SEEK=SEEK_SET;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL, 0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
  must_exist(1); i = find_file(ARG1);
  if (!i)
-  Lerror( ERR_FILE_NOT_OPENED, 0);
+  (context->lstring_Lerror)( ERR_FILE_NOT_OPENED, 0);
 
  if (exist(2)) {
   l = Lrdint(ARG2);
   if (exist(3)) {
    L2STR(ARG3);
-   switch (l2u[(byte)LSTR(*ARG3)[0]]) {
+   switch ((context->lstring_l2u)[(byte)LSTR(*ARG3)[0]]) {
     case 'T': /* TOF */
      SEEK = SEEK_SET;
      break;
@@ -447,12 +460,12 @@ R_seek( )
      SEEK = SEEK_END;
      break;
     default:
-     Lerror(ERR_INCORRECT_CALL, 0 );
+     (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0 );
    }
   }
   FSEEK( i, l, SEEK );
   l = FSEEK(i,l,SEEK);
-  if (l) Lerror(ERR_NOT_RANDOM_ACCESS,0);
+  if (l) (context->lstring_Lerror)(ERR_NOT_RANDOM_ACCESS,0);
  }
  Licpy(ARGR, FTELL(i));
 } /* R_seek */

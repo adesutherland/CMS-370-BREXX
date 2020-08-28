@@ -33,12 +33,12 @@
 
 /* ----------- local defines --------------- */
 #define UNKNOWN_LABEL  0xFFFF
-#define CMP(a)   Lcmp(&symbolstr,a)
-#define identCMP(a)  ((symbol==ident_sy) && !CMP(a))
+#define CMP(a)   Lcmp(&(context->nextsymbsymbolstr),a)
+#define identCMP(a)  (((context->nextsymbsymbol)==ident_sy) && !CMP(a))
 #define MUSTBE_SEMICOLON _mustbe(semicolon_sy, ERR_EXTRAD_DATA,1)
-#define SKIP_SEMICOLONS  while (symbol==semicolon_sy) nextsymbol()
+#define SKIP_SEMICOLONS  while ((context->nextsymbsymbol)==semicolon_sy) nextsymbol()
 
-#define SYMBOLADD2LITS  _Add2Lits(&symbolstr,symbolhasdot)
+#define SYMBOLADD2LITS  _Add2Lits(&(context->nextsymbsymbolstr),(context->nextsymbsymbolhasdot))
 #define SYMBOLADD2LITS_KEY &(((PBinLeaf)SYMBOLADD2LITS)->key)
 
 /* ----------- Function structure ----------- */

@@ -56,16 +56,16 @@
 #  include <unistd.h>
 # endif
 #endif
+#include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
 #include "context.h"
-
-#define elapsed (currentContext->ltime_elapsed)
 
 /* ------------------ _Ltimeinit ----------------- */
 void __CDECL
 _Ltimeinit( void )
 {
+ Context *context = (Context*)CMSGetPG();
 #if defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
  struct time t;
 #elif defined(WCE)
@@ -82,25 +82,25 @@ _Ltimeinit( void )
 #endif
 
 #ifdef WCE
- elapsed = (double)GetTickCount() / 1000.0;
+ (context->ltime_elapsed) = (double)GetTickCount() / 1000.0;
 #elif defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
  gettime(&t);
- elapsed = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
+ (context->ltime_elapsed) = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
   (double)t.ti_sec + (double)t.ti_hund/100.0;
 #elif defined(_MSC_VER)
  _ftime(&tb);
- elapsed = (double)tb.time + (double)tb.millitm/1000.0;
+ (context->ltime_elapsed) = (double)tb.time + (double)tb.millitm/1000.0;
 #elif defined(__CMS__)
  rawtime = rexclock(vmnow);
  tv=gmtime(&rawtime);
- elapsed = (double)vmnow[0] + (double)vmnow[1]/1000000.0;
+ (context->ltime_elapsed) = (double)vmnow[0] + (double)vmnow[1]/1000000.0;
 #elif defined(__MVS__)
  rawtime = __getclk(vmnow);
  tv=gmtime(&rawtime);
- elapsed = (double)(vmnow[0] >> 12) + (double)(vmnow[1] >> 12)/1000000.0;
+ (context->ltime_elapsed) = (double)(vmnow[0] >> 12) + (double)(vmnow[1] >> 12)/1000000.0;
 #else
  gettimeofday(&tv,&tz);
- elapsed = tv.tv_sec + (double)tv.tv_usec/1000000.0;
+ (context->ltime_elapsed) = tv.tv_sec + (double)tv.tv_usec/1000000.0;
 #endif
 } /* _Ltimeinit */
 
@@ -110,6 +110,7 @@ Ltime( const PLstr timestr, char option )
 {
  double unow;
  int hour;
+ Context *context = (Context*)CMSGetPG();
 #ifdef WCE
  SYSTEMTIME time;
  TCHAR buf[30];
@@ -131,7 +132,7 @@ Ltime( const PLstr timestr, char option )
 # endif
 #endif
 
- option = l2u[(byte)option];
+ option = (context->lstring_l2u)[(byte)option];
  Lfx(timestr,30); LZEROSTR(*timestr);
 
 #ifndef WCE
@@ -178,7 +179,7 @@ Ltime( const PLstr timestr, char option )
    gettimeofday(&tv,&tz);
    unow = (double)tv.tv_sec + (double)tv.tv_usec/1000000.0;
 #endif
-   LREAL(*timestr) = unow-elapsed;
+   LREAL(*timestr) = unow-(context->ltime_elapsed);
    LTYPE(*timestr) = LREAL_TY;
    LLEN(*timestr) = sizeof(double);
    return;
@@ -255,8 +256,8 @@ Ltime( const PLstr timestr, char option )
    gettimeofday(&tv,&tz);
    unow = (double)tv.tv_sec + (double)tv.tv_usec/1000000.0;
 #endif
-   LREAL(*timestr) = unow-elapsed;
-   elapsed = unow;
+   LREAL(*timestr) = unow-(context->ltime_elapsed);
+   (context->ltime_elapsed) = unow;
    LTYPE(*timestr) = LREAL_TY;
    LLEN(*timestr) = sizeof(double);
    return;
@@ -274,7 +275,7 @@ Ltime( const PLstr timestr, char option )
    break;
 
   default:
-   Lerror(ERR_INCORRECT_CALL,0);
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  }
 #ifndef WCE
  LLEN(*timestr) = STRLEN(LSTR(*timestr));

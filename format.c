@@ -26,6 +26,7 @@
  */
 
 #include "lstring.h"
+#include <cmssys.h>
 
 /* ---------------- Lformat ------------------ */
 void __CDECL
@@ -166,6 +167,7 @@ int fractions;
 int len;
 Lstr tmp;
 LINITSTR(tmp);
+Context *context = (Context*)CMSGetPG();
 
 t = Lrdreal(from);
 sprintf(buffer, "%40.20f", t);
@@ -181,14 +183,14 @@ for (i++; i < strlen(buffer); i++) {                             // count digits
    if (! isdigit(buffer[i])) break;
    fractions++;
    }
-if ((digits > lNumericDigits) || (expp > 0)) {                     // exponential notation required?
+if ((digits > (context->lstring_lNumericDigits)) || (expp > 0)) {                     // exponential notation required?
    exponent = 1;
    if (expp > 0) fractions = expp;
-   else if (fractions > (lNumericDigits - 1)) fractions = lNumericDigits - 1;
+   else if (fractions > ((context->lstring_lNumericDigits) - 1)) fractions = (context->lstring_lNumericDigits) - 1;
    }
 else {
    exponent = 0;  // standard display
-   if ((digits + fractions) > lNumericDigits) fractions = lNumericDigits - digits;
+   if ((digits + fractions) > (context->lstring_lNumericDigits)) fractions = (context->lstring_lNumericDigits) - digits;
    if ((after >= 0) && (after < fractions)) fractions = after;        // caller wants less precision
    }
 

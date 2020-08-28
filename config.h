@@ -2,7 +2,7 @@
 
 /* The one version to rule them all! */
 /* #define CMS_VERSION "CMS-0.9.6" */
-#define CMS_VERSION "CMS-F0017"
+#define CMS_VERSION "CMS-F0018"
 /* #define __DEBUG__ */
 
 #include "rxmvs.h"

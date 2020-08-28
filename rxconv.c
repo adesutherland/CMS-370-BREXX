@@ -26,6 +26,7 @@
  */
 
 #include <math.h>
+#include <cmssys.h>
 
 #include "lerror.h"
 #include "lstring.h"
@@ -47,8 +48,9 @@ R_SoSoC( const int func )
  bool usepad;
  PLstr a2;
  Lstr nullstr;
+ Context *context = (Context*)CMSGetPG();
 
- if (!IN_RANGE(1,ARGN,3)) Lerror(ERR_INCORRECT_CALL,0);
+ if (!IN_RANGE(1,ARGN,3)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(1);
 
@@ -79,7 +81,7 @@ R_SoSoC( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SoSoC */
 
@@ -92,7 +94,9 @@ void __CDECL
 R_SoI ( const int func )
 {
  long n;
- if (!IN_RANGE(1,ARGN,2)) Lerror(ERR_INCORRECT_CALL,0);
+ Context *context = (Context*)CMSGetPG();
+
+ if (!IN_RANGE(1,ARGN,2)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_oi(2,n);
 
@@ -106,7 +110,7 @@ R_SoI ( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SoI */
 
@@ -119,8 +123,9 @@ void __CDECL
 R_IoI ( const int func )
 {
  long n;
+ Context *context = (Context*)CMSGetPG();
 
- if (!IN_RANGE(1,ARGN,2)) Lerror(ERR_INCORRECT_CALL,0);
+ if (!IN_RANGE(1,ARGN,2)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_oiv(2,n,-1);
 
@@ -134,7 +139,7 @@ R_IoI ( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_IoI */
 
@@ -145,8 +150,9 @@ void __CDECL
 R_format( const int func )
 {
  long before, after, expp, expt;
+ Context *context = (Context*)CMSGetPG();
 
- if (!IN_RANGE(1,ARGN,5)) Lerror(ERR_INCORRECT_CALL,0);
+ if (!IN_RANGE(1,ARGN,5)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
 
  get_oi0(2,before);
@@ -160,7 +166,7 @@ R_format( const int func )
 // 'before' or 'after' with a value < 0 means they were not specified on the call to FORMAT.
  if (!exist(2)) before = -1;
  if (!exist(3)) after = -1;
- if (before == 0) Lerror(ERR_INCORRECT_CALL,0);                        // cannot specify before as 0
+ if (before == 0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);                        // cannot specify before as 0
 #endif
  Lformat(ARGR,ARG1,before,after,expp,expt);
 } /* R_format */
@@ -172,8 +178,9 @@ void __CDECL
 R_trunc( const int func )
 {
  long   n;
+ Context *context = (Context*)CMSGetPG();
 
- if (!IN_RANGE(1,ARGN,2)) Lerror(ERR_INCORRECT_CALL,0);
+ if (!IN_RANGE(1,ARGN,2)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_oi0(2,n);
 
@@ -187,18 +194,19 @@ void __CDECL
 R_xrange( const int func )
 {
  unsigned int start, stop;
+ Context *context = (Context*)CMSGetPG();
 
- if (ARGN>2) Lerror(ERR_INCORRECT_CALL,0);
+ if (ARGN>2) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  if (exist(1)) {
   L2STR(ARG1);
-  if (LLEN(*ARG1)!=1) Lerror(ERR_INCORRECT_CALL,0);
+  if (LLEN(*ARG1)!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
   start = (unsigned)LSTR(*ARG1)[0] & 0xFF;
  } else
   start = 0;
 
  if (exist(2)) {
   L2STR(ARG2);
-  if (LLEN(*ARG2)!=1) Lerror(ERR_INCORRECT_CALL,0);
+  if (LLEN(*ARG2)!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
   stop = (unsigned)LSTR(*ARG2)[0] & 0xFF;
  } else
   stop = 255;

@@ -35,6 +35,7 @@
  */
 
 #include <math.h>
+#include <cmssys.h>
 
 #include "lerror.h"
 #include "lstring.h"
@@ -97,7 +98,6 @@ DECL( not )
 #undef DECL
 
 /* ------------- Register Functions Tree ----------- */
-#define ExtraFuncs (currentContext->rexxfunc_ExtraFuncs)
 /* !!!!!!!!!!!! WARNING THE LIST MUST BE SORTED !!!!!!!!!!! */
 /* !!!!!! EBCDIC SORT ORDER IS NOT THE SAME AS ASCII */
 static const
@@ -291,6 +291,7 @@ C_isBuiltin( PLstr func )
 {
  int first, middle, last, cmp;
  PBinLeaf leaf;
+ Context *context = (Context*)CMSGetPG();
 
  first = 0; /* Use binary search to find intruction */
  last  = DIMENSION(rexx_routine)-1;
@@ -307,8 +308,8 @@ C_isBuiltin( PLstr func )
  }
 
  /* try to see if it exists in the extra functions */
- if (ExtraFuncs) {
-  leaf = BinFind(ExtraFuncs,func);
+ if ((context->rexxfunc_ExtraFuncs)) {
+  leaf = BinFind((context->rexxfunc_ExtraFuncs),func);
   if (leaf)
    return (TBltFunc*)(leaf->value);
  }
@@ -324,10 +325,11 @@ RxRegFunction( char *name, void (__CDECL *func)(int), int opt )
  TBltFunc *fp;
  PBinLeaf leaf;
  RxFunc  *fc;
+ Context *context = (Context*)CMSGetPG();
 
- if (ExtraFuncs==NULL) {
-  ExtraFuncs = (BinTree*)MALLOC(sizeof(BinTree),"ExtraFuncs");
-  BINTREEINIT(*ExtraFuncs);
+ if ((context->rexxfunc_ExtraFuncs)==NULL) {
+  (context->rexxfunc_ExtraFuncs) = (BinTree*)MALLOC(sizeof(BinTree),"(context->rexxfunc_ExtraFuncs)");
+  BINTREEINIT(*(context->rexxfunc_ExtraFuncs));
  }
 
  LINITSTR(fn);
@@ -349,18 +351,18 @@ RxRegFunction( char *name, void (__CDECL *func)(int), int opt )
  fp->opt  = opt;
 
  /* Check the labels */
- leaf = BinFind(&_labels, &fn);
+ leaf = BinFind(&(context->rexx_labels), &fn);
  if (leaf != NULL) {
   fc = (RxFunc*)(leaf->value);
   fc->type = FT_BUILTIN;
   fc->builtin = fp;
  } /* if it does not exists, it will be added when needed */
 
- /* Add it to the ExtraFuncs.
+ /* Add it to the (context->rexxfunc_ExtraFuncs).
   * fn after BinAdd will be empty,
   * so the BinAdd should be the last
   */
- BinAdd(ExtraFuncs,&fn,fp);
+ BinAdd((context->rexxfunc_ExtraFuncs),&fn,fp);
 
  return FALSE;
 } /* RxRegFunction */
@@ -369,8 +371,9 @@ RxRegFunction( char *name, void (__CDECL *func)(int), int opt )
 void __CDECL
 RxRegFunctionDone( void )
 {
- if (!ExtraFuncs) return;
- BinDisposeLeaf(ExtraFuncs,ExtraFuncs->parent,FREE);
- FREE(ExtraFuncs);
- ExtraFuncs = NULL;
+ Context *context = (Context*)CMSGetPG();
+ if (!(context->rexxfunc_ExtraFuncs)) return;
+ BinDisposeLeaf((context->rexxfunc_ExtraFuncs),(context->rexxfunc_ExtraFuncs)->parent,FREE);
+ FREE((context->rexxfunc_ExtraFuncs));
+ (context->rexxfunc_ExtraFuncs) = NULL;
 } /* RxRegFunctionDone */

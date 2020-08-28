@@ -41,48 +41,48 @@
 # include "rxmvs.h"
 #endif
 
-#define ARGN   (rxArg.n)
-#define ARGR   (rxArg.r)
-#define ARG1   (rxArg.a[0])
-#define ARG2   (rxArg.a[1])
-#define ARG3   (rxArg.a[2])
-#define ARG4   (rxArg.a[3])
-#define ARG5   (rxArg.a[4])
-#define ARG6   (rxArg.a[5])
-#define ARG7   (rxArg.a[6])
-#define ARG8   (rxArg.a[7])
-#define ARG9   (rxArg.a[8])
-#define ARG10  (rxArg.a[9])
+#define ARGN   ((context->rexxrxArg).n)
+#define ARGR   ((context->rexxrxArg).r)
+#define ARG1   ((context->rexxrxArg).a[0])
+#define ARG2   ((context->rexxrxArg).a[1])
+#define ARG3   ((context->rexxrxArg).a[2])
+#define ARG4   ((context->rexxrxArg).a[3])
+#define ARG5   ((context->rexxrxArg).a[4])
+#define ARG6   ((context->rexxrxArg).a[5])
+#define ARG7   ((context->rexxrxArg).a[6])
+#define ARG8   ((context->rexxrxArg).a[7])
+#define ARG9   ((context->rexxrxArg).a[8])
+#define ARG10  ((context->rexxrxArg).a[9])
 
 #define must_exist(I) if (ARG##I == NULL) \
-  Lerror(ERR_INCORRECT_CALL,0)
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0)
 #define exist(I)  (ARG##I != NULL)
 
 #define get_s(I)   { must_exist(I); L2STR(ARG##I); }
 #define get_i(I,N) { must_exist(I); N = Lrdint(ARG##I); \
-   if (N<=0) Lerror(ERR_INCORRECT_CALL,0); }
+   if (N<=0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); }
 
 #define get_oi(I,N) { if (exist(I)) \
   { N = Lrdint(ARG##I); \
-   if (N<=0) Lerror(ERR_INCORRECT_CALL,0); \
+   if (N<=0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
   } else N = 0; }
 
 #define get_i0(I,N) { must_exist(I); N = Lrdint(ARG##I); \
-   if (N<0) Lerror(ERR_INCORRECT_CALL,0); }
+   if (N<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); }
 
 #define get_oi0(I,N) { if (exist(I)) \
   { N = Lrdint(ARG##I); \
-   if (N<0) Lerror(ERR_INCORRECT_CALL,0); \
+   if (N<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
   } else N = 0; }
 
 #define get_oiv(I,N,V) { if (exist(I)) \
   { N = Lrdint(ARG##I); \
-   if (N<0) Lerror(ERR_INCORRECT_CALL,0); \
+   if (N<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
   } else N = V; }
 
 #define get_pad(I,pad) { if (exist(I)) \
   { L2STR(ARG##I); \
-   if (LLEN(*ARG##I)!=1) Lerror(ERR_INCORRECT_CALL,0); \
+   if (LLEN(*ARG##I)!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
    pad = LSTR(*ARG##I)[0];  \
   } else pad = ' '; }
 
