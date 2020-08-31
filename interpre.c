@@ -683,24 +683,24 @@ I_CallFunction( void )
        break;
 
        case SYST_RX:
-       sprintf(physical, "RX%.6s", LSTR(leaf->key));
-       sprintf(logical, "RX%.6s %s", LSTR(leaf->key), LSTR(leaf->key));
-       i = CMSfunctionArray(physical,
-                            logical,
-                            ct==CT_PROCEDURE,
-                            &ret_string,
-                            realarg,
-                            argv);
+         sprintf(physical, "RX%.6s", LSTR(leaf->key));
+         sprintf(logical, "RX%.6s %s", LSTR(leaf->key), LSTR(leaf->key));
+         i = CMSfunctionArray(physical,
+                              logical,
+                              ct==CT_PROCEDURE,
+                              &ret_string,
+                              realarg,
+                              argv);
        break;
 
        case SYST_EXEC:
-        sprintf(physical, "EXEC %.8s", LSTR(leaf->key));
-        i = CMSfunctionArray(physical,
-                            physical,
-                            ct==CT_PROCEDURE,
-                            &ret_string,
-                            realarg,
-                            argv);
+         sprintf(physical, "EXEC %.8s", LSTR(leaf->key));
+         i = CMSfunctionArray(physical,
+                             physical,
+                             ct==CT_PROCEDURE,
+                             &ret_string,
+                             realarg,
+                             argv);
        break;
     }
 

@@ -264,10 +264,12 @@ RxExecuteCmd( PLstr cmd, PLstr env )
  int how;
 
 LASCIIZ(* env);
- // Right now we support the CMS and COMMAND environments.
+/*
  if (!Lcmp(env, "CMS")) how = CMS_CONSOLE;
  else how = CMS_COMMAND;
  (context->rexxrxReturnCode) = CMScommand(LSTR(* cmd), how);                                 // execute the command
+*/
+(context->rexxrxReturnCode) = __HOSTCM(cmd, env);
 
  RxSetSpecialVar(RCVAR,(context->rexxrxReturnCode));                                 // set the returncode variable
  if (((context->rexxrxReturnCode) < 0) && !((context->rexx_proc)[(context->rexx_rx_proc)].trace & off_trace)) {       // do the right thing for tracing

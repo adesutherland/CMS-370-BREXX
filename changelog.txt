@@ -1,6 +1,7 @@
 BREXX CMS Change LOG
 ====================
 
+F0019 - EXECCOMM Support (Variable contents < 250 characters)
 F0018 - Removed Chain and Anchor from Context Structure (used GCCLIB Process
         Global Memory instead)
 F0017 - All things Call Type 5:
