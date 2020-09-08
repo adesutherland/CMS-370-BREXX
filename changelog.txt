@@ -1,8 +1,10 @@
 BREXX CMS Change LOG
 ====================
 
+F0020 - EXECCOMM Support
+
 CMS-0.9.7 - 31 August 2020
-F0019 - EXECCOMM Support (Variable contents < 250 characters)
+F0019 - EXECCOMM Support (ALPHA - Variable contents < 250 characters)
 F0018 - Removed Chain and Anchor from Context Structure (used GCCLIB Process
         Global Memory instead)
 F0017 - All things Call Type 5:
