@@ -1,8 +1,12 @@
 BREXX CMS Change LOG
 ====================
 
+CMS-0.9.8 - 4 October 2020
+F0021 - Fixed Debug Context in interpre.c
+F0020 - EXECCOMM Support
+
 CMS-0.9.7 - 31 August 2020
-F0019 - EXECCOMM Support (Variable contents < 250 characters)
+F0019 - EXECCOMM Support (ALPHA - Variable contents < 250 characters)
 F0018 - Removed Chain and Anchor from Context Structure (used GCCLIB Process
         Global Memory instead)
 F0017 - All things Call Type 5:
@@ -24,6 +28,7 @@ F0016 - Mod HRC402DS support
         3/ HI/TS/TE changes
       - YATA Reads directly from READER (build script)
       - Builds on vm/370 container with builder tag (i.e. not latest)
+
 CMS-0.9.5 - 21 July 2020
 F0015 - IO Updates to leverage GCCLIB >= 0.7.13 / f0029
         (Stability and performance)
