@@ -49,13 +49,13 @@ herccontrol "devinit 00d io/brexxsrc.vmarc" -w "^HHCPN098I"
 herccontrol "/cp disc" -w "^VM/370 Online"
 herccontrol "/logon cmsuser cmsuser" -w "RECONNECTED AT"
 herccontrol "/begin"
-herccontrol "/tape dump * * f" -w "^Ready;"
+herccontrol "/tape dump * * f (noprint" -w "^Ready;"
 herccontrol "/detach 181" -w "^Ready;"
-herccontrol "/vmarc pack * * f (pun" -w "^Ready;"
+herccontrol "/vmarc pack * * f (pun notrace" -w "^Ready;"
 
 # Build
 herccontrol "/ACC 193 E (ERASE" -w "^Ready;"
-herccontrol "/mkbrexx" -w "^Ready;" -t 250
+herccontrol "/mkbrexx" -w "^Ready;" -t 350
 herccontrol "/rename * * e = = e2" -w "^Ready;"
 
 # Sanity test
