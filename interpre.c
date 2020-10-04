@@ -145,6 +145,7 @@ static void
 DebugStackList(void)
 {
  int i;
+ Context *context = (Context*)CMSGetPG();
  if ((context->interpre_RxStckTop)<0)
   printf("Stack is empty\n");
  else
