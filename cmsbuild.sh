@@ -55,6 +55,9 @@ herccontrol "/vmarc pack * * f (pun notrace" -w "^Ready;"
 
 # Build
 herccontrol "/ACC 193 E (ERASE" -w "^Ready;"
+herccontrol "/mkbrexx DEBUG" -w "^Ready;" -t 350
+herccontrol "/copy brexx text e brexxd = =" -w "^Ready;"
+herccontrol "/copy brexx module e brexxd = =" -w "^Ready;"
 herccontrol "/mkbrexx" -w "^Ready;" -t 350
 herccontrol "/rename * * e = = e2" -w "^Ready;"
 
@@ -88,6 +91,7 @@ herccontrol "/vmarc pack * * e (pun" -w "^Ready;"
 
 # Clean Up
 herccontrol "/erase brexx * a" -w "^Ready;"
+herccontrol "/erase brexxd * a" -w "^Ready;"
 herccontrol "/erase rexxtry exec a" -w "^Ready;"
 herccontrol "/erase sysprof exec a" -w "^Ready;"
 

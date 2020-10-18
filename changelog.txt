@@ -1,6 +1,9 @@
 BREXX CMS Change LOG
 ====================
 
+F0022 - MacOS Local Build Scripts
+      - Production and Debug Build
+
 CMS-0.9.8 - 4 October 2020
 F0021 - Fixed Debug Context in interpre.c
 F0020 - EXECCOMM Support
