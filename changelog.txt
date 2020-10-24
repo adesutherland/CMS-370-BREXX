@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+F0023 - FIX - Ensure RC is set to 0 when returning from a calltype 5
+      - FIX - Push memory leak
 F0022 - MacOS Local Build Scripts
       - Production and Debug Build
 

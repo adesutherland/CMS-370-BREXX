@@ -1500,7 +1500,10 @@ outofcmd:
   case OP_RETURNF:
    DEBUGDISPLAY0("RETURNF");
    if ((context->rexx_rx_proc)==0) { /* Root program */
-    if (CMScalltype()==5) Lstrcpy(&(context->rexxrxReturnResult), (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+    if (CMScalltype()==5) {
+        Lstrcpy(&(context->rexxrxReturnResult), (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+        (context->rexxrxReturnCode) = 0;
+    }
     else (context->rexxrxReturnCode) = (int)Lrdint((context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
     goto interpreter_fin;
    } else
@@ -1576,7 +1579,10 @@ outofcmd:
     /* exit prg with RC */
   case OP_EXIT:
    DEBUGDISPLAY("EXIT");
-   if (CMScalltype()==5) Lstrcpy(&(context->rexxrxReturnResult), (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+   if (CMScalltype()==5) {
+       Lstrcpy(&(context->rexxrxReturnResult), (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+       (context->rexxrxReturnCode) = 0;
+   }
    else (context->rexxrxReturnCode) = (int)Lrdint((context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
    /* free everything from stack */
 #ifndef __DEBUG__
@@ -1714,7 +1720,7 @@ outofcmd:
     /* RX_QUEUE   */
     /* queue stck to Rexx queue */
   case OP_RX_QUEUE:
-   DEBUGDISPLAY("RX_PUSH");
+   DEBUGDISPLAY("RX_QUEUE");
    LPMALLOC(a); /* duplicate variable */
    Lfx(a,1);
    Lstrcpy(a,(context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
