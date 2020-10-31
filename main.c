@@ -105,9 +105,13 @@ main(int ac, char *av[])
 
  /* prepare arguments for program */
  if (CMScalltype()==5) {
-   for (i=0, ir=ia+1; ir<ac; ir++, i++) {
-     Lscpy(&args[i], av[ir]);
-   }
+     ADLEN *param = CMSeplist()->ArgList;
+     if (param) {
+         for (i=0; (int)(param[i].Data) != -1; i++)
+         {
+             Lmcpy(&args[i], param[i].Data, param[i].Len);
+         }
+     }
  }
  else {
    for (ir=ia+1; ir<ac; ir++) {
@@ -125,7 +129,7 @@ main(int ac, char *av[])
  returnCode = (context->rexxrxReturnCode);
  L2STR(&(context->rexxrxReturnResult));
  LASCIIZ((context->rexxrxReturnResult)); /* Make sure its a C str */
- CMSreturnvalue(LSTR((context->rexxrxReturnResult))); /* If calltype 5 */
+ CMSreturndata(LSTR(context->rexxrxReturnResult),LLEN(context->rexxrxReturnResult)); /* If calltype 5 */
 
  /* --- Free everything --- */
  RxFinalize();

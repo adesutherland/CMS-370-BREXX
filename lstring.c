@@ -155,6 +155,20 @@ Lrcpy( const PLstr to, const double from )
  LREAL(*to) = from;
 } /* Lrcpy */
 
+/* ---------------- Lmcpy ------------------ */
+void __CDECL
+Lmcpy( const PLstr to, const char *from, size_t len)
+{
+    if (!from)
+        Lfx(to,len=0);
+    else {
+        Lfx(to,len);
+        MEMCPY( LSTR(*to), from, len );
+    }
+    LLEN(*to) = len;
+    LTYPE(*to) = LSTRING_TY;
+} /* Lscpy */
+
 /* ---------------- Lscpy ------------------ */
 void __CDECL
 Lscpy( const PLstr to, const char *from )

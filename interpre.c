@@ -512,6 +512,7 @@ I_CallFunction( void )
  char *ret_string;
  char *cmd_string;
  char **argv;
+ int *lenv;
  CTYPE existarg, line;
  Lstr cmd;
  PLstr res = NULL;
@@ -569,12 +570,14 @@ I_CallFunction( void )
     /* Make the calltype 5 Arguments and prepare command string */
     L2STR(&(leaf->key)); LASCIIZ(leaf->key);
     argv = malloc(realarg * sizeof(char*));
+    lenv = malloc(realarg * sizeof(int));
     st = (context->interpre_RxStckTop)-realarg;
     res = (context->interpre_RxStck)[st++];
     i=0;
     while (st<=(context->interpre_RxStckTop)) {
      L2STR((context->interpre_RxStck)[st]); LASCIIZ(*((context->interpre_RxStck)[st]));
      argv[i] = LSTR(*((context->interpre_RxStck)[st]));
+     lenv[i] = LLEN(*((context->interpre_RxStck)[st]));
      st++; i++;
     }
 
@@ -586,135 +589,147 @@ I_CallFunction( void )
        sprintf(logical, "RX%.6s %s", LSTR(leaf->key), LSTR(leaf->key));
 
        /* 2. Attempt to call function (i.e. with the RX) */
-       i = CMSfunctionArray(physical,
+       i = CMSfunctionDataArray(physical,
                             logical,
                             ct==CT_PROCEDURE,
                             &ret_string,
                             realarg,
-                            argv);
-       if (!i) func->systype = SYST_RX;
+                            argv, lenv);
+       if (!(i<0)) func->systype = SYST_RX;
 
        /* 3. Function packaged loaded and attempt to call function (x3) */
-       if (i && !(context->interpre_no_user_fp)) { /* Not found (yet) */
+       if (i<0 && !(context->interpre_no_user_fp)) { /* Not found (yet) */
          sprintf(load_package_cmd, "RXUSERFN LOAD RX%.6s", LSTR(leaf->key));
          i = CMScommand(load_package_cmd, 0);
          if (i == -3) (context->interpre_no_user_fp) = 1;
          if (!i) {
-           i = CMSfunctionArray(physical,
+           i = CMSfunctionDataArray(physical,
                                 logical,
                                 ct==CT_PROCEDURE,
                                 &ret_string,
                                 realarg,
-                                argv);
-           if (!i) func->systype = SYST_RX;
+                                argv, lenv);
+           if (!(i<0)) func->systype = SYST_RX;
          }
        }
 
-       if (i && !(context->interpre_no_loc_fp)) { /* Not found (yet) */
+       if (i<0 && !(context->interpre_no_loc_fp)) { /* Not found (yet) */
          sprintf(load_package_cmd, "RXLOCFN LOAD RX%.6s", LSTR(leaf->key));
          i = CMScommand(load_package_cmd, 0);
          if (i == -3) (context->interpre_no_loc_fp) = 1;
          if (!i) {
-           i = CMSfunctionArray(physical,
+           i = CMSfunctionDataArray(physical,
                                 logical,
                                 ct==CT_PROCEDURE,
                                 &ret_string,
                                 realarg,
-                                argv);
-           if (!i) func->systype = SYST_RX;
+                                argv, lenv);
+           if (!(i<0)) func->systype = SYST_RX;
          }
        }
 
-       if (i && !(context->interpre_no_sys_fp)) { /* Not found (yet) */
+       if (i<0 && !(context->interpre_no_sys_fp)) { /* Not found (yet) */
          sprintf(load_package_cmd, "RXSYSFN LOAD RX%.6s", LSTR(leaf->key));
          i = CMScommand(load_package_cmd, 0);
          if (i == -3) (context->interpre_no_sys_fp) = 1;
          if (!i) {
-           i = CMSfunctionArray(physical,
+           i = CMSfunctionDataArray(physical,
                                 logical,
                                 ct==CT_PROCEDURE,
                                 &ret_string,
                                 realarg,
-                                argv);
-           if (!i) func->systype = SYST_RX;
+                                argv, lenv);
+           if (!(i<0)) func->systype = SYST_RX;
          }
        }
 
        /* 4. RX is removed and the REXX function (i.e. an EXEC) searched for */
        /*    and run (without the RX) */
-       if (i) {
+       if (i<0) {
          /* Does the exec exist? */
          CMSFILEINFO* existingFileState;
          sprintf(physical,"%-8s%-8s%-2s", LSTR(leaf->key), "EXEC", "*");
          if (CMSfileState(physical, &existingFileState)) {
            /* File does not exist (or some other error) */
-           i = 1;
+           i = -3;
          }
          else {
            sprintf(physical, "EXEC %.8s", LSTR(leaf->key));
-           i = CMSfunctionArray(physical,
+           i = CMSfunctionDataArray(physical,
                                 physical,
                                 ct==CT_PROCEDURE,
                                 &ret_string,
                                 realarg,
-                                argv);
-           if (!i) func->systype = SYST_EXEC;
+                                argv, lenv);
+           if (!(i<0)) func->systype = SYST_EXEC;
           }
        }
 
        /* 5. Final attempt to call function (without the RX) */
-       if (i) {
-         i = CMSfunctionArray(LSTR(leaf->key),
+       if (i<0) {
+         i = CMSfunctionDataArray(LSTR(leaf->key),
                             LSTR(leaf->key),
                             ct==CT_PROCEDURE,
                             &ret_string,
                             realarg,
-                            argv);
-         if (!i) func->systype = SYST_BARE;
+                            argv, lenv);
+         if (!(i<0)) func->systype = SYST_BARE;
        }
        break;
 
        case SYST_BARE:
-         i = CMSfunctionArray(LSTR(leaf->key),
+         i = CMSfunctionDataArray(LSTR(leaf->key),
                             LSTR(leaf->key),
                             ct==CT_PROCEDURE,
                             &ret_string,
                             realarg,
-                            argv);
+                            argv, lenv);
        break;
 
        case SYST_RX:
          sprintf(physical, "RX%.6s", LSTR(leaf->key));
          sprintf(logical, "RX%.6s %s", LSTR(leaf->key), LSTR(leaf->key));
-         i = CMSfunctionArray(physical,
+         i = CMSfunctionDataArray(physical,
                               logical,
                               ct==CT_PROCEDURE,
                               &ret_string,
                               realarg,
-                              argv);
+                              argv, lenv);
        break;
 
        case SYST_EXEC:
          sprintf(physical, "EXEC %.8s", LSTR(leaf->key));
-         i = CMSfunctionArray(physical,
+         i = CMSfunctionDataArray(physical,
                              physical,
                              ct==CT_PROCEDURE,
                              &ret_string,
                              realarg,
-                             argv);
+                             argv, lenv);
        break;
     }
 
-    /* Cleanup */
+    /* Cleanup and handle result string */
     free(argv);
+    free(lenv);
     if (ret_string) {
-      Lscpy(res,ret_string);
+      if (i<=0) { /* Error or zero data returned */
+          Lscpy(res, ret_string);
+      }
+      else { /* i is the length of data returned */
+          Lmcpy(res, ret_string, i);
+      }
       free(ret_string);
     }
 
-    /* Function not found */
-    if (i) {
-      (context->lstring_Lerror)(ERR_ROUTINE_NOT_FOUND,0);
+    /* Error calling function */
+    if (i == -3) {
+        (context->lstring_Lerror)(ERR_ROUTINE_NOT_FOUND,0);
+    }
+    else if (i == -2) {
+        (context->lstring_Lerror)(ERR_STORAGE_EXHAUSTED,0);
+    }
+    else if (i < 0) {
+        (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
     }
 
     if (!ret_string) {

@@ -1,10 +1,13 @@
 BREXX CMS Change LOG
 ====================
 
+F0024 - Calltype 5 - handle embedded nulls in returned data
+      - SAY - handle embedded nulls (converted to spaces)
+      - Calltype 5 - handle embedded nulls in called function arguments
 F0023 - FIX - Ensure RC is set to 0 when returning from a calltype 5
       - FIX - Push memory leak
 F0022 - MacOS Local Build Scripts
-      - Production and Debug Build
+      - Both Production and Debug Binaries Built
 
 CMS-0.9.8 - 4 October 2020
 F0021 - Fixed Debug Context in interpre.c
