@@ -251,6 +251,7 @@ void  __CDECL _Lfree(void *str);  /* free a Lstring */
 void  __CDECL Lfx   (const PLstr  s, const size_t len );
 void  __CDECL Licpy (const PLstr to, const long   from );
 void  __CDECL Lrcpy (const PLstr to, const double from );
+void  __CDECL Lmcpy (const PLstr to, const char *from, size_t len);
 void  __CDECL Lscpy (const PLstr to, const char *from );
 void  __CDECL Lwscpy(const PLstr to, const wchar_t *from );
 void  __CDECL Lcat  (const PLstr to, const char *from );

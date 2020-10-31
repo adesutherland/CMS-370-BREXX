@@ -42,30 +42,20 @@ DeleteStack( void )
 void __CDECL
 Queue2Stack( PLstr str )
 {
-#ifdef __CMS__
-LSTR(* str)[LLEN(* str)] = '\0';                                       // rpo:add a null terminator
-CMSstackLine(LSTR(*str), CMS_STACKFIFO);
-#else
- DQueue *stck;
- Context *context = (Context*)CMSGetPG();
- stck = DQPEEK(&(context->rexxrxStackList));
- DQAdd2Head(stck,str);
-#endif
+    L2STR(str);       /* Make sure its a string */
+    LASCIIZ(*str); /* Make sure its a C string */
+    CMSstackLine(LSTR(*str), CMS_STACKFIFO);
+    LPFREE(str);
 } /* Queue2Stack */
 
 /* ----------------- Push2Stack ----------------------- */
 void __CDECL
 Push2Stack( PLstr str )
 {
-#ifdef __CMS__
-LSTR(* str)[LLEN(* str)] = '\0';                                       // rpo:add a null terminator
-CMSstackLine(LSTR(* str), CMS_STACKLIFO);
-#else
- DQueue *stck;
- Context *context = (Context*)CMSGetPG();
- stck = DQPEEK(&(context->rexxrxStackList));
- DQAdd2Tail(stck,str);
-#endif
+    L2STR(str);       /* Make sure its a string */
+    LASCIIZ(*str); /* Make sure its a C string */
+    CMSstackLine(LSTR(* str), CMS_STACKLIFO);
+    LPFREE(str);
 } /* Push2Stack */
 
 /* ----------------- PullFromStack ----------------------- */

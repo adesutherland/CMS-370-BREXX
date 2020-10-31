@@ -4,9 +4,9 @@
 # that are used by the automated build process
 
 docker kill vm370
-#docker pull adriansutherland/vm370:builder
-#docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370:builder
-docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370local:latest
+docker pull adriansutherland/vm370:builder
+docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370:builder
+# docker run --rm -d -p 3270:3270 -p 8038:8038 -p 3505:3505 --name vm370 adriansutherland/vm370local:latest
 
 yata -c -f tmp.txt
 echo "USERID  CMSUSER\n:READ  YATA     TXT     " > yata.txt
