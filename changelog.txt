@@ -1,7 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
-
+F0025 - ARG() Fixes
+      - Local Build - Debug only (speed up dev/test cycle)
 F0024 - Calltype 5 - handle embedded nulls in returned data
       - SAY - handle embedded nulls (converted to spaces)
       - Calltype 5 - handle embedded nulls in called function arguments

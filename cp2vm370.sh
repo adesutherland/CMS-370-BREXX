@@ -30,9 +30,11 @@ docker exec vm370 bash -c "cd /opt/hercules/vm370/io/tests && yata -x"
 docker exec vm370 bash -c "rm /opt/hercules/vm370/io/tests/yata.txt"
 
 # Build
-docker cp cmsbuild.sh vm370:/opt/hercules/vm370/io
-docker exec vm370 bash -c "cd /opt/hercules/vm370/io && chmod +x cmsbuild.sh && ./cmsbuild.sh"
+#docker cp cmsbuild.sh vm370:/opt/hercules/vm370/io
+#docker exec vm370 bash -c "cd /opt/hercules/vm370/io && chmod +x cmsbuild.sh && ./cmsbuild.sh"
+docker cp cmsdebug.sh vm370:/opt/hercules/vm370/io
+docker exec vm370 bash -c "cd /opt/hercules/vm370/io && chmod +x cmsdebug.sh && ./cmsdebug.sh"
 
 # Install
-docker cp cmsinstall.sh vm370:/opt/hercules/vm370/io
-docker exec vm370 bash -c "cd /opt/hercules/vm370/io && chmod +x cmsinstall.sh && ./cmsinstall.sh"
+#docker cp cmsinstall.sh vm370:/opt/hercules/vm370/io
+#docker exec vm370 bash -c "cd /opt/hercules/vm370/io && chmod +x cmsinstall.sh && ./cmsinstall.sh"

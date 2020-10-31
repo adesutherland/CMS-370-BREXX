@@ -427,30 +427,31 @@ R_arg( )
 
   case  1:
    a = (int)Lrdint(ARG1);
-   if (!IN_RANGE(1,a,MAXARGS))
-    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
-   if (pr->arg.a[a-1] != NULL)
-    Lstrcpy(ARGR,
-     pr->arg.a[a-1]);
+   if (a < 1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+   if (a > MAXARGS || (pr->arg.a[a-1] == NULL)) {
+       LZEROSTR(*ARGR);
+   }
    else
-    LZEROSTR(*ARGR);
+       Lstrcpy(ARGR, pr->arg.a[a-1]);
    break;
 
   case  2:
    a = (int)Lrdint(ARG1);
-   if (!IN_RANGE(1,a,MAXARGS))
-    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
    L2STR(ARG2);
-
-   if ((context->lstring_l2u)[(byte)LSTR(*ARG2)[0]] == 'E')
-    Licpy(ARGR,
-     pr->arg.a[a-1] != NULL);
-   else
-   if ((context->lstring_l2u)[(byte)LSTR(*ARG2)[0]] == 'O')
-    Licpy(ARGR,
-     pr->arg.a[a-1] == NULL);
-   else
-    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+   if (a < 1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+   if (a > MAXARGS)
+       if ((context->lstring_l2u)[(byte) LSTR(*ARG2)[0]] == 'E')
+           Licpy(ARGR, 0);
+       else if ((context->lstring_l2u)[(byte) LSTR(*ARG2)[0]] == 'O')
+           Licpy(ARGR, 1);
+       else (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+   else {
+       if ((context->lstring_l2u)[(byte) LSTR(*ARG2)[0]] == 'E')
+           Licpy(ARGR, pr->arg.a[a - 1] != NULL);
+       else if ((context->lstring_l2u)[(byte) LSTR(*ARG2)[0]] == 'O')
+           Licpy(ARGR, pr->arg.a[a - 1] == NULL);
+       else (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+   }
    break;
 
   default:
