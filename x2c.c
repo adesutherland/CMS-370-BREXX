@@ -25,6 +25,7 @@
  */
 
 #include <ctype.h>
+#include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
 
@@ -34,6 +35,7 @@ Lx2c( const PLstr to, const PLstr from )
 {
  int i,j,r;
  char *t,*f;
+ Context *context = (Context*)CMSGetPG();
 
  L2STR(from);
  Lfx(to,LLEN(*from)/2+1);    /* a rough estimation */
@@ -45,8 +47,10 @@ Lx2c( const PLstr to, const PLstr from )
   for (j=i; ISXDIGIT(f[j]) && (j<LLEN(*from)); j++) ;; /* find hexdigits */
 
   if ((i<LLEN(*from)) && (j==i)) { /* Ooops wrong character */
-   Lerror(ERR_INVALID_HEX_CONST,0);
-   LZEROSTR(*to);  /* return null when error occures */
+   LZEROSTR(*to);  /* Free memory */
+   LFREESTR(*to);
+   (context->lstring_Lerror)(ERR_INVALID_HEX_CONST,0);
+   /* (context->lstring_Lerror) does not return */
    return;
   }
 

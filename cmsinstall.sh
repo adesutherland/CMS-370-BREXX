@@ -35,6 +35,10 @@ herccontrol "/tape load brexx module z" -w "^Ready;"
 herccontrol "/tape rew" -w "^Ready;"
 herccontrol "/tape load brexx text z" -w "^Ready;"
 herccontrol "/tape rew" -w "^Ready;"
+herccontrol "/tape load brexxd module z" -w "^Ready;"
+herccontrol "/tape rew" -w "^Ready;"
+herccontrol "/tape load brexxd text z" -w "^Ready;"
+herccontrol "/tape rew" -w "^Ready;"
 herccontrol "/release z"  -w "^Ready;"
 
 # Done with tape
@@ -69,6 +73,7 @@ herccontrol "/logon cmsuser cmsuser" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"
 
 # Sanity test
+herccontrol "/DMSREX" -w "^Ready;"
 herccontrol "/rexxtry" -w "^Rexxtry;"
 herccontrol "/parse version myver" -w "^Rexxtry;"
 herccontrol "/say myver" -w "^Rexxtry;"

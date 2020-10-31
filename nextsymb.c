@@ -28,16 +28,10 @@
  */
 
 #define  __NEXTSYMB_C__
-
+#include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
 #include "nextsymb.h"
-
-/* Local Defines */
-#define ProgStr (currentContext->nextsymb_ProgStr) /* pointer that holds the program string*/
-#define InitNextch (currentContext->nextsymb_InitNextch) /* NextChar initialised?  */
-#define NextBlank (currentContext->nextsymb_NextBlank) /* Next char is blank   */
-#define commentfound (currentContext->nextsymb_commentfound) /* if comment found in nextchar  */
 
 /* ------------------- function prototypes ----------------------- */
 static void literal(void);
@@ -51,37 +45,38 @@ static void
 nextchar(int instring)
 {
  int level=0;
+ Context *context = (Context*)CMSGetPG();
 
- commentfound = FALSE;
+ (context->nextsymb_commentfound) = FALSE;
 
 getnextchar:
  if (instring!=-1) {
-  if (*symbolptr=='\n') symboline++;
-  symbolptr++;
+  if (*(context->nextsymbsymbolptr)=='\n') (context->nextsymbsymboline)++;
+  (context->nextsymbsymbolptr)++;
  } else
   instring=FALSE;
 
- if (!instring && *symbolptr=='/' && *(symbolptr+1)=='*') {
+ if (!instring && *(context->nextsymbsymbolptr)=='/' && *((context->nextsymbsymbolptr)+1)=='*') {
   /* search for comment */
-  commentfound = TRUE;
-  symbolptr += 2;
+  (context->nextsymb_commentfound) = TRUE;
+  (context->nextsymbsymbolptr) += 2;
   level++;
   for (;;) {
-   while ((*symbolptr!='*') && (*symbolptr!='/')) {
-    if (*symbolptr=='\n') symboline++;
-    symbolptr++;
-    if (*symbolptr == 0)
-     Lerror(ERR_UNMATCHED_QUOTE,1);
+   while ((*(context->nextsymbsymbolptr)!='*') && (*(context->nextsymbsymbolptr)!='/')) {
+    if (*(context->nextsymbsymbolptr)=='\n') (context->nextsymbsymboline)++;
+    (context->nextsymbsymbolptr)++;
+    if (*(context->nextsymbsymbolptr) == 0)
+     (context->lstring_Lerror)(ERR_UNMATCHED_QUOTE,1);
    };
-   symbolptr++;
-   if ((*(symbolptr-1)=='/') && (*symbolptr=='*')) {
+   (context->nextsymbsymbolptr)++;
+   if ((*((context->nextsymbsymbolptr)-1)=='/') && (*(context->nextsymbsymbolptr)=='*')) {
     level++;
-    symbolptr++;
+    (context->nextsymbsymbolptr)++;
    } else
-   if ((*(symbolptr-1)=='*') && (*symbolptr=='/')) {
+   if ((*((context->nextsymbsymbolptr)-1)=='*') && (*(context->nextsymbsymbolptr)=='/')) {
     --level;
     if (!level) goto getnextchar;
-    symbolptr++;
+    (context->nextsymbsymbolptr)++;
    }
   }
  }
@@ -91,65 +86,67 @@ getnextchar:
 void __CDECL
 InitNextsymbol( PLstr str )
 {
+ Context *context = (Context*)CMSGetPG();
  Lcat(str,"\n"); /* We must have a least one new line at the end */
 
- ProgStr   = str;
- LASCIIZ(*ProgStr);  /* Put a zero at the end */
- symbol    = semicolon_sy;
- symbolptr = LSTR(*ProgStr);
- symboline = 1;
+ (context->nextsymb_ProgStr)   = str;
+ LASCIIZ(*(context->nextsymb_ProgStr));  /* Put a zero at the end */
+ (context->nextsymbsymbol)    = semicolon_sy;
+ (context->nextsymbsymbolptr) = LSTR(*(context->nextsymb_ProgStr));
+ (context->nextsymbsymboline) = 1;
 
  /* Skip first line,  '#!/bin/rexx' */
- if (symbolptr[0]=='#' && symbolptr[1]=='!') {
-  while (*symbolptr!='\n') symbolptr++;
-  symboline++;
+ if ((context->nextsymbsymbolptr)[0]=='#' && (context->nextsymbsymbolptr)[1]=='!') {
+  while (*(context->nextsymbsymbolptr)!='\n') (context->nextsymbsymbolptr)++;
+  (context->nextsymbsymboline)++;
  }
 
- InitNextch = FALSE;
- NextBlank  = FALSE;
- symbolstat = normal_st;
+ (context->nextsymb_InitNextch) = FALSE;
+ (context->nextsymb_NextBlank)  = FALSE;
+ (context->nextsymbsymbolstat) = normal_st;
 } /* InitNextsymbol */
 
 /* --------------------------------------------------------------- */
 /*            P A R S E   next  B A S I C   S Y M B O L            */
-/*  Return the next basic symbol and advance the input stream      */
+/*  Return the next basic (context->nextsymbsymbol) and advance the input stream      */
 /* --------------------------------------------------------------- */
 void __CDECL
 nextsymbol(void)
 {
-#define NEXTCHAR {*(ns++)=*symbolptr; LLEN(symbolstr)++; nextchar(FALSE);}
+ Context *context = (Context*)CMSGetPG();
+#define NEXTCHAR {*(ns++)=*(context->nextsymbsymbolptr); LLEN((context->nextsymbsymbolstr))++; nextchar(FALSE);}
 
  char *Psymbolptr, *ns;
  int _lineno;
 
- if (!InitNextch) {
+ if (!(context->nextsymb_InitNextch)) {
   /* call nextchar to search for comments */
   nextchar(-1); /* initialise */
-  commentfound = FALSE;
-  InitNextch = TRUE;
+  (context->nextsymb_commentfound) = FALSE;
+  (context->nextsymb_InitNextch) = TRUE;
  }
  /* make the type always to be LSTRING */
- LTYPE(symbolstr) = LSTRING_TY;
- LLEN(symbolstr) = 0;
+ LTYPE((context->nextsymbsymbolstr)) = LSTRING_TY;
+ LLEN((context->nextsymbsymbolstr)) = 0;
 
- _in_nextsymbol = TRUE;
- symbolPrevBlank = NextBlank;
- NextBlank = FALSE;
+ (context->nextsymb__in_nextsymbol) = TRUE;
+ (context->nextsymbsymbolPrevBlank) = (context->nextsymb_NextBlank);
+ (context->nextsymb_NextBlank) = FALSE;
 _NEXTSYMBOL:
 
- while (*symbolptr==' ' || *symbolptr=='\t')
+ while (*(context->nextsymbsymbolptr)==' ' || *(context->nextsymbsymbolptr)=='\t')
   nextchar(FALSE);
 
- ns = LSTR(symbolstr);
+ ns = LSTR((context->nextsymbsymbolstr));
 
- symbolprevptr = symbolptr;
+ (context->nextsymbsymbolprevptr) = (context->nextsymbsymbolptr);
 
- switch (l2u[(byte)*symbolptr]) {
+ switch ((context->lstring_l2u)[(byte)*(context->nextsymbsymbolptr)]) {
   case '0':    case '1':    case '2':
   case '3':    case '4':    case '5':
   case '6':    case '7':    case '8':
   case '9':
-   symbol = literal_sy;
+   (context->nextsymbsymbol) = literal_sy;
    identifier(TRUE);
    break;
 
@@ -169,92 +166,92 @@ _NEXTSYMBOL:
   case '_':
   case '?':
   case '!':
-   symbol = ident_sy;
+   (context->nextsymbsymbol) = ident_sy;
    identifier(FALSE);
    break;
 
   case '/':
    NEXTCHAR;
-   if (*symbolptr=='/')  {
-    symbol = mod_sy;
+   if (*(context->nextsymbsymbolptr)=='/')  {
+    (context->nextsymbsymbol) = mod_sy;
     NEXTCHAR;
    } else
-   if (*symbolptr=='=')  {
+   if (*(context->nextsymbsymbolptr)=='=')  {
     NEXTCHAR;
-    if (*symbolptr=='=')  {
-     symbol = dne_sy;
+    if (*(context->nextsymbsymbolptr)=='=')  {
+     (context->nextsymbsymbol) = dne_sy;
      NEXTCHAR;
     }  else
-     symbol = ne_sy;
+     (context->nextsymbsymbol) = ne_sy;
    } else
-    symbol = div_sy;
+    (context->nextsymbsymbol) = div_sy;
    break;
 
   case '-':
-   symbol = minus_sy;
+   (context->nextsymbsymbol) = minus_sy;
    NEXTCHAR;
    break;
 
   case '*':
    NEXTCHAR;
-   if (*symbolptr=='/')
-    Lerror(ERR_INVALID_EXPRESSION,0);
-   if (*symbolptr=='*')  {
-    symbol = power_sy;
+   if (*(context->nextsymbsymbolptr)=='/')
+    (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
+   if (*(context->nextsymbsymbolptr)=='*')  {
+    (context->nextsymbsymbol) = power_sy;
     NEXTCHAR;
    } else
-    symbol = times_sy;
+    (context->nextsymbsymbol) = times_sy;
    break;
 
   case '~':
   case '^':
   case '\\':
    NEXTCHAR;
-   switch (*symbolptr)  {
+   switch (*(context->nextsymbsymbolptr))  {
     case '=':
      NEXTCHAR;
-     if (*symbolptr=='=') {
-      symbol = dne_sy;
+     if (*(context->nextsymbsymbolptr)=='=') {
+      (context->nextsymbsymbol) = dne_sy;
       NEXTCHAR;
      } else
-      symbol = ne_sy;
+      (context->nextsymbsymbol) = ne_sy;
      break;
 
     case '>':
      NEXTCHAR;
-     if (*symbolptr=='>') {
-      symbol = dle_sy;
+     if (*(context->nextsymbsymbolptr)=='>') {
+      (context->nextsymbsymbol) = dle_sy;
       NEXTCHAR;
      } else
-      symbol = le_sy;
+      (context->nextsymbsymbol) = le_sy;
      break;
 
     case '<':
      NEXTCHAR;
-     if (*symbolptr=='<') {
-      symbol = dge_sy;
+     if (*(context->nextsymbsymbolptr)=='<') {
+      (context->nextsymbsymbol) = dge_sy;
       NEXTCHAR;
      } else
-      symbol = ge_sy;
+      (context->nextsymbsymbol) = ge_sy;
      break;
 
     default:
-     symbol = not_sy;
+     (context->nextsymbsymbol) = not_sy;
    }
    break;
 
   case '%':
-   symbol = intdiv_sy;
+   (context->nextsymbsymbol) = intdiv_sy;
    NEXTCHAR;
    break;
 
   case '(':
-   symbol = le_parent;
+   (context->nextsymbsymbol) = le_parent;
    NEXTCHAR;
    break;
 
   case ')':
-   symbol = ri_parent;
+   (context->nextsymbsymbol) = ri_parent;
    NEXTCHAR;
    break;
 
@@ -265,148 +262,148 @@ _NEXTSYMBOL:
 #endif
   case '\n':
   case ';':
-   symbol = semicolon_sy;
+   (context->nextsymbsymbol) = semicolon_sy;
    NEXTCHAR;
    break;
 
   case ',':
    NEXTCHAR;
-   Psymbolptr = symbolptr;
-   _lineno = symboline;
+   Psymbolptr = (context->nextsymbsymbolptr);
+   _lineno = (context->nextsymbsymboline);
    nextsymbol();
-   NextBlank = FALSE;
-   symbolPrevBlank = TRUE;
-   if (symbol==semicolon_sy &&
-    _lineno!=symboline) goto _NEXTSYMBOL;
-   symbolptr = Psymbolptr;
-   symboline = _lineno;
-   symbol = comma_sy;
-   NextBlank = FALSE;
-   symbolPrevBlank = TRUE;
-   commentfound = FALSE;
+   (context->nextsymb_NextBlank) = FALSE;
+   (context->nextsymbsymbolPrevBlank) = TRUE;
+   if ((context->nextsymbsymbol)==semicolon_sy &&
+    _lineno!=(context->nextsymbsymboline)) goto _NEXTSYMBOL;
+   (context->nextsymbsymbolptr) = Psymbolptr;
+   (context->nextsymbsymboline) = _lineno;
+   (context->nextsymbsymbol) = comma_sy;
+   (context->nextsymb_NextBlank) = FALSE;
+   (context->nextsymbsymbolPrevBlank) = TRUE;
+   (context->nextsymb_commentfound) = FALSE;
    break;
 
   case '.':
-   Psymbolptr = symbolptr+1;
+   Psymbolptr = (context->nextsymbsymbolptr)+1;
    if ( *Psymbolptr !=' '   &&
     *Psymbolptr !=','   &&
     *Psymbolptr !='\n'  &&
     *Psymbolptr !='\r'  &&
     *Psymbolptr !='\t'  &&
     *Psymbolptr !=';' )  {
-     symbol = literal_sy;
+     (context->nextsymbsymbol) = literal_sy;
      identifier(TRUE);
    } else {
-    symbol = dot_sy;
+    (context->nextsymbsymbol) = dot_sy;
     NEXTCHAR;
    }
    break;
 
   case '|':
    NEXTCHAR;
-   if (*symbolptr=='|')  {
-    symbol = concat_sy;
+   if (*(context->nextsymbsymbolptr)=='|')  {
+    (context->nextsymbsymbol) = concat_sy;
     NEXTCHAR;
    } else
-    symbol = or_sy;
+    (context->nextsymbsymbol) = or_sy;
    break;
 
   case '&':
    NEXTCHAR;
-   if (*symbolptr=='&')  {
-    symbol = xor_sy;
+   if (*(context->nextsymbsymbolptr)=='&')  {
+    (context->nextsymbsymbol) = xor_sy;
     NEXTCHAR;
    } else
-    symbol = and_sy;
+    (context->nextsymbsymbol) = and_sy;
    break;
 
   case '+':
-   symbol = plus_sy;
+   (context->nextsymbsymbol) = plus_sy;
    NEXTCHAR;
    break;
 
   case '=':
    NEXTCHAR;
-   switch (*symbolptr)  {
+   switch (*(context->nextsymbsymbolptr))  {
     case '=':
      NEXTCHAR;
-     symbol = deq_sy;
+     (context->nextsymbsymbol) = deq_sy;
      break;
 
     case '>':
      NEXTCHAR;
-     if (*symbolptr=='>') {
+     if (*(context->nextsymbsymbolptr)=='>') {
       NEXTCHAR;
-      symbol = dge_sy;
+      (context->nextsymbsymbol) = dge_sy;
      } else
-      symbol = ge_sy;
+      (context->nextsymbsymbol) = ge_sy;
      break;
 
     case '<':
      NEXTCHAR;
-     if (*symbolptr=='<') {
+     if (*(context->nextsymbsymbolptr)=='<') {
       NEXTCHAR;
-      symbol = dle_sy;
+      (context->nextsymbsymbol) = dle_sy;
      } else
-      symbol = le_sy;
+      (context->nextsymbsymbol) = le_sy;
      break;
 
     default:
-     symbol = eq_sy;
+     (context->nextsymbsymbol) = eq_sy;
    }
    break;
 
   case '<':
    NEXTCHAR;
-   switch (*symbolptr)  {
+   switch (*(context->nextsymbsymbolptr))  {
     case '<':
      NEXTCHAR;
-     if (*symbolptr=='=') {
-      symbol = dle_sy;
+     if (*(context->nextsymbsymbolptr)=='=') {
+      (context->nextsymbsymbol) = dle_sy;
       NEXTCHAR;
      } else
-      symbol = dlt_sy;
+      (context->nextsymbsymbol) = dlt_sy;
      break;
 
     case '=':
-     symbol = le_sy;
+     (context->nextsymbsymbol) = le_sy;
      NEXTCHAR;
      break;
 
     case '>':
-     symbol = ne_sy;
+     (context->nextsymbsymbol) = ne_sy;
      NEXTCHAR;
      break;
 
     default:
-     symbol = lt_sy;
+     (context->nextsymbsymbol) = lt_sy;
    }
    break;
 
   case '>':
    NEXTCHAR;
-   switch (*symbolptr)  {
+   switch (*(context->nextsymbsymbolptr))  {
     case '>':
      NEXTCHAR;
-     if (*symbolptr=='=') {
-      symbol = dge_sy;
+     if (*(context->nextsymbsymbolptr)=='=') {
+      (context->nextsymbsymbol) = dge_sy;
       NEXTCHAR;
      } else
-      symbol = dgt_sy;
+      (context->nextsymbsymbol) = dgt_sy;
      break;
 
     case '=':
-     symbol = ge_sy;
+     (context->nextsymbsymbol) = ge_sy;
      NEXTCHAR;
      break;
 
     case '<':
-     symbol = ne_sy;
+     (context->nextsymbsymbol) = ne_sy;
      NEXTCHAR;
      break;
 
     default:
-     symbol = gt_sy;
+     (context->nextsymbsymbol) = gt_sy;
    }
    break;
 
@@ -416,31 +413,32 @@ _NEXTSYMBOL:
    break;
 
   case ':':
-   Lerror(ERR_SYMBOL_EXPECTED,0);
+   (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED,0);
    break;
 
   case 0:
-   _in_nextsymbol = FALSE;
-   if ((symbolstat == in_do_st) ||
-       (symbolstat == in_if_st))
-    Lerror(ERR_INCOMPLETE_STRUCT,0);
+   (context->nextsymb__in_nextsymbol) = FALSE;
+   if (((context->nextsymbsymbolstat) == in_do_st) ||
+       ((context->nextsymbsymbolstat) == in_if_st))
+    (context->lstring_Lerror)(ERR_INCOMPLETE_STRUCT,0);
    else
-   if (symbolstat == in_if_init_st)
-    Lerror(ERR_THEN_EXPECTED,0);
+   if ((context->nextsymbsymbolstat) == in_if_init_st)
+    (context->lstring_Lerror)(ERR_THEN_EXPECTED,0);
    else
-   if (symbolstat != normal_st)
-    Lerror(ERR_SYMBOL_EXPECTED,0);
-   symbol = exit_sy;
+   if ((context->nextsymbsymbolstat) != normal_st)
+    (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED,0);
+   (context->nextsymbsymbol) = exit_sy;
+   (context->nextsymbsymboline)--; /* Seems to add a line number ... */
    break;
 
   default:
-   Lerror(ERR_INVALID_CHAR,0);
+   (context->lstring_Lerror)(ERR_INVALID_CHAR,0);
  }
- if ( *symbolptr== ' ' ||
-  *symbolptr=='\t' ||
-  *symbolptr== ',' )
-   NextBlank = TRUE;
- _in_nextsymbol = FALSE;
+ if ( *(context->nextsymbsymbolptr)== ' ' ||
+  *(context->nextsymbsymbolptr)=='\t' ||
+  *(context->nextsymbsymbolptr)== ',' )
+   (context->nextsymb_NextBlank) = TRUE;
+ (context->nextsymb__in_nextsymbol) = FALSE;
 } /* nextsymbol */
 
 /* --------------------------------------------------------------- */
@@ -452,30 +450,31 @@ identifier(int isnumber)
  char *s;
  int l;     /* length */     /* -+-  l > maxlen ? */
  int hasDot=FALSE, hasExp=FALSE;
+ Context *context = (Context*)CMSGetPG();
 
- symbolisstr   = FALSE;
- symbolhasdot  = 0;
- s = LSTR(symbolstr);
+ (context->nextsymbsymbolisstr)   = FALSE;
+ (context->nextsymbsymbolhasdot)  = 0;
+ s = LSTR((context->nextsymbsymbolstr));
  l = 0;
 
  for (;;) {
-  if (l>LMAXLEN(symbolstr))
-   Lerror(ERR_TOO_LONG_STRING,0);
+  if (l>LMAXLEN((context->nextsymbsymbolstr)))
+   (context->lstring_Lerror)(ERR_TOO_LONG_STRING,0);
 
-  if (commentfound &&
-   *symbolptr!='(' && *symbolptr!=':') {
-   commentfound = FALSE;
+  if ((context->nextsymb_commentfound) &&
+   *(context->nextsymbsymbolptr)!='(' && *(context->nextsymbsymbolptr)!=':') {
+   (context->nextsymb_commentfound) = FALSE;
    *s='\0';
-   LLEN(symbolstr) = l;
+   LLEN((context->nextsymbsymbolstr)) = l;
    goto Nleave;
   }
 
-  switch (l2u[(byte)*symbolptr]) {
+  switch ((context->lstring_l2u)[(byte)*(context->nextsymbsymbolptr)]) {
    case '0':   case '1':    case '2':
    case '3':   case '4':    case '5':
    case '6':   case '7':    case '8':
    case '9':
-    *s++ = *symbolptr;
+    *s++ = *(context->nextsymbsymbolptr);
     l++;
     nextchar(FALSE);
     break;
@@ -496,7 +495,7 @@ identifier(int isnumber)
    case '_':
    case '?':
    case '!':
-    *s = l2u[(byte)*symbolptr];
+    *s = (context->lstring_l2u)[(byte)*(context->nextsymbsymbolptr)];
     if (isnumber) {
      if (*s=='E') {
       if (hasExp)
@@ -513,134 +512,135 @@ identifier(int isnumber)
    case '-':
     if (isnumber) {
      if (*(s-1)=='E') {
-      *s++ = *symbolptr; l++;
+      *s++ = *(context->nextsymbsymbolptr); l++;
       nextchar(FALSE);
      } else {
       *s='\0';
-      LLEN(symbolstr) = l;
+      LLEN((context->nextsymbsymbolstr)) = l;
       goto Nleave;
      }
     } else {
      *s='\0';
-     LLEN(symbolstr) = l;
+     LLEN((context->nextsymbsymbolstr)) = l;
      goto Nleave;
     }
     break;
 
    case '.':
-    *s++ = *symbolptr; l++;
-    if (!symbolhasdot) /* position of first */
-     symbolhasdot = l; /* dot */
+    *s++ = *(context->nextsymbsymbolptr); l++;
+    if (!(context->nextsymbsymbolhasdot)) /* position of first */
+     (context->nextsymbsymbolhasdot) = l; /* dot */
     nextchar(FALSE);
     if (isnumber) {
      if (hasDot)
       isnumber = FALSE;
      hasDot = TRUE;
-     symbolhasdot = 0;
+     (context->nextsymbsymbolhasdot) = 0;
     }
     break;
 
    case '(':
     nextchar(FALSE);
     *s='\0';
-    LLEN(symbolstr) = l;
-    symbol = function_sy;
+    LLEN((context->nextsymbsymbolstr)) = l;
+    (context->nextsymbsymbol) = function_sy;
     return;
 
    case ':':
     nextchar(FALSE);
     *s='\0';
-    LLEN(symbolstr) = l;
-    symbol = label_sy;
+    LLEN((context->nextsymbsymbolstr)) = l;
+    (context->nextsymbsymbol) = label_sy;
     return;
 
    case '\t':
    case ' ':
-    NextBlank = TRUE;
+    (context->nextsymb_NextBlank) = TRUE;
     *s='\0';
-    LLEN(symbolstr)=l;
-    while (*symbolptr==' '||*symbolptr=='\t')
+    LLEN((context->nextsymbsymbolstr))=l;
+    while (*(context->nextsymbsymbolptr)==' '||*(context->nextsymbsymbolptr)=='\t')
      nextchar(FALSE);
 
     /* literal finished and it is not a label? */
-    if (*symbolptr!=':')
+    if (*(context->nextsymbsymbolptr)!=':')
      goto Nleave;
 
     /* literal is label */
-    symbol = label_sy;
+    (context->nextsymbsymbol) = label_sy;
     nextchar(FALSE);
     return;
 
    default:
     *s='\0';
-    LLEN(symbolstr) = l;
+    LLEN((context->nextsymbsymbolstr)) = l;
     goto Nleave;
   }  /* end of switch */
  } /* end of for */
 Nleave:
- if (symbol!=ident_sy) return ;
+ if ((context->nextsymbsymbol)!=ident_sy) return ;
 
- if (symbolhasdot == LLEN(symbolstr))
-  symbolhasdot = 0; /* treat is as a variable */
+ if ((context->nextsymbsymbolhasdot) == LLEN((context->nextsymbsymbolstr)))
+  (context->nextsymbsymbolhasdot) = 0; /* treat is as a variable */
 
- if (symbolstat == in_do_init_st)  {
-       if (!Lcmp(&symbolstr,"BY"   ))  symbol = by_sy;
-  else if (!Lcmp(&symbolstr,"FOR"  ))  symbol = for_sy;
-  else if (!Lcmp(&symbolstr,"TO"   ))  symbol = to_sy;
-  else if (!Lcmp(&symbolstr,"UNTIL"))  symbol = until_sy;
-  else if (!Lcmp(&symbolstr,"WHILE"))  symbol = while_sy;
+ if ((context->nextsymbsymbolstat) == in_do_init_st)  {
+       if (!Lcmp(&(context->nextsymbsymbolstr),"BY"   ))  (context->nextsymbsymbol) = by_sy;
+  else if (!Lcmp(&(context->nextsymbsymbolstr),"FOR"  ))  (context->nextsymbsymbol) = for_sy;
+  else if (!Lcmp(&(context->nextsymbsymbolstr),"TO"   ))  (context->nextsymbsymbol) = to_sy;
+  else if (!Lcmp(&(context->nextsymbsymbolstr),"UNTIL"))  (context->nextsymbsymbol) = until_sy;
+  else if (!Lcmp(&(context->nextsymbsymbolstr),"WHILE"))  (context->nextsymbsymbol) = while_sy;
  } else
- if (symbolstat == in_parse_value_st) {
-  if (!Lcmp(&symbolstr,"WITH" ))  symbol = with_sy;
+ if ((context->nextsymbsymbolstat) == in_parse_value_st) {
+  if (!Lcmp(&(context->nextsymbsymbolstr),"WITH" ))  (context->nextsymbsymbol) = with_sy;
  } else
- if (symbolstat == in_if_init_st) {
-  if (!Lcmp(&symbolstr,"THEN" ))  symbol = then_sy;
+ if ((context->nextsymbsymbolstat) == in_if_init_st) {
+  if (!Lcmp(&(context->nextsymbsymbolstr),"THEN" ))  (context->nextsymbsymbol) = then_sy;
  }
 } /* identifier */
 
 /* --------------------------------------------------------------- */
-/*  extract a literal symbol                                       */
+/*  extract a literal (context->nextsymbsymbol)                                       */
 /* --------------------------------------------------------------- */
 static void
 literal(void)
 {
  char quote;
  char *s;
- int l;      /* length of symbolstr */
+ int l;      /* length of (context->nextsymbsymbolstr) */
  Lstr A;
+ Context *context = (Context*)CMSGetPG();
 
- symbolhasdot = 0;
- symbol = literal_sy;
- quote  = *symbolptr;
- s = LSTR(symbolstr);
+ (context->nextsymbsymbolhasdot) = 0;
+ (context->nextsymbsymbol) = literal_sy;
+ quote  = *(context->nextsymbsymbolptr);
+ s = LSTR((context->nextsymbsymbolstr));
  l = 0;
- symbolisstr = TRUE;
+ (context->nextsymbsymbolisstr) = TRUE;
 
  for (;;)  {   /* -+-  l > maxlen ? */
   nextchar(TRUE);
-  if (l>=LMAXLEN(symbolstr))
-   Lerror(ERR_TOO_LONG_STRING,0);
-  if (*symbolptr==quote) {
+  if (l>=LMAXLEN((context->nextsymbsymbolstr)))
+   (context->lstring_Lerror)(ERR_TOO_LONG_STRING,0);
+  if (*(context->nextsymbsymbolptr)==quote) {
    nextchar(FALSE); /* quote ended?? */
-   if (*symbolptr == '(') {
+   if (*(context->nextsymbsymbolptr) == '(') {
     *s = '\0';
-    LLEN(symbolstr) = l;
-    symbol = function_sy;
+    LLEN((context->nextsymbsymbolstr)) = l;
+    (context->nextsymbsymbol) = function_sy;
     nextchar(FALSE);
     return;
    } else
-   if (commentfound) { /* a comment was inside */
-    commentfound = FALSE;
+   if ((context->nextsymb_commentfound)) { /* a comment was inside */
+    (context->nextsymb_commentfound) = FALSE;
     *s = '\0';
-    LLEN(symbolstr) = l;
+    LLEN((context->nextsymbsymbolstr)) = l;
     return;
    } else
-   if (STRCHR("bBxXhH",*symbolptr)) {
+   if (STRCHR("bBxXhH",*(context->nextsymbsymbolptr))) {
     /* check next char */
-    char nc=l2u[(byte)*(symbolptr+1)];
+    char nc=(context->lstring_l2u)[(byte)*((context->nextsymbsymbolptr)+1)];
 
     *s = '\0';
-    LLEN(symbolstr) = l;
+    LLEN((context->nextsymbsymbolstr)) = l;
 
     if (IN_RANGE('0',nc,'9') ||
         IN_RANGE('A',nc,'Z') ||
@@ -651,46 +651,46 @@ literal(void)
 
     LINITSTR(A);
 
-    switch (l2u[(byte)*symbolptr]) {
+    switch ((context->lstring_l2u)[(byte)*(context->nextsymbsymbolptr)]) {
      case 'B':
-      if (!Ldatatype(&symbolstr,'B'))
-       Lerror(ERR_INVALID_HEX_CONST,0);
-      Lb2x(&A,&symbolstr);
-      Lx2c(&symbolstr,&A);
+      if (!Ldatatype(&(context->nextsymbsymbolstr),'B'))
+       (context->lstring_Lerror)(ERR_INVALID_HEX_CONST,0);
+      Lb2x(&A,&(context->nextsymbsymbolstr));
+      Lx2c(&(context->nextsymbsymbolstr),&A);
       break;
      case 'H':
-      if (!Ldatatype(&symbolstr,'X'))
-       Lerror(ERR_INVALID_HEX_CONST,0);
-      Lx2d(&A,&symbolstr,0);
-      Lstrcpy(&symbolstr,&A);
+      if (!Ldatatype(&(context->nextsymbsymbolstr),'X'))
+       (context->lstring_Lerror)(ERR_INVALID_HEX_CONST,0);
+      Lx2d(&A,&(context->nextsymbsymbolstr),0);
+      Lstrcpy(&(context->nextsymbsymbolstr),&A);
       break;
      case 'X':
-      if (!Ldatatype(&symbolstr,'X'))
-       Lerror(ERR_INVALID_HEX_CONST,0);
-      Lx2c(&A,&symbolstr);
-      Lstrcpy(&symbolstr,&A);
+      if (!Ldatatype(&(context->nextsymbsymbolstr),'X'))
+       (context->lstring_Lerror)(ERR_INVALID_HEX_CONST,0);
+      Lx2c(&A,&(context->nextsymbsymbolstr));
+      Lstrcpy(&(context->nextsymbsymbolstr),&A);
       break;
     }
     nextchar(FALSE);
     LFREESTR(A);
     return;
    } else
-   if (*symbolptr==quote) {
-    *s++ = *symbolptr; l++;
+   if (*(context->nextsymbsymbolptr)==quote) {
+    *s++ = *(context->nextsymbsymbolptr); l++;
    }  else  {
     *s = '\0';
-    LLEN(symbolstr) = l;
+    LLEN((context->nextsymbsymbolstr)) = l;
     return;
    }
   } else
-  if (*symbolptr == '\n') {
+  if (*(context->nextsymbsymbolptr) == '\n') {
    *s++ = ' '; l++;
   } else
-  if (*symbolptr == 0)
-   Lerror(ERR_UNMATCHED_QUOTE,
+  if (*(context->nextsymbsymbolptr) == 0)
+   (context->lstring_Lerror)(ERR_UNMATCHED_QUOTE,
     (quote=='\'')?2:3);
   else {
-   *s++ = *symbolptr;
+   *s++ = *(context->nextsymbsymbolptr);
    l++;
   }
  }

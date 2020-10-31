@@ -41,48 +41,48 @@
 # include "rxmvs.h"
 #endif
 
-#define ARGN   (rxArg.n)
-#define ARGR   (rxArg.r)
-#define ARG1   (rxArg.a[0])
-#define ARG2   (rxArg.a[1])
-#define ARG3   (rxArg.a[2])
-#define ARG4   (rxArg.a[3])
-#define ARG5   (rxArg.a[4])
-#define ARG6   (rxArg.a[5])
-#define ARG7   (rxArg.a[6])
-#define ARG8   (rxArg.a[7])
-#define ARG9   (rxArg.a[8])
-#define ARG10  (rxArg.a[9])
+#define ARGN   ((context->rexxrxArg).n)
+#define ARGR   ((context->rexxrxArg).r)
+#define ARG1   ((context->rexxrxArg).a[0])
+#define ARG2   ((context->rexxrxArg).a[1])
+#define ARG3   ((context->rexxrxArg).a[2])
+#define ARG4   ((context->rexxrxArg).a[3])
+#define ARG5   ((context->rexxrxArg).a[4])
+#define ARG6   ((context->rexxrxArg).a[5])
+#define ARG7   ((context->rexxrxArg).a[6])
+#define ARG8   ((context->rexxrxArg).a[7])
+#define ARG9   ((context->rexxrxArg).a[8])
+#define ARG10  ((context->rexxrxArg).a[9])
 
 #define must_exist(I) if (ARG##I == NULL) \
-  Lerror(ERR_INCORRECT_CALL,0)
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0)
 #define exist(I)  (ARG##I != NULL)
 
 #define get_s(I)   { must_exist(I); L2STR(ARG##I); }
 #define get_i(I,N) { must_exist(I); N = Lrdint(ARG##I); \
-   if (N<=0) Lerror(ERR_INCORRECT_CALL,0); }
+   if (N<=0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); }
 
 #define get_oi(I,N) { if (exist(I)) \
   { N = Lrdint(ARG##I); \
-   if (N<=0) Lerror(ERR_INCORRECT_CALL,0); \
+   if (N<=0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
   } else N = 0; }
 
 #define get_i0(I,N) { must_exist(I); N = Lrdint(ARG##I); \
-   if (N<0) Lerror(ERR_INCORRECT_CALL,0); }
+   if (N<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); }
 
 #define get_oi0(I,N) { if (exist(I)) \
   { N = Lrdint(ARG##I); \
-   if (N<0) Lerror(ERR_INCORRECT_CALL,0); \
+   if (N<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
   } else N = 0; }
 
 #define get_oiv(I,N,V) { if (exist(I)) \
   { N = Lrdint(ARG##I); \
-   if (N<0) Lerror(ERR_INCORRECT_CALL,0); \
+   if (N<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
   } else N = V; }
 
 #define get_pad(I,pad) { if (exist(I)) \
   { L2STR(ARG##I); \
-   if (LLEN(*ARG##I)!=1) Lerror(ERR_INCORRECT_CALL,0); \
+   if (LLEN(*ARG##I)!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0); \
    pad = LSTR(*ARG##I)[0];  \
   } else pad = ' '; }
 
@@ -90,9 +90,7 @@ enum functions {
  f_abbrev,        f_addr,          f_address,       f_arg,
  f_bitand,        f_bitor,         f_bitxor,        f_compare,
  f_copies,        f_center,
-#ifndef __CMS__
  f_close,
-#endif
  f_c2d,
  f_c2x,           f_date,          f_datatype,      f_delstr,
  f_delword,       f_d2c,           f_d2x,           f_digits,
@@ -108,30 +106,22 @@ enum functions {
  f_makebuf,
 #endif
  f_min,
-#ifndef __CMS__
  f_open,
-#endif
  f_overlay,       f_value,
  f_pos,
 #ifndef __CMS__
  f_putenv,
 #endif
  f_queued,        f_random,
-#ifndef __CMS__
  f_read,
-#endif
  f_reverse,       f_right,         f_time,
  f_trace,         f_translate,     f_trunc,
-#ifndef __CMS__
  f_seek,
-#endif
  f_sourceline,    f_space,         f_storage,       f_strip,
  f_subword,       f_substr,        f_symbol,        f_vartree,
  f_verify,        f_word,          f_wordindex,     f_wordlength,
  f_wordpos,       f_words,
-#ifndef __CMS__
  f_write,
-#endif
  f_x2c,
  f_x2d,           f_xrange,
 #ifndef __CMS__
@@ -142,17 +132,13 @@ enum functions {
  f_dropbuf,
 #endif
  f_hashvalue,
-#ifndef __CMS__
  f_import,
-#endif
-
  f_changestr,     f_countstr,
  f_b2x,           f_x2b,
  f_charin,        f_charout,
  f_linein,        f_lineout,
  f_chars,         f_lines,
  f_stream,
-
 #ifdef __MSDOS__
  f_intr, f_port,
 #endif

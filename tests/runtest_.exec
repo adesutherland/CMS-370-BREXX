@@ -8,7 +8,7 @@ if system='CMS' then
 do
 suffix = ''
 interpreter = ''
-"SPOOL CONS * START"
+"CP SPOOL CONS * START"
 end
 interpreter ' abbrev_'||suffix
 interpreter ' abs_'||suffix
@@ -80,4 +80,12 @@ interpreter ' xrange_'||suffix
 interpreter ' x2b_'||suffix
 interpreter ' x2c_'||suffix
 interpreter ' x2d_'||suffix
-if system='CMS' then "SPOOL CONS STOP CLOSE"
+interpreter ' lineout_'||suffix
+interpreter ' linein_'||suffix
+interpreter ' lines_'||suffix
+interpreter ' charout_'||suffix
+interpreter ' charin_'||suffix
+interpreter ' chars_'||suffix
+interpreter ' testexc'||suffix
+
+if system='CMS' then "CP SPOOL CONS STOP CLOSE"

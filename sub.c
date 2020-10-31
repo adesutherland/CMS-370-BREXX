@@ -11,7 +11,7 @@
  * Header changed to Id
  *
  * Revision 1.2  1999/11/26 12:52:25  bnv
- * Changed: To use lLastScannedNumber.
+ * Changed: To use lLastScannedNumber
  *
  * Revision 1.1  1998/07/02 17:18:00  bnv
  * Initial Version
@@ -20,6 +20,7 @@
 
 #include "lerror.h"
 #include "lstring.h"
+#include <cmssys.h>
 
 /* ---------------- Lsub ------------------- */
 void __CDECL
@@ -27,12 +28,13 @@ Lsub( const PLstr to, const PLstr A, const PLstr B)
 {
  int ta, tb;
  double r;
+ Context *context = (Context*)CMSGetPG();
 
  if (LTYPE(*A) == LSTRING_TY) {
   ta = _Lisnum(A);
-  if (ta==LSTRING_TY) Lerror(ERR_BAD_ARITHMETIC,0);
+  if (ta==LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
   /*//r = strtod(LSTR(*A),NULL); */
-  r = lLastScannedNumber;
+  r = (context->lstring_lLastScannedNumber);
  } else {
   ta = LTYPE(*A);
   r = TOREAL(*A);
@@ -40,9 +42,9 @@ Lsub( const PLstr to, const PLstr A, const PLstr B)
 
  if (LTYPE(*B) == LSTRING_TY) {
   tb = _Lisnum(B);
-  if (tb==LSTRING_TY) Lerror(ERR_BAD_ARITHMETIC,0);
+  if (tb==LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
   /*//r -= strtod(LSTR(*B),NULL); */
-  r -= lLastScannedNumber;
+  r -= (context->lstring_lLastScannedNumber);
  } else {
   tb = LTYPE(*B);
   r -= TOREAL(*B);

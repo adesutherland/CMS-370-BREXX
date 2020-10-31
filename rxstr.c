@@ -44,6 +44,7 @@
 #include "rexx.h"
 #include "rxdefs.h"
 #include "interpre.h"
+#include <cmssys.h>
 
 /* --------------------------------------------------------------- */
 /*  ABBREV(information,info[,length])                              */
@@ -62,9 +63,10 @@ void __CDECL
 R_SSoI( const int func )
 {
  long l;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(2,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2);
  get_oi0(3,l);
@@ -95,7 +97,7 @@ R_SSoI( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SSoI */
 
@@ -114,9 +116,10 @@ R_SIoC( const int func )
 {
  long l;
  char pad;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(2,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(1);
  get_i0(2,l);
@@ -140,7 +143,7 @@ R_SIoC( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* of switch */
 } /* R_SIoC */
 
@@ -183,8 +186,9 @@ R_S( const int func )
 {
  Lstr str;
  int found;
+ Context *context = (Context*)CMSGetPG();
 
- if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
+ if (ARGN!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  L2STR(ARG1);
 
  switch (func) {
@@ -235,7 +239,7 @@ R_S( const int func )
    LINITSTR(str); Lfx(&str,LLEN(*ARG1));
    Lstrcpy(&str,ARG1);
    Lupper(&str); LASCIIZ(str);
-   RxVarFindName(_proc[_rx_proc].scope,&str,&found);
+   RxVarFindName((context->rexx_proc)[(context->rexx_rx_proc)].scope,&str,&found);
    LFREESTR(str);
    if (found)
     Lscpy(ARGR,"VAR");
@@ -277,15 +281,13 @@ R_S( const int func )
    Licpy(ARGR,Lhashvalue(ARG1));
    break;
 
-#ifndef __CMS__
   case f_load:
   case f_import:
-   Licpy(ARGR,RxLoadLibrary(ARG1,func==f_import));
+   Licpy(ARGR,RxLoadLibrary(ARG1));
    break;
-#endif
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_S */
 /* --------------------------------------------------------------- */
@@ -299,9 +301,10 @@ void __CDECL
 R_SIoI( const int func )
 {
  long n,l;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(2,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_i(2,n);
  get_oiv(3,l,-1);
@@ -320,7 +323,7 @@ R_SIoI( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SIoI */
 
@@ -334,9 +337,10 @@ R_SSoIoIoC( const int func )
 {
  long n,l;
  char pad;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(2,ARGN,5))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2);
  get_oi0(3,n);
@@ -353,7 +357,7 @@ R_SSoIoIoC( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SSoIoIoC */
 
@@ -363,8 +367,9 @@ R_SSoIoIoC( const int func )
 void __CDECL
 R_changestr( )
 {
+ Context *context = (Context*)CMSGetPG();
  if (ARGN != 3)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2);
  must_exist(3);
@@ -378,9 +383,10 @@ void __CDECL
 R_compare( )
 {
  char pad;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(2,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2);
  get_pad(3,pad);
@@ -395,12 +401,13 @@ void __CDECL
 R_copies( )
 {
  long n;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN != 2)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  must_exist(2); n = Lrdint(ARG2);
- if (n<0) Lerror(ERR_INCORRECT_CALL,0);
+ if (n<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  Lcopies(ARGR,ARG1,n);
 } /* R_copies */
@@ -413,9 +420,10 @@ R_substr( )
 {
  long n,l;
  char pad;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(2,ARGN,4))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_i(2,n);
  get_oiv(3,l,-1);
@@ -432,12 +440,13 @@ R_strip( )
 {
  char action='B';
  char pad;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,3))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(1);
- if (exist(2)) { L2STR(ARG2); action = l2u[(byte)LSTR(*ARG2)[0]]; }
+ if (exist(2)) { L2STR(ARG2); action = (context->lstring_l2u)[(byte)LSTR(*ARG2)[0]]; }
  get_pad(3,pad);
  Lstrip(ARGR,ARG1,action,pad);
 } /* R_strip */
@@ -450,9 +459,10 @@ R_translate( )
 {
  char pad;
  PLstr tableo,tablei;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,4))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(1);
 
@@ -485,15 +495,16 @@ R_verify( )
 {
  bool match=FALSE;
  long start;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(2,ARGN,4))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(1);
  must_exist(2);
  if (exist(3)) {
   L2STR(ARG3);
-  match = (l2u[(byte)LSTR(*ARG3)[0]] == 'M');
+  match = ((context->lstring_l2u)[(byte)LSTR(*ARG3)[0]] == 'M');
  }
  get_oi(4,start);
  Licpy(ARGR,Lverify(ARG1,ARG2,match,start));
@@ -507,8 +518,9 @@ R_verify( )
 void __CDECL
 R_SS( int type )
 {
+ Context *context = (Context*)CMSGetPG();
  if (ARGN!=2)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(1);
  must_exist(2);

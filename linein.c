@@ -1,71 +1,48 @@
-/*
- * $Id: linein.c,v 1.6 2008/07/15 07:40:54 bnv Exp $
- * $Log: linein.c,v $
- * Revision 1.6  2008/07/15 07:40:54  bnv
- * #include changed from <> to ""
- *
- * Revision 1.5  2002/06/11 12:37:15  bnv
- * Added: CDECL
- *
- * Revision 1.4  2001/06/25 18:49:48  bnv
- * Header changed to Id
- *
- * Revision 1.3  1999/11/26 12:52:25  bnv
- * Changed: To use the new macros.
- *
- * Revision 1.2  1999/03/15 15:25:53  bnv
- * Corrected: initial value to prev
- *
- * Revision 1.1  1998/07/02 17:18:00  bnv
- * Initial Version
- *
- */
+/* VM/370 CMS and GCCLIB linein.c */
 
+#include <stdio.h>
+#include <errno.h>
+#include <cmssys.h>
 #include "lstring.h"
+
 
 /* ---------------- Llinein ------------------- */
 void __CDECL
-Llinein( FILEP f, const PLstr line, long *curline, long start, long length )
+Llinein( FILEP f, const PLstr line, long start, long length )
 {
- int ch,prev='\n';
- Lstr aux;
+  int l, i;
+  char *c;
+  Context *context = (Context*)CMSGetPG();
 
- /* initialise line */
- LZEROSTR(*line);
+  /* initialise line */
+  LZEROSTR(*line);
 
- /* find current line */
- if (start>=0) {
-  if (*curline>start) {
-   *curline = 1;
-   FSEEK(f,0,SEEK_SET);
+  /* find start line */
+  if (start>=0) {
+    if (!fsetrec(f,start)) {
+      if (errno==ENOTBLK) (context->lstring_Lerror)(ERR_NOT_RECORD_ACCESS,0);
+      else (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+    }
   }
-  while (start>*curline) {
-   ch = FGETC(f);
-   if (ch==EOF) {
-    if (prev!='\n') (*curline)++;
-    break;
-   }
-   if (ch=='\n') (*curline)++;
-   prev = ch;
-  }
-  if (start > *curline) return;
- }
 
- if (length<=0) return;
+  if (length<=0) return;
 
- if (length==1) {
-  Lread(f,line,LREADLINE);
-  (*curline)++;
- } else {
-  LINITSTR(aux);
-  while (length) {
-   Lread(f,&aux,LREADLINE);
-   Lstrcat(line,&aux);
-   if (length>1)
-    Lcat(line,"\n");
-   (*curline)++;
-   length--;
+  else if (length==1) Lread(f,line,LREADLINE);
+
+  else {
+    Lfx(line,LREADINCSIZE);
+    l = 0;
+    while (length && (i=nextrecLen(f))>0) {
+      if (l+i > LMAXLEN(*line)) {
+        Lfx(line, (size_t)(l+i+LREADINCSIZE));
+      }
+      c = LSTR(*line) + l;
+      fgets(c, i+1, f);
+      l+=i;
+      length--;
+    }
+    Lfx(line,l); /* Give back unwanted memory */
+    LLEN(*line) = l;
+    LTYPE(*line) = LSTRING_TY;
   }
-  LFREESTR(aux);
- }
 } /* Llinein */

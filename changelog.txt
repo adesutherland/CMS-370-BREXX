@@ -1,7 +1,57 @@
 BREXX CMS Change LOG
 ====================
 
-F0010 - Mote tests
+
+F0024 - Calltype 5 - handle embedded nulls in returned data
+      - SAY - handle embedded nulls (converted to spaces)
+      - Calltype 5 - handle embedded nulls in called function arguments
+F0023 - FIX - Ensure RC is set to 0 when returning from a calltype 5
+      - FIX - Push memory leak
+F0022 - MacOS Local Build Scripts
+      - Both Production and Debug Binaries Built
+F0010 - More tests
+
+CMS-0.9.8 - 4 October 2020
+F0021 - Fixed Debug Context in interpre.c
+F0020 - EXECCOMM Support
+
+CMS-0.9.7 - 31 August 2020
+F0019 - EXECCOMM Support (ALPHA - Variable contents < 250 characters)
+F0018 - Removed Chain and Anchor from Context Structure (used GCCLIB Process
+        Global Memory instead)
+F0017 - All things Call Type 5:
+          Requires GCCLIB >= 0.7.17 (Call Type 5 features)
+          Receiving Type 5 Calls
+          Error if a Function does not return anything for call type 5
+          Removed direct REXX to REXX Calling (which was flawed in BREXX anyway)
+          Implemented Call Type 5 calling and function package search order
+        Moved Halt and Trace flag polling to start of clauses (rather
+        than each op code)
+        Added OP_IEXIT to support different behavour for implicit EOF EXIT
+        ERROR Condition on negative RCs only
+        Enabled LOAD and IMPORT functions (Function Packages written in REXX)
+
+CMS-0.9.6 - 26 July 2020
+F0016 - Mod HRC402DS support
+        1/ Registering Entry Point (temporary)
+        2/ Arguments changes
+        3/ HI/TS/TE changes
+      - YATA Reads directly from READER (build script)
+      - Builds on vm/370 container with builder tag (i.e. not latest)
+
+CMS-0.9.5 - 21 July 2020
+F0015 - IO Updates to leverage GCCLIB >= 0.7.13 / f0029
+        (Stability and performance)
+        Initial Test Scripts
+      - Changed LREADINCSIZE from 32 to 250 to improve whole
+        file reading performance
+F0014 - Fix Memory leak on error in X2C
+F0013 - Possibility to turn on debug and turn off optimser
+
+CMS-0.9.4 - 10 May 2020
+F0012 - HI/TS/TE Immediate Command Support
+        Cleanups in main.c
+        Removed stderr.c
 
 CMS-0.9.3 - 6 May 2020
 F0011 - REXX Test Suite - hot Fix

@@ -45,6 +45,7 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#include <cmssys.h>
 
 #ifdef __BORLANDC__
 # include <dos.h>
@@ -94,16 +95,17 @@ void __CDECL
 R_O( const int func )
 {
  long items;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  switch (func) {
   case f_address:
-   if (_proc[_rx_proc].env == NULL)
-    Lstrcpy(ARGR,&(systemStr->key));
+   if ((context->rexx_proc)[(context->rexx_rx_proc)].env == NULL)
+    Lstrcpy(ARGR,&((context->rexxsystemStr)->key));
    else
-    Lstrcpy(ARGR,_proc[_rx_proc].env);
+    Lstrcpy(ARGR,(context->rexx_proc)[(context->rexx_rx_proc)].env);
    break;
 
 #ifndef __CMS__
@@ -111,10 +113,10 @@ R_O( const int func )
    items = 0;
    while (1) {
     items += StackQueued();
-    if (rxStackList.items>1)
+    if ((context->rexxrxStackList).items>1)
      DeleteStack();
     else {
-     DQFlush(DQPEEK(&rxStackList),_Lfree);
+     DQFlush(DQPEEK(&(context->rexxrxStackList)),_Lfree);
      break;
     }
    }
@@ -123,24 +125,24 @@ R_O( const int func )
 #endif
 
   case f_digits:
-   Licpy(ARGR,_proc[_rx_proc].digits);
+   Licpy(ARGR,(context->rexx_proc)[(context->rexx_rx_proc)].digits);
    break;
 
   case f_form:
-   if (_proc[_rx_proc].form==SCIENTIFIC)
+   if ((context->rexx_proc)[(context->rexx_rx_proc)].form==SCIENTIFIC)
     Lscpy(ARGR,"SCIENTIFIC");
    else
     Lscpy(ARGR,"ENGINEERING");
    break;
 
   case f_fuzz:
-   Licpy(ARGR,_proc[_rx_proc].fuzz);
+   Licpy(ARGR,(context->rexx_proc)[(context->rexx_rx_proc)].fuzz);
    break;
 
 #ifndef __CMS__
   case f_makebuf:
    CreateStack();
-   Licpy(ARGR,rxStackList.items);
+   Licpy(ARGR,(context->rexxrxStackList).items);
    break;
 #endif
 
@@ -151,7 +153,7 @@ R_O( const int func )
 #endif
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  }
 } /* R_O */
 
@@ -172,12 +174,13 @@ R_C( const int func )
  long items;
  char option='N';
  DQueueElem *qe;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN>1)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  if (exist(1)) {
   L2STR(ARG1);
-  option = l2u[(byte)LSTR(*ARG1)[0]];
+  option = (context->lstring_l2u)[(byte)LSTR(*ARG1)[0]];
  }
 
  switch (func) {
@@ -191,9 +194,9 @@ R_C( const int func )
 
   case f_trace:
    i = 0;
-   if (_proc[_rx_proc].interactive_trace)
+   if ((context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace)
     LSTR(*ARGR)[i++] = '?';
-   switch (_proc[_rx_proc].trace) {
+   switch ((context->rexx_proc)[(context->rexx_rx_proc)].trace) {
     case all_trace:  LSTR(*ARGR)[i++] = 'A'; break;
     case commands_trace: LSTR(*ARGR)[i++] = 'C'; break;
     case error_trace: LSTR(*ARGR)[i++] = 'E'; break;
@@ -220,29 +223,29 @@ R_C( const int func )
      break;
     } else
     if (option=='B') {
-     Licpy(ARGR,rxStackList.items);
+     Licpy(ARGR,(context->rexxrxStackList).items);
      break;
     } else
     if (option=='A') /* nothing */;
     else
-     Lerror(ERR_INCORRECT_CALL,0);
+     (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
    }
 
    /* count all buffers */
    items = 0;
-   for (qe=rxStackList.head; qe; qe=qe->next)
+   for (qe=(context->rexxrxStackList).head; qe; qe=qe->next)
     items += ((DQueue*)(qe->dat))->items;
    Licpy(ARGR,items);
    break;
 #endif
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0 );
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0 );
  }  /* switch */
 }  /* R_C */
 
 /* -------------------------------------------------------------- */
-/*  VARDUMP((symbol)(,'Depth'|'Hex'|'X'))                         */
+/*  VARDUMP(((context->nextsymbsymbol))(,'Depth'|'Hex'|'X'))                         */
 /*      returns the binary tree in the format                     */
 /*      var = "value"  <cr>                                       */
 /*      if depth is specified (only the fist char is significant) */
@@ -257,9 +260,10 @@ R_oSoS( )
  PBinLeaf leaf;
  Variable *var;
  Lstr  str;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN>2)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  option = RVT_NOTHING;
  if (ARGN==2) {
@@ -279,13 +283,13 @@ R_oSoS( )
 
  LZEROSTR(*ARGR);
  if (ARG1==NULL)
-  RxReadVarTree(ARGR,_proc[_rx_proc].scope,NULL,option);
+  RxReadVarTree(ARGR,(context->rexx_proc)[(context->rexx_rx_proc)].scope,NULL,option);
  else {
   if (Ldatatype(ARG1,'S')==0) return;
   LINITSTR(str);
   Lstrcpy(&str,ARG1);
   Lupper(&str); LASCIIZ(str);
-  leaf = RxVarFindName(_proc[_rx_proc].scope,&str,&found);
+  leaf = RxVarFindName((context->rexx_proc)[(context->rexx_rx_proc)].scope,&str,&found);
   if (found == 0) return;
   var = (Variable*)(leaf->value);
   if (var->stem == NULL)
@@ -297,8 +301,8 @@ R_oSoS( )
 } /* R_oSoS */
 
 /* -------------------------------------------------------------- */
-/*  ADDR(symbol[,[option][,[pool]]])                              */
-/*  Returns the normalised address of the variable 'symbol'       */
+/*  ADDR((context->nextsymbsymbol)[,[option][,[pool]]])                              */
+/*  Returns the normalised address of the variable '(context->nextsymbsymbol)'       */
 /*  in the pool 'pool' (if exist)                                 */
 /*  Option can be:                                                */
 /* 'Data' (default) the address of variables data           */
@@ -316,8 +320,9 @@ void __CDECL
 R_SoSoS( int func )
 {
  char response;
+ Context *context = (Context*)CMSGetPG();
 
- if (!IN_RANGE(1,ARGN,3)) Lerror(ERR_INCORRECT_CALL,0);
+ if (!IN_RANGE(1,ARGN,3)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  get_s(1);
  if (func == f_addr) {  /* ADDR(...) */
   int  found,poolnum;
@@ -326,6 +331,7 @@ R_SoSoS( int func )
   Lstr str;
   void *ptr=NULL;
   long addr;
+  Context *context = (Context*)CMSGetPG();
 
   /* translate to uppercase */
   LINITSTR(str); Lfx(&str,LLEN(*ARG1));
@@ -334,17 +340,17 @@ R_SoSoS( int func )
 
   if (exist(2)) {
    L2STR(ARG2);
-   opt =  l2u[(byte)LSTR(*ARG2)[0]];
+   opt =  (context->lstring_l2u)[(byte)LSTR(*ARG2)[0]];
   }
 
   if (exist(3)) {
    poolnum = (int)Lrdint(ARG3);
-   if (poolnum<0 || poolnum > _rx_proc)
-    Lerror(ERR_INCORRECT_CALL,37,ARG3);
+   if (poolnum<0 || poolnum > (context->rexx_rx_proc))
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,37,ARG3);
   } else
-   poolnum = _rx_proc;
+   poolnum = (context->rexx_rx_proc);
 
-  leaf = RxVarFindName(_proc[poolnum].scope,&str,&found);
+  leaf = RxVarFindName((context->rexx_proc)[poolnum].scope,&str,&found);
   LFREESTR(str);
   if (!found) {
    Licpy(ARGR,-1);
@@ -361,7 +367,7 @@ R_SoSoS( int func )
     ptr = &(leaf->value);
     break;
    default:
-    Lerror(ERR_INCORRECT_CALL,0);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
   }
 #if defined(__BORLANDC__) && !defined(__WIN32__) && !defined(WCE)
   addr = (((long)FP_SEG(ptr))<<4) + (long)FP_OFF(ptr);
@@ -377,24 +383,24 @@ R_SoSoS( int func )
    LZEROSTR(*ARGR);
    response = RxPoolGet(ARG3,ARG1,ARGR);
    if (response == 'F' && !exist(2))
-    Lerror(ERR_INCORRECT_CALL,36,ARG1);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,36,ARG1);
    else
    if (response == 'P')
-    Lerror(ERR_INCORRECT_CALL,37,ARG3);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,37,ARG3);
 
    if (!exist(2)) return;
    /* Set the new value */
    response = RxPoolSet(ARG3,ARG1,ARG2);
    if (response == 'P')
-    Lerror(ERR_INCORRECT_CALL,37,ARG3);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,37,ARG3);
    else
    if (response == 'F')
-    Lerror(ERR_INCORRECT_CALL,36,ARG1);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,36,ARG1);
   } else {
    Lstr str;
 
    LINITSTR(str); Lfx(&str,sizeof(dword));
-   Licpy(&str,_rx_proc);
+   Licpy(&str,(context->rexx_rx_proc));
    response = RxPoolGet(&str,ARG1,ARGR);
    if (exist(2))
     response = RxPoolSet(&str,ARG1,ARG2);
@@ -410,8 +416,9 @@ void __CDECL
 R_arg( )
 {
  int a;
+ Context *context = (Context*)CMSGetPG();
 
- RxProc *pr = &(_proc[_rx_proc]);
+ RxProc *pr = &((context->rexx_proc)[(context->rexx_rx_proc)]);
 
  switch (ARGN) {
   case  0:
@@ -421,7 +428,7 @@ R_arg( )
   case  1:
    a = (int)Lrdint(ARG1);
    if (!IN_RANGE(1,a,MAXARGS))
-    Lerror(ERR_INCORRECT_CALL,0);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
    if (pr->arg.a[a-1] != NULL)
     Lstrcpy(ARGR,
      pr->arg.a[a-1]);
@@ -432,22 +439,22 @@ R_arg( )
   case  2:
    a = (int)Lrdint(ARG1);
    if (!IN_RANGE(1,a,MAXARGS))
-    Lerror(ERR_INCORRECT_CALL,0);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
    L2STR(ARG2);
 
-   if (l2u[(byte)LSTR(*ARG2)[0]] == 'E')
+   if ((context->lstring_l2u)[(byte)LSTR(*ARG2)[0]] == 'E')
     Licpy(ARGR,
      pr->arg.a[a-1] != NULL);
    else
-   if (l2u[(byte)LSTR(*ARG2)[0]] == 'O')
+   if ((context->lstring_l2u)[(byte)LSTR(*ARG2)[0]] == 'O')
     Licpy(ARGR,
      pr->arg.a[a-1] == NULL);
    else
-    Lerror(ERR_INCORRECT_CALL,0);
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
    break;
 
   default:
-   Lerror(ERR_INCORRECT_CALL,0);
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  }
 } /* R_arg */
 
@@ -458,15 +465,16 @@ void __CDECL
 R_datatype( )
 {
  char type=' ';
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,2))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  if (exist(2)) {
   L2STR(ARG2);
   if (!LLEN(*ARG2))
-   Lerror(ERR_INCORRECT_CALL,0);
-  type = l2u[(byte)LSTR(*ARG2)[0]];
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+  type = (context->lstring_l2u)[(byte)LSTR(*ARG2)[0]];
  }  else {
   Lscpy( ARGR,
    ((LTYPE(*ARG1)==LSTRING_TY &&
@@ -481,7 +489,7 @@ R_datatype( )
    case LREAL_TY:  Lscpy(ARGR,"REAL"); break;
    case LSTRING_TY: Lscpy(ARGR,"STRING"); break;
    default:
-    Lerror(ERR_INTERPRETER_FAILURE,0);
+    (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
   }
   return;
  }
@@ -497,9 +505,10 @@ R_dropbuf( )
 {
  long n=1;
  long items=0;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN>1)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  get_oiv(1,n,1)
 
  if (n==0)
@@ -507,10 +516,10 @@ R_dropbuf( )
  else {
   for (;n>0;n--) {
    items += StackQueued();
-   if (rxStackList.items>1)
+   if ((context->rexxrxStackList).items>1)
     DeleteStack();
    else {
-    DQFlush(DQPEEK(&rxStackList),_Lfree);
+    DQFlush(DQPEEK(&(context->rexxrxStackList)),_Lfree);
     break;
    }
   }
@@ -525,7 +534,8 @@ R_dropbuf( )
 void __CDECL
 R_errortext( )
 {
- if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
+ Context *context = (Context*)CMSGetPG();
+ if (ARGN!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  Lerrortext(ARGR,(int)Lrdint(ARG1),0,NULL);
 } /* R_errortext */
@@ -553,14 +563,15 @@ R_intr( )
   unsigned regarray[10];
  } reg;
  char *s;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN != 2)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(1);
  intno = (int)Lrdint(ARG1);
  if (!IN_RANGE(0,intno,0xFF))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  must_exist(2);
  L2STR(ARG2);
@@ -607,9 +618,10 @@ R_port( )
 {
  long port;
  int  value;
+ Context *context = (Context*)CMSGetPG();
 
  if (!IN_RANGE(1,ARGN,2))
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  get_i(1,port);
  if (exist(2)) {
   value = (int)Lrdint(ARG2);
@@ -629,20 +641,21 @@ R_max( )
 {
  int i;
  double r;
+ Context *context = (Context*)CMSGetPG();
 
  if (!ARGN)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  i = 0;
- while ((i<ARGN) && (rxArg.a[i]==NULL)) i++;
- if (i==MAXARGS) Lerror(ERR_INCORRECT_CALL,0);
+ while ((i<ARGN) && ((context->rexxrxArg).a[i]==NULL)) i++;
+ if (i==MAXARGS) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
- L2REAL((rxArg.a[i]));
- r = LREAL(*(rxArg.a[i]));
+ L2REAL(((context->rexxrxArg).a[i]));
+ r = LREAL(*((context->rexxrxArg).a[i]));
  for (i++; i<ARGN; i++)
-  if (rxArg.a[i] != NULL)  {
-   L2REAL((rxArg.a[i]));
-   r = MAX(r,LREAL(*(rxArg.a[i])));
+  if ((context->rexxrxArg).a[i] != NULL)  {
+   L2REAL(((context->rexxrxArg).a[i]));
+   r = MAX(r,LREAL(*((context->rexxrxArg).a[i])));
   }
  Lrcpy(ARGR,r);
 } /* R_max */
@@ -655,20 +668,21 @@ R_min( )
 {
  int i;
  double r;
+ Context *context = (Context*)CMSGetPG();
 
  if (!ARGN)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  i = 0;
- while ((i<ARGN) && (rxArg.a[i]==NULL)) i++;
- if (i==MAXARGS) Lerror(ERR_INCORRECT_CALL,0);
+ while ((i<ARGN) && ((context->rexxrxArg).a[i]==NULL)) i++;
+ if (i==MAXARGS) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
- L2REAL((rxArg.a[i]));
- r = LREAL(*(rxArg.a[i]));
+ L2REAL(((context->rexxrxArg).a[i]));
+ r = LREAL(*((context->rexxrxArg).a[i]));
  for (i++; i<ARGN; i++)
-  if (rxArg.a[i] != NULL)  {
-   L2REAL((rxArg.a[i]));
-   r = MIN(r,LREAL(*(rxArg.a[i])));
+  if ((context->rexxrxArg).a[i] != NULL)  {
+   L2REAL(((context->rexxrxArg).a[i]));
+   r = MIN(r,LREAL(*((context->rexxrxArg).a[i])));
   }
  Lrcpy(ARGR,r);
 } /* R_min */
@@ -682,26 +696,27 @@ R_random( )
  long min, max;
  static long seed;
  static int  sewed=0 ;
+ Context *context = (Context*)CMSGetPG();
 
- if (!IN_RANGE(0,ARGN,3)) Lerror(ERR_INCORRECT_CALL,0);
+ if (!IN_RANGE(0,ARGN,3)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  if (exist(1)) {
   min = Lrdint(ARG1);
-  if (min<0) Lerror(ERR_INCORRECT_CALL,0);
+  if (min<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  } else
   min = 0;
 
  if (exist(2)) {
   max = Lrdint(ARG2);
-  if (max<0) Lerror(ERR_INCORRECT_CALL,0);
+  if (max<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  } else
   max = 999;
 
- if (min>max) Lerror(ERR_INCORRECT_CALL,0);
+ if (min>max) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  if (exist(3)) {
   seed = Lrdint(ARG3);
-  if (seed<0) Lerror(ERR_INCORRECT_CALL,0);
+  if (seed<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
   srand((unsigned)seed);
   sewed = 1;
  } else
@@ -738,9 +753,10 @@ R_storage( )
  unsigned seg,ofs;
 #endif
  size_t length = 1;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN>3)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  if (ARGN==0) {
 #ifndef WCE
 # if defined(__BORLANDC__) && !defined(__WIN32__)
@@ -762,7 +778,7 @@ R_storage( )
  if (exist(1)) {      /* Argument is decimal and not hex */
   adr = Lrdint(ARG1);
   if (adr < 0)
-   Lerror(ERR_INCORRECT_CALL,0);
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 #if defined(__BORLANDC__) && !defined(__WIN32__) && !defined(WCE)
   seg = (unsigned)((adr >> 4) & 0xFFFF);
   ofs = (unsigned)(adr & 0x000F);
@@ -771,12 +787,12 @@ R_storage( )
   ptr = (void *)adr;
 #endif
  } else
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  if (exist(2)) {
   adr = Lrdint(ARG2);
   if (adr <= 0)
-   Lerror(ERR_INCORRECT_CALL,0);
+   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
   length = (size_t)adr;
  }
 
@@ -803,43 +819,44 @@ R_sourceline( )
  int i;
  char *c,*co;
  RxFile *rxf;
+ Context *context = (Context*)CMSGetPG();
 
  if (ARGN>1)
-  Lerror(ERR_INCORRECT_CALL,0);
+  (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
 
  get_oi(1,l);
  if (l==0) { /* count the lines of the program */
   i = 0;
-  rxf = CompileClause[0].fptr;
-  while (rxf==CompileClause[i].fptr
-    && CompileClause[i+1].line>=CompileClause[i].line) {
+  rxf = (context->compileCompileClause)[0].fptr;
+  while (rxf==(context->compileCompileClause)[i].fptr
+    && (context->compileCompileClause)[i+1].line>=(context->compileCompileClause)[i].line) {
    i++;
-   l = CompileClause[i].line;
+   l = (context->compileCompileClause)[i].line;
   }
   i--;
-  l = CompileClause[i].line;
-  c = CompileClause[i].ptr;
+  l = (context->compileCompileClause)[i].line;
+  c = (context->compileCompileClause)[i].ptr;
   while (*c)
    if (*c++=='\n') l++;
   l-=2;  /* remove the last two new lines */
   Licpy(ARGR,l);
  } else {
   if (l>1) {
-   rxf = CompileClause[0].fptr;
-   for (i=0; rxf==CompileClause[i].fptr
-     && CompileClause[i+1].line>=CompileClause[i].line; i++) {
-    if (CompileClause[i].line==l) {
-     c = CompileClause[i].ptr;
+   rxf = (context->compileCompileClause)[0].fptr;
+   for (i=0; rxf==(context->compileCompileClause)[i].fptr
+     && (context->compileCompileClause)[i+1].line>=(context->compileCompileClause)[i].line; i++) {
+    if ((context->compileCompileClause)[i].line==l) {
+     c = (context->compileCompileClause)[i].ptr;
      while (*c!='\n')
       c--;
      c++;
      goto linefound;
     } else
-    if (CompileClause[i].line>l) {
+    if ((context->compileCompileClause)[i].line>l) {
      if (i>0) {
       i--;
-      c = CompileClause[i].ptr;
-      sl = CompileClause[i].line;
+      c = (context->compileCompileClause)[i].ptr;
+      sl = (context->compileCompileClause)[i].line;
      } else {
       c = LSTR(rxf->file);
       sl = 1;
@@ -855,7 +872,7 @@ R_sourceline( )
    /* try to search inside a commend, if exists any
     at the end of the program */
    i--;
-   sl=CompileClause[i].line; c = CompileClause[i].ptr;
+   sl=(context->compileCompileClause)[i].line; c = (context->compileCompileClause)[i].ptr;
    while (*c && l>sl) {
     if (*c=='\n') sl++;
     c++;
@@ -864,7 +881,7 @@ R_sourceline( )
    LZEROSTR(*ARGR);
    return;
   } else
-   c = LSTR((CompileClause[0].fptr)->file);
+   c = LSTR(((context->compileCompileClause)[0].fptr)->file);
 linefound:
   for (co=c; *co!='\n'; co++) /* do nothing */;;
   l = (char huge *)co - (char huge *)c;
@@ -879,9 +896,10 @@ linefound:
 void __CDECL
 VM_O(int func)
 {
+ Context *context = (Context*)CMSGetPG();
  switch (func){
   case f_cmsflag:
-   if (ARGN!=1) Lerror(ERR_INCORRECT_CALL,0);
+   if (ARGN!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
    L2STR(ARG1);
    CMSFLAG(ARGR,ARG1);
    break;

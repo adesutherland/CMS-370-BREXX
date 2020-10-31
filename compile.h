@@ -33,12 +33,12 @@
 
 /* ----------- local defines --------------- */
 #define UNKNOWN_LABEL  0xFFFF
-#define CMP(a)   Lcmp(&symbolstr,a)
-#define identCMP(a)  ((symbol==ident_sy) && !CMP(a))
+#define CMP(a)   Lcmp(&(context->nextsymbsymbolstr),a)
+#define identCMP(a)  (((context->nextsymbsymbol)==ident_sy) && !CMP(a))
 #define MUSTBE_SEMICOLON _mustbe(semicolon_sy, ERR_EXTRAD_DATA,1)
-#define SKIP_SEMICOLONS  while (symbol==semicolon_sy) nextsymbol()
+#define SKIP_SEMICOLONS  while ((context->nextsymbsymbol)==semicolon_sy) nextsymbol()
 
-#define SYMBOLADD2LITS  _Add2Lits(&symbolstr,symbolhasdot)
+#define SYMBOLADD2LITS  _Add2Lits(&(context->nextsymbsymbolstr),(context->nextsymbsymbolhasdot))
 #define SYMBOLADD2LITS_KEY &(((PBinLeaf)SYMBOLADD2LITS)->key)
 
 /* ----------- Function structure ----------- */
@@ -47,12 +47,19 @@ enum functypes {
  FT_FUNCTION,
  FT_BUILTIN,
  FT_INTERNAL,
- FT_EXTERNAL, /* For other REXX Program Files */
  FT_SYSTEM
+};
+
+enum systargettypes {
+  SYST_UNKNOWN,
+  SYST_BARE,
+  SYST_RX,
+  SYST_EXEC,
 };
 
 typedef struct tfunction {
  int type;   /* function type */
+ enum systargettypes systype; /* Type of system target: FUNC, RXFUNC or EXEC FUNC */
  TBltFunc *builtin;  /* builtin function */
  size_t label;   /* offset in code */
 } RxFunc;
@@ -133,6 +140,7 @@ enum mnemonic_type {
  ,OP_SAY  /* print on stdout */
  ,OP_SYSTEM /* execute a system command */
  ,OP_EXIT /* normal terminate prg */
+ ,OP_IEXIT /* implicit exit - terminate prg */
 
  ,OP_PARSE /* load a template to parse */
  ,OP_PVAR /* parse into a variable */

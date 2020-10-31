@@ -196,7 +196,7 @@ RxFile* __CDECL RxFileAlloc( char *fname );
 void __CDECL RxFileFree( RxFile *rxf );
 void __CDECL RxFileType( RxFile *rxf );
 int __CDECL RxFileLoad( RxFile *rxf );
-int __CDECL RxLoadLibrary( PLstr libname, bool shared );
+int __CDECL RxLoadLibrary( PLstr libname );
 int __CDECL RxRun( char *filename, PLstr programstr,
   PLstr arguments, PLstr tracestr, char *environment );
 

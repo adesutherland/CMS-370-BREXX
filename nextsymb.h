@@ -24,9 +24,9 @@
 #define __NEXTSYMBOL_H__
 
 enum symboltype {
-  ident_sy   /* identifier symbol */
+  ident_sy   /* identifier nextsymbsymbol */
  ,function_sy   /* ident with a paren */
- ,literal_sy   /* literal symbol */
+ ,literal_sy   /* literal nextsymbsymbol */
  ,le_parent   /*     (    */ /* the order    */
  ,le_bracket   /*     [    */ /* until        */
  ,le_curlbracket   /*     {    */ /* not_ty       */

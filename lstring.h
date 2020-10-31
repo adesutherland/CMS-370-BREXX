@@ -214,7 +214,7 @@ typedef Lstr *PLstr;
 
 /* --- file options --- */
 #define LSTARTPOS -1
-#define LREADINCSIZE 32
+#define LREADINCSIZE 250
 #define LREADLINE 0
 #define LREADFILE -1
 
@@ -251,6 +251,7 @@ void  __CDECL _Lfree(void *str);  /* free a Lstring */
 void  __CDECL Lfx   (const PLstr  s, const size_t len );
 void  __CDECL Licpy (const PLstr to, const long   from );
 void  __CDECL Lrcpy (const PLstr to, const double from );
+void  __CDECL Lmcpy (const PLstr to, const char *from, size_t len);
 void  __CDECL Lscpy (const PLstr to, const char *from );
 void  __CDECL Lwscpy(const PLstr to, const wchar_t *from );
 void  __CDECL Lcat  (const PLstr to, const char *from );
@@ -315,9 +316,8 @@ void  __CDECL Linsert ( const PLstr to, const PLstr target, const PLstr newstr,
    long n, long length, const char pad);
 void  __CDECL Ljustify( const PLstr to, const PLstr str, long length, char pad);
 long  __CDECL Llastpos( const PLstr needle, const PLstr haystack, long p );
-void  __CDECL Llinein ( FILEP f, const PLstr line, long *curline,
-   long start, long length );
-int   __CDECL Llineout( FILEP f, const PLstr line, long *curline, long start );
+void  __CDECL Llinein ( FILEP f, const PLstr line, long start, long length );
+int   __CDECL Llineout( FILEP f, const PLstr line, long start );
 long  __CDECL Llines  ( FILEP f );
 void  __CDECL Llower  ( const PLstr s );
 void  __CDECL Loverlay( const PLstr to, const PLstr str, const PLstr target,
@@ -328,7 +328,6 @@ void  __CDECL Lreverse( const PLstr s);
 void  __CDECL Lright  ( const PLstr to, const PLstr str, const long length,
    const char pad);
 void  __CDECL Lsoundex( const PLstr to, const PLstr str );
-void  __CDECL Lstderr ( const int errno, const int subno, ... );
 void  __CDECL Lstrip  ( const PLstr to, const PLstr str, const char action,
    const char pad);
 void  __CDECL Lspace  ( const PLstr to, const PLstr str, long n,

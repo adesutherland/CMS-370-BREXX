@@ -24,9 +24,7 @@ netcat -q 0 localhost 3505 < tmp
 rm tmp
 herccontrol -w "HHCRD012I" -f $mark
 herccontrol "/" -w "RDR FILE"
-herccontrol "/read *" -w "^Ready;"
-herccontrol "/yata -x -d f" -w "^Ready;"
-herccontrol "/erase yata txt a" -w "^Ready;"
+herccontrol "/yata -x -f READER -d f" -w "^Ready;"
 
 # Get test suite
 yata -c -d tests
@@ -51,12 +49,16 @@ herccontrol "devinit 00d io/brexxsrc.vmarc" -w "^HHCPN098I"
 herccontrol "/cp disc" -w "^VM/370 Online"
 herccontrol "/logon cmsuser cmsuser" -w "RECONNECTED AT"
 herccontrol "/begin"
-herccontrol "/tape dump * * f" -w "^Ready;"
+herccontrol "/tape dump * * f (noprint" -w "^Ready;"
 herccontrol "/detach 181" -w "^Ready;"
-herccontrol "/vmarc pack * * f (pun" -w "^Ready;"
+herccontrol "/vmarc pack * * f (pun notrace" -w "^Ready;"
 
 # Build
-herccontrol "/mkbrexx" -w "^Ready;" -t 120
+herccontrol "/ACC 193 E (ERASE" -w "^Ready;"
+herccontrol "/mkbrexx DEBUG" -w "^Ready;" -t 350
+herccontrol "/copy brexx text e brexxd = =" -w "^Ready;"
+herccontrol "/copy brexx module e brexxd = =" -w "^Ready;"
+herccontrol "/mkbrexx" -w "^Ready;" -t 350
 herccontrol "/rename * * e = = e2" -w "^Ready;"
 
 # Sanity test
@@ -64,6 +66,7 @@ herccontrol "/copy * * e = = a ( replace" -w "^Ready;"
 herccontrol "/copy sysprof exec s = = a" -w "^Ready;"
 herccontrol "/ipl cms" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"
+herccontrol "/DMSREX" -w "^Ready;"
 herccontrol "/rexxtry" -w "^Rexxtry;"
 herccontrol "/parse version myver" -w "^Rexxtry;"
 herccontrol "/say myver" -w "^Rexxtry;"
@@ -88,6 +91,7 @@ herccontrol "/vmarc pack * * e (pun" -w "^Ready;"
 
 # Clean Up
 herccontrol "/erase brexx * a" -w "^Ready;"
+herccontrol "/erase brexxd * a" -w "^Ready;"
 herccontrol "/erase rexxtry exec a" -w "^Ready;"
 herccontrol "/erase sysprof exec a" -w "^Ready;"
 

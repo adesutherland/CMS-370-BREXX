@@ -1,1 +1,1 @@
--Os -S -D__CMS__ -DHAVE_CONFIG_H -o dd:out -
+-O2 -S -D__CMS__ -DHAVE_CONFIG_H -o dd:out -

@@ -27,6 +27,7 @@
  *
  */
 
+#include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
 
@@ -46,27 +47,24 @@ static void __CDECL Exp7( void );
 static void __CDECL Exp8( void );
 static void __CDECL C_function( void );
 
-/* ----------- local variables ----------- */
-#define exp_ct (currentContext->expr_exp_ct)
-#define exp_pos (currentContext->expr_exp_pos)
-
 /* ========================= C_expr ========================== */
 /* return if it had exited with another code than OP_COPY */
 /* so something is left in stack */
 int __CDECL
 C_expr( int calltype )
 {
- exp_ct  = calltype;
- exp_pos = CompileCodeLen;
+ Context *context = (Context*)CMSGetPG();
+ (context->expr_exp_ct)  = calltype;
+ (context->expr_exp_pos) = (context->compileCompileCodeLen);
  Exp0();
 
  /* If nothing was processed in the expr then push a Null string */
- if (exp_pos == CompileCodeLen) {
+ if ((context->expr_exp_pos) == (context->compileCompileCodeLen)) {
   _CodeAddByte(OP_PUSH);
-   _CodeAddPtr(&(nullStr->key));
+   _CodeAddPtr(&((context->rexxnullStr)->key));
    TraceByte( nothing_middle );
  }
- switch (exp_ct) {
+ switch ((context->expr_exp_ct)) {
   case exp_assign:
    _CodeAddByte(OP_COPY);
    return FALSE;
@@ -80,7 +78,7 @@ C_expr( int calltype )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  }
  return TRUE;
 } /* C_expr */
@@ -89,12 +87,13 @@ C_expr( int calltype )
 static int __CDECL
 InsTmp( size_t pos, int pushtmp)
 {
+ Context *context = (Context*)CMSGetPG();
  /* do we need to push a tmp value */
- if ((exp_ct==exp_assign) && (exp_pos==pos)) {
+ if (((context->expr_exp_ct)==exp_assign) && ((context->expr_exp_pos)==pos)) {
   /* because we have return the value in a temporary var */
   /* change the type to exp_normal   */
   if (pushtmp)
-   exp_ct = exp_normal;
+   (context->expr_exp_ct) = exp_normal;
  } else {
   if (pushtmp)
    _CodeInsByte(pos,OP_PUSHTMP);
@@ -110,20 +109,21 @@ Exp0( void )
 {
  enum mnemonic_type orxor;
  CTYPE pos, pos2;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
+ pos = (context->compileCompileCodeLen);
  Exp1();
- orxor = (symbol==xor_sy)? OP_XOR : OP_OR;
- while ((symbol==or_sy) || (symbol==xor_sy)) {  /* Logical OR; XOR */
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+ orxor = ((context->nextsymbsymbol)==xor_sy)? OP_XOR : OP_OR;
+ while (((context->nextsymbsymbol)==or_sy) || ((context->nextsymbsymbol)==xor_sy)) {  /* Logical OR; XOR */
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   nextsymbol();
-  pos2 = CompileCodeLen;
+  pos2 = (context->compileCompileCodeLen);
   Exp1();
-  if (CompileCodeLen==pos2) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos2) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   InsTmp(pos,TRUE);
   _CodeAddByte(orxor);
    TraceByte( operator_middle );
-  orxor = (symbol==xor_sy)? OP_XOR : OP_OR;
+  orxor = ((context->nextsymbsymbol)==xor_sy)? OP_XOR : OP_OR;
  }
 } /* Exp0 */
 
@@ -132,15 +132,16 @@ static void __CDECL
 Exp1( void )
 {
  CTYPE pos, pos2;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
+ pos = (context->compileCompileCodeLen);
  Exp2();
- while (symbol == and_sy) { /* Logical AND  */
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+ while ((context->nextsymbsymbol) == and_sy) { /* Logical AND  */
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   nextsymbol();
-  pos2 = CompileCodeLen;
+  pos2 = (context->compileCompileCodeLen);
   Exp2();
-  if (CompileCodeLen==pos2) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos2) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   InsTmp(pos,TRUE);
   _CodeAddByte( OP_AND );
    TraceByte( operator_middle );
@@ -153,18 +154,19 @@ Exp2( void )
 {
  enum  symboltype  _symbol;
  CTYPE pos, pos2;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
+ pos = (context->compileCompileCodeLen);
  Exp3();
- _symbol = symbol;
+ _symbol = (context->nextsymbsymbol);
 
  /* DO NOT CHANGE THE ORDER OF THIS SYMBOLS */
- if  ((symbol >= eq_sy)  && (symbol <= dgt_sy)) {
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+ if  (((context->nextsymbsymbol) >= eq_sy)  && ((context->nextsymbsymbol) <= dgt_sy)) {
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   nextsymbol();
-  pos2 = CompileCodeLen;
+  pos2 = (context->compileCompileCodeLen);
   Exp3();
-  if (CompileCodeLen==pos2) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos2) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
 /****
 //  if (!InsTmp(pos,FALSE)) { * do we need to add a pushtmp *
 *****/
@@ -183,7 +185,7 @@ Exp2( void )
     case dlt_sy : _CodeAddByte(OP_DLT);  break;
     case dle_sy : _CodeAddByte(OP_DLE);  break;
     default:
-     Lerror(ERR_INTERPRETER_FAILURE,0);
+     (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
    }
 /*****
 //  } else {
@@ -201,7 +203,7 @@ Exp2( void )
 //    case dlt_sy : _CodeAddByte(OP_TDLT);  break;
 //    case dle_sy : _CodeAddByte(OP_TDLE);  break;
 //    default:
-//     Lerror(ERR_INTERPRETER_FAILURE,0);
+//     (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
 //   }
 //  }
 *****/
@@ -216,19 +218,20 @@ Exp3( void )
  int   _Concat;
  int   _Pblank;
  CTYPE pos, pos2;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
+ pos = (context->compileCompileCodeLen);
  Exp4();
- _Concat = (symbol==concat_sy);
- _Pblank = symbolPrevBlank;
+ _Concat = ((context->nextsymbsymbol)==concat_sy);
+ _Pblank = (context->nextsymbsymbolPrevBlank);
 
  /* UNTIL NOT_SY there must be prefix and starting '(' operators */
- while ((symbol <= not_sy) ||  _Concat) {
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+ while (((context->nextsymbsymbol) <= not_sy) ||  _Concat) {
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   if (_Concat) nextsymbol();
-  pos2 = CompileCodeLen;
+  pos2 = (context->compileCompileCodeLen);
   Exp4();
-  if (CompileCodeLen==pos2) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos2) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   InsTmp(pos,TRUE); /* add the pushtmp byte */
   if (_Concat || !_Pblank)
    _CodeAddByte(OP_CONCAT);
@@ -237,8 +240,8 @@ Exp3( void )
 
   TraceByte( operator_middle );
 
-  _Concat = (symbol==concat_sy);
-  _Pblank = symbolPrevBlank;
+  _Concat = ((context->nextsymbsymbol)==concat_sy);
+  _Pblank = (context->nextsymbsymbolPrevBlank);
  }
 } /* Exp3 */
 
@@ -248,24 +251,25 @@ Exp4( void )
 {
  enum symboltype _symbol;
  CTYPE pos, pos2;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
+ pos = (context->compileCompileCodeLen);
  Exp5();
- _symbol = symbol;
+ _symbol = (context->nextsymbsymbol);
 
- while ((symbol==plus_sy) || (symbol==minus_sy)) {
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+ while (((context->nextsymbsymbol)==plus_sy) || ((context->nextsymbsymbol)==minus_sy)) {
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   nextsymbol();
-  pos2 = CompileCodeLen;
+  pos2 = (context->compileCompileCodeLen);
   Exp5();
-  if (CompileCodeLen==pos2) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos2) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   InsTmp(pos,TRUE);
   if (_symbol==plus_sy)
    _CodeAddByte(OP_ADD);
   else
    _CodeAddByte(OP_SUB);
   TraceByte( operator_middle );
-  _symbol = symbol;
+  _symbol = (context->nextsymbsymbol);
  }
 } /* Exp4 */
 
@@ -275,18 +279,19 @@ Exp5( void )
 {
  enum  symboltype _symbol;
  CTYPE pos, pos2;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
+ pos = (context->compileCompileCodeLen);
  Exp6();
- _symbol = symbol;
+ _symbol = (context->nextsymbsymbol);
 
  /* ORDER IS IMPORTANT */
- while ((symbol >= times_sy) && (symbol<=intdiv_sy)) {
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+ while (((context->nextsymbsymbol) >= times_sy) && ((context->nextsymbsymbol)<=intdiv_sy)) {
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   nextsymbol();
-  pos2 = CompileCodeLen;
+  pos2 = (context->compileCompileCodeLen);
   Exp6();
-  if (CompileCodeLen==pos2) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos2) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   InsTmp(pos,TRUE);
   switch (_symbol) {
    case times_sy  : _CodeAddByte(OP_MUL);   break;
@@ -294,10 +299,10 @@ Exp5( void )
    case intdiv_sy : _CodeAddByte(OP_IDIV);  break;
    case mod_sy    : _CodeAddByte(OP_MOD);   break;
    default:
-    Lerror(ERR_INTERPRETER_FAILURE,0);
+    (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
   }
   TraceByte( operator_middle );
-  _symbol = symbol;
+  _symbol = (context->nextsymbsymbol);
  }
 }  /* Exp5 */
 
@@ -306,15 +311,16 @@ static void __CDECL
 Exp6( void )
 {
  CTYPE pos, pos2;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
+ pos = (context->compileCompileCodeLen);
  Exp7();
- while (symbol==power_sy) {
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+ while ((context->nextsymbsymbol)==power_sy) {
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   nextsymbol();
-  pos2 = CompileCodeLen;
+  pos2 = (context->compileCompileCodeLen);
   Exp7();
-  if (CompileCodeLen==pos2) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos2) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   InsTmp(pos,TRUE);
   _CodeAddByte(OP_POW);
    TraceByte( operator_middle );
@@ -328,22 +334,23 @@ Exp7( void )
  enum symboltype _symbol;
  int  prefix;
  CTYPE pos;
+ Context *context = (Context*)CMSGetPG();
 
- pos = CompileCodeLen;
- _symbol = symbol;
+ pos = (context->compileCompileCodeLen);
+ _symbol = (context->nextsymbsymbol);
 
- if ((symbol==not_sy) || (symbol==minus_sy)) {
+ if (((context->nextsymbsymbol)==not_sy) || ((context->nextsymbsymbol)==minus_sy)) {
   nextsymbol();
   prefix = TRUE;
  } else
   prefix = FALSE;
 
- if (!prefix && (symbol==plus_sy))
+ if (!prefix && ((context->nextsymbsymbol)==plus_sy))
   nextsymbol();
 
  Exp8();
  if (prefix) {
-  if (CompileCodeLen==pos) Lerror(ERR_INVALID_EXPRESSION,0);
+  if ((context->compileCompileCodeLen)==pos) (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
   InsTmp(pos,TRUE);
   if (_symbol==not_sy)
    _CodeAddByte(OP_NOT);
@@ -357,23 +364,24 @@ Exp7( void )
 static void __CDECL
 Exp8( void )
 {
- if (symbol == ident_sy) {
+ Context *context = (Context*)CMSGetPG();
+ if ((context->nextsymbsymbol) == ident_sy) {
   _CodeAddByte(OP_LOAD);
    _CodeAddPtr(SYMBOLADD2LITS);
    TraceByte( variable_middle );
   nextsymbol();
  } else
- if (symbol==literal_sy) {
+ if ((context->nextsymbsymbol)==literal_sy) {
   _CodeAddByte(OP_PUSH);
    _CodeAddPtr(SYMBOLADD2LITS_KEY);
    TraceByte( litteral_middle );
   nextsymbol();
  } else
- if (symbol == function_sy) {
+ if ((context->nextsymbsymbol) == function_sy) {
   C_function();
   _mustbe(ri_parent,ERR_UNMATCHED_PARAN,0);
  } else
- if (symbol==le_parent) {
+ if ((context->nextsymbsymbol)==le_parent) {
   nextsymbol();
   Exp0();
   _mustbe(ri_parent,ERR_UNMATCHED_PARAN,0);
@@ -389,22 +397,23 @@ C_function( void )
  int ia,line,realarg=0;
  word existarg=0,bp=1,lastarg; /* bit mapped, if arguments exist */
  void *lbl;
+ Context *context = (Context*)CMSGetPG();
 
- line = symboline; /* keep line number */
+ line = (context->nextsymbsymboline); /* keep line number */
 
  lbl = _AddLabel( FT_FUNCTION, UNKNOWN_LABEL );
 
  /* add a space in stack, for the result string */
- if ((exp_ct==exp_assign) && (exp_pos==CompileCodeLen))
-  exp_ct = exp_normal;
+ if (((context->expr_exp_ct)==exp_assign) && ((context->expr_exp_pos)==(context->compileCompileCodeLen)))
+  (context->expr_exp_ct) = exp_normal;
  else
   _CodeAddByte(OP_PUSHTMP);
 
  nextsymbol();
  ia = lastarg = 0;
 
- if (symbol != ri_parent) {
-  if (symbol != comma_sy) {
+ if ((context->nextsymbsymbol) != ri_parent) {
+  if ((context->nextsymbsymbol) != comma_sy) {
    Exp0();
    realarg++;
    lastarg = ia+1;
@@ -413,11 +422,11 @@ C_function( void )
   ia++;
   bp <<= 1; /* increase bit position */
 
-  while (symbol==comma_sy) {
+  while ((context->nextsymbsymbol)==comma_sy) {
    nextsymbol();
    if (ia>=MAXARGS)
-    Lerror(ERR_INCORRECT_CALL,0);
-   if (! ((symbol==comma_sy) || (symbol==ri_parent))) {
+    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+   if (! (((context->nextsymbsymbol)==comma_sy) || ((context->nextsymbsymbol)==ri_parent))) {
     Exp0();
     lastarg = ia+1;
     realarg++;
@@ -433,7 +442,7 @@ C_function( void )
   _CodeAddByte(lastarg); /* arguments */
   _CodeAddByte(realarg); /* real args */
   _CodeAddWord(existarg); /* which exist */
-  _CodeAddWord(line); /* symbol line */
+  _CodeAddWord(line); /* (context->nextsymbsymbol) line */
   _CodeAddByte(CT_FUNCTION); /* call type */
  TraceByte( function_middle );
 } /* C_function */

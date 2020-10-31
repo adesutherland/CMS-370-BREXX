@@ -30,16 +30,18 @@
 #include "rexx.h"
 #include "trace.h"
 #include "compile.h"
+#include <cmssys.h>
 
 /* ----------- vrefp --------- */
 /* variable reference position */
 static void
 vrefp( void )
 {
+ Context *context = (Context*)CMSGetPG();
  nextsymbol(); /* skip left parenthesis */
 
- if (symbol != ident_sy)
- Lerror( ERR_STRING_EXPECTED,7,&symbolstr);
+ if ((context->nextsymbsymbol) != ident_sy)
+ (context->lstring_Lerror)( ERR_STRING_EXPECTED,7,&(context->nextsymbsymbolstr));
 
  _CodeAddByte( OP_LOAD );
   _CodeAddPtr( SYMBOLADD2LITS );
@@ -55,23 +57,24 @@ static void
 position(void)
 {
  int type;
+ Context *context = (Context*)CMSGetPG();
 
- if (symbol==le_parent)
+ if ((context->nextsymbsymbol)==le_parent)
   vrefp();
  else
- if (symbol==literal_sy) {
-  type = _Lisnum(&symbolstr);
+ if ((context->nextsymbsymbol)==literal_sy) {
+  type = _Lisnum(&(context->nextsymbsymbolstr));
   if (type==LREAL_TY)
-   Lerror(ERR_INVALID_INTEGER,4,&symbolstr);
+   (context->lstring_Lerror)(ERR_INVALID_INTEGER,4,&(context->nextsymbsymbolstr));
   else
   if (type==LSTRING_TY)
-   Lerror(ERR_INVALID_TEMPLATE,2,&symbolstr);
+   (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,2,&(context->nextsymbsymbolstr));
   _CodeAddByte(OP_PUSH);
    _CodeAddPtr(SYMBOLADD2LITS_KEY);
    TraceByte( nothing_middle );
   nextsymbol();
  } else
-  Lerror(ERR_INVALID_TEMPLATE,2,&symbolstr);
+  (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,2,&(context->nextsymbsymbolstr));
  _CodeAddByte(OP_TOINT);
 } /* position */
 
@@ -95,20 +98,21 @@ C_template(void)
  bool sign;
  int type;
  CTYPE pos;
+ Context *context = (Context*)CMSGetPG();
 
  _CodeAddByte(OP_PARSE);
- while ((symbol!=semicolon_sy) && (symbol!=comma_sy)) {
+ while (((context->nextsymbsymbol)!=semicolon_sy) && ((context->nextsymbsymbol)!=comma_sy)) {
   trigger = FALSE;
-  switch (symbol) {
+  switch ((context->nextsymbsymbol)) {
    case ident_sy:
    case dot_sy:
     if (target_ptr || dot) {
      /* trigger space */
      trigger = TRUE;
      _CodeAddByte(OP_TR_SPACE);
-     /* do not go to next symbol */
+     /* do not go to next (context->nextsymbsymbol) */
     } else {
-     if (symbol==ident_sy)
+     if ((context->nextsymbsymbol)==ident_sy)
       target_ptr = SYMBOLADD2LITS;
      else
       dot = TRUE;
@@ -119,9 +123,9 @@ C_template(void)
    case minus_sy:
    case plus_sy:
     trigger = TRUE;
-    sign = (symbol==minus_sy);
+    sign = ((context->nextsymbsymbol)==minus_sy);
     nextsymbol();
-    pos = CompileCodeLen;
+    pos = (context->compileCompileCodeLen);
     position();
     if (sign) {
      _CodeInsByte(pos,OP_PUSHTMP);
@@ -134,19 +138,19 @@ C_template(void)
    case literal_sy:
     trigger = TRUE;
 
-    if (symbolisstr) {
+    if ((context->nextsymbsymbolisstr)) {
      _CodeAddByte(OP_PUSH);
       _CodeAddPtr(SYMBOLADD2LITS_KEY);
       TraceByte( nothing_middle );
      _CodeAddByte(OP_TR_LIT);
      nextsymbol();
     } else {
-     type = _Lisnum(&symbolstr);
+     type = _Lisnum(&(context->nextsymbsymbolstr));
      if (type==LREAL_TY)
-      Lerror(ERR_INVALID_INTEGER,4,&symbolstr);
+      (context->lstring_Lerror)(ERR_INVALID_INTEGER,4,&(context->nextsymbsymbolstr));
      else
      if (type==LSTRING_TY)
-      Lerror(ERR_INVALID_TEMPLATE,1,&symbolstr);
+      (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,1,&(context->nextsymbsymbolstr));
 
      _CodeAddByte(OP_PUSH);
       _CodeAddPtr(SYMBOLADD2LITS_KEY);
@@ -172,7 +176,7 @@ C_template(void)
     break;
 
    default:
-    Lerror(ERR_INVALID_TEMPLATE,0);
+    (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,0);
   } /* end of switch */
   if (trigger) {
    if (target_ptr) {

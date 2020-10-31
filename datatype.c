@@ -19,6 +19,7 @@
  */
 
 #include <ctype.h>
+#include <cmssys.h>
 #include "lstring.h"
 
 /* --------------- Ldatatype ----------------- */
@@ -29,8 +30,9 @@ Ldatatype( const PLstr str, char type )
  Lstr ref;
  int t,j,digits;
  char *c;
+ Context *context = (Context*)CMSGetPG();
 
- type = l2u[(byte)type];
+ type = (context->lstring_l2u)[(byte)type];
 
  LINITSTR(ref);
 

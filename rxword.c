@@ -25,6 +25,7 @@
 
 #include "rexx.h"
 #include "rxdefs.h"
+#include <cmssys.h>
 
 /* --------------------------------------------------------------- */
 /* SPACE(string(,(n)(,pad)))                                       */
@@ -34,12 +35,13 @@ R_space( )
 {
  long n;
  char pad;
+ Context *context = (Context*)CMSGetPG();
 
- if (!IN_RANGE(1,ARGN,3)) Lerror(ERR_INCORRECT_CALL,0);
+ if (!IN_RANGE(1,ARGN,3)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  if (exist(2)) {
   n = Lrdint(ARG2);
-  if (n<0) Lerror(ERR_INCORRECT_CALL,0);
+  if (n<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  } else
   n = 1;
  get_pad(3,pad);
@@ -58,8 +60,9 @@ void __CDECL
 R_SI( const int func )
 {
  long     n;
+ Context *context = (Context*)CMSGetPG();
 
- if (ARGN!=2) Lerror(ERR_INCORRECT_CALL,0);
+ if (ARGN!=2) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
  must_exist(1);
  get_i(2,n);
 
@@ -77,6 +80,6 @@ R_SI( const int func )
    break;
 
   default:
-   Lerror(ERR_INTERPRETER_FAILURE,0);
+   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
  } /* switch */
 } /* R_SI */

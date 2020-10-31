@@ -69,18 +69,17 @@
 
 /* ----------- Function prototypes ------------ */
 void __CDECL Rerror(const int,const int,...);
-void    __CDECL RxInitFiles(void);
-void    __CDECL RxDoneFiles(void);
 void __CDECL RxRegFunctionDone(void);
 
 /* ---------------- RxInitProc ---------------- */
 static void
 RxInitProc( void )
 {
- _rx_proc = -1;
- _proc_size = PROC_INC;
- _proc = (RxProc*) MALLOC( _proc_size * sizeof(RxProc), "RxProc" );
- MEMSET(_proc,0,_proc_size*sizeof(RxProc));
+ Context *context = (Context*)CMSGetPG();
+ (context->rexx_rx_proc) = -1;
+ (context->rexx_proc_size) = PROC_INC;
+ (context->rexx_proc) = (RxProc*) MALLOC( (context->rexx_proc_size) * sizeof(RxProc), "RxProc" );
+ MEMSET((context->rexx_proc),0,(context->rexx_proc_size)*sizeof(RxProc));
 } /* RxInitProc */
 
 /* ----------------- RxInitialize ----------------- */
@@ -88,8 +87,9 @@ void __CDECL
 RxInitialize( char *prorgram_name )
 {
  Lstr str;
+ Context *context = (Context*)CMSGetPG();
 
- _prgname = prorgram_name;
+ (context->rexx_prgname) = prorgram_name;
 
  LINITSTR(str);
 
@@ -97,56 +97,57 @@ RxInitialize( char *prorgram_name )
 // We repeat the initialization of static variables in lstring.h to here because when BREXX is
 // loaded as a resident program in CMS the static initializatino is not refreshed at each
 // invocation.
-lLastScannedNumber = 0.0;
- lNumericDigits = 9;
+(context->lstring_lLastScannedNumber) = 0.0;
+ (context->lstring_lNumericDigits) = 9;
 #endif
 
  /* do the basic initialisation */
- Linit(Rerror);  /* initialise with Lstderr as error function */
- LINITSTR(symbolstr);
-  Lfx(&symbolstr,250); /* create symbol string */
- LINITSTR(errmsg);
-  Lfx(&errmsg,250); /* create error message string */
+ Linit(Rerror);  /* initialise with Rerror as error function */
+ LINITSTR((context->nextsymbsymbolstr));
+  Lfx(&(context->nextsymbsymbolstr),250); /* create (context->nextsymbsymbol) string */
+ LINITSTR((context->error_errmsg));
+  Lfx(&(context->error_errmsg),250); /* create error message string */
+
+  LINITSTR((context->rexxrxReturnResult));  /* Return Result */
 
  /* --- first locate configuration file --- */
  /* rexx.rc for DOS in the executable program directory */
  /* .rexxrc for unix in the HOME directory */
 
- _procidcnt = 1;  /* Program id counter */
+ (context->rexx_procidcnt) = 1;  /* Program id counter */
 
 #ifndef __CMS__
- DQINIT(rxStackList); /* initialise stacks */
+ DQINIT((context->rexxrxStackList)); /* initialise stacks */
  CreateStack();  /* create first stack */
 #endif
- rxFileList = NULL; /* intialise rexx files */
- LPMALLOC(_code);
- CompileClause = NULL;
+ (context->rexxrxFileList) = NULL; /* intialise rexx files */
+ LPMALLOC((context->rexx_code));
+ (context->compileCompileClause) = NULL;
 
  RxInitProc();  /* initialize prg list */
  RxInitInterpret(); /* initialise interpreter*/
- RxInitFiles();  /* initialise files */
  RxInitVariables(); /* initialise hash table for variables */
 
- BINTREEINIT(_labels); /* initialise labels */
- BINTREEINIT(rxLitterals); /* initialise litterals */
+ BINTREEINIT((context->rexx_labels)); /* initialise labels */
+ BINTREEINIT((context->rexxrxLitterals)); /* initialise litterals */
 
-  Lscpy(&str,"HALT"); haltStr   = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"HALT"); (context->rexxhaltStr)   = _Add2Lits( &str, FALSE );
 
-  Lscpy(&str,"1"); oneStr    = _Add2Lits( &str, FALSE );
-  Lscpy(&str,"");  nullStr   = _Add2Lits( &str, FALSE );
-  Lscpy(&str,"0"); zeroStr   = _Add2Lits( &str, FALSE );
-  Lscpy(&str,"ERROR"); errorStr  = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"1"); (context->rexxoneStr)    = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"");  (context->rexxnullStr)   = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"0"); (context->rexxzeroStr)   = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"ERROR"); (context->rexxerrorStr)  = _Add2Lits( &str, FALSE );
 
-  Lscpy(&str,"RESULT"); resultStr = _Add2Lits( &str, FALSE );
-  Lscpy(&str,"NOVALUE"); noValueStr= _Add2Lits( &str, FALSE );
-  Lscpy(&str,"NOTREADY"); notReadyStr= _Add2Lits( &str, FALSE );
-  Lscpy(&str,"SIGL"); siglStr   = _Add2Lits( &str, FALSE );
-  Lscpy(&str,"RC"); RCStr     = _Add2Lits( &str, FALSE );
-  Lscpy(&str,"SYNTAX"); syntaxStr = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"RESULT"); (context->rexxresultStr) = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"NOVALUE"); (context->rexxnoValueStr)= _Add2Lits( &str, FALSE );
+  Lscpy(&str,"NOTREADY"); (context->rexxnotReadyStr)= _Add2Lits( &str, FALSE );
+  Lscpy(&str,"SIGL"); (context->rexxsiglStr)   = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"RC"); (context->rexxRCStr)     = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"SYNTAX"); (context->rexxsyntaxStr) = _Add2Lits( &str, FALSE );
 #ifdef __CMS__
-  Lscpy(&str,"CMS"); systemStr = _Add2Lits( &str, FALSE );         // CMS is the default environment
+  Lscpy(&str,"CMS"); (context->rexxsystemStr) = _Add2Lits( &str, FALSE );         // CMS is the default environment
 #else
-  Lscpy(&str,"SYSTEM"); systemStr = _Add2Lits( &str, FALSE );
+  Lscpy(&str,"SYSTEM"); (context->rexxsystemStr) = _Add2Lits( &str, FALSE );
 #endif
 
  LFREESTR(str);
@@ -156,20 +157,20 @@ lLastScannedNumber = 0.0;
 void __CDECL
 RxFinalize( void )
 {
- LFREESTR(symbolstr); /* delete symbol string */
- LFREESTR(errmsg); /* delete error msg str */
+ Context *context = (Context*)CMSGetPG();
+ LFREESTR((context->nextsymbsymbolstr)); /* delete (context->nextsymbsymbol) string */
+ LFREESTR((context->error_errmsg)); /* delete error msg str */
+ LFREESTR((context->rexxrxReturnResult));  /* Return Result */
  RxDoneInterpret();
- FREE(_proc);  /* free prg list */
+ FREE((context->rexx_proc));  /* free prg list */
 #ifndef __CMS__
- while (rxStackList.items>0) DeleteStack();
+ while ((context->rexxrxStackList).items>0) DeleteStack();
 #endif
- LPFREE(_code); _code = NULL;
+ LPFREE((context->rexx_code)); (context->rexx_code) = NULL;
 
- RxDoneFiles();  /* close all files */
-
-  /* will free also nullStr, zeroStr and oneStr */
- BinDisposeLeaf(&rxLitterals,rxLitterals.parent,FREE);
- BinDisposeLeaf(&_labels,_labels.parent,FREE);
+  /* will free also (context->rexxnullStr), (context->rexxzeroStr) and (context->rexxoneStr) */
+ BinDisposeLeaf(&(context->rexxrxLitterals),(context->rexxrxLitterals).parent,FREE);
+ BinDisposeLeaf(&(context->rexx_labels),(context->rexx_labels).parent,FREE);
  RxDoneVariables();
  RxRegFunctionDone(); /* initialise register functions */
 } /* RxFinalize */
@@ -218,11 +219,6 @@ RxFileFree(RxFile *rxf)
   rxf = rxf->next;
   LFREESTR(f->name);
   LFREESTR(f->file);
-#if defined(__GNUC__) && !defined(MSDOS) && !defined(__CMS__) \
-    && !defined(__MVS__)
-  if (f->libHandle!=NULL)
-   dlclose(f->libHandle);
-#endif
   FREE(f);
  }
 } /* RxFileFree */
@@ -232,170 +228,84 @@ int __CDECL
 RxFileLoad( RxFile *rxf )
 {
  FILEP f;
+ char filename[21];
 
-#ifdef __CMS__
-/* Build the CMS fileid of the file we are to interpret.  In the SixPack we are invoked from      */
-/* DMSEXC, which already knows the exact file.  But for now, let's figure it out for ourselves.   */
-char fileid[28];
-CMSFILEINFO * fst;
-int rc;
+ /* Convert to ASCIIZ */
+ L2STR(&(rxf->name)); LASCIIZ(rxf->name);
 
-strcpy(fileid, "        EXEC    * ");
-strncpy(fileid, LSTR(rxf->name), strlen(LSTR(rxf->name)));
-rc = CMSfileState(fileid, &fst);                           // determine on which disk the program resides
-if (rc) return FALSE;
-strncpy(fileid, fst->filename, 8);
-fileid[8] = ' ';
-strncpy(fileid + 9, fst->filetype, 8);
-fileid[17] = ' ';
-strncpy(fileid + 18, fst->filemode, 2);
-fileid[20] = 0;
-if ((f=FOPEN(fileid, "r")) == NULL)
-#else
- if ((f=FOPEN(LSTR(rxf->name),"r"))==NULL)
-#endif
-  return FALSE;
- Lread(f,&(rxf->file), LREADFILE);
+ /* File Name */
+ sprintf(filename, "%.8s EXEC *", LSTR(rxf->name));
+
+ if ((f=FOPEN(filename, "r")) == NULL) return FALSE;
+ Lread(f, &(rxf->file), LREADFILE);
  FCLOSE(f);
+
  return TRUE;
 } /* RxFileLoad */
 
 /* --- _LoadRexxLibrary --- */
-#define old_trap (currentContext->rexx_old_trap)
 static int
 _LoadRexxLibrary(RxFile *rxf, PLstr libname)
 {
  size_t ip;
- char *start, *stop;
- Lstr rxlib_path;
-#ifndef WCE
- char *rxlib;
-#else
- TCHAR pathvalue[128];
- DWORD pathlen;
-#endif
+ Context *context = (Context*)CMSGetPG();
 
- if (RxFileLoad( rxf ))
-  goto FILEFOUND;
+ if (!RxFileLoad( rxf )) return 1;
 
- /* let's try at the directory of rxlib */
- LINITSTR(rxlib_path);
-
-#ifndef WCE
- if ((rxlib=getenv("RXLIB"))!=NULL) {
-  Lscpy(&rxlib_path,rxlib);
-#else
- pathlen = sizeof(pathvalue);
- if (RXREGGETDATA(TEXT("LIB"),REG_SZ,(LPBYTE)pathvalue,&pathlen)) {
-  Lwscpy(&rxlib_path,pathvalue);
-#endif
-  LASCIIZ(rxlib_path);
-  start = LSTR(rxlib_path);
-  while (start!=NULL && *start) {
-   // Find first directory
-   stop = STRCHR(start,PATHSEP);
-   if (stop!=NULL)
-    *stop++='\0';
-   Lscpy(&(rxf->name),start);
-
-   ip = LLEN(rxf->name);
-   if (LSTR(rxf->name)[ip-1] != FILESEP) {
-    LSTR(rxf->name)[ip] = FILESEP;
-    LLEN(rxf->name)++;
-   }
-   Lstrcat(&(rxf->name),libname);
-   LASCIIZ(rxf->name);
-   if (RxFileLoad( rxf )) {
-    LFREESTR( rxlib_path );
-    goto FILEFOUND;
-   }
-   start = stop;
-  }
- }
- LFREESTR( rxlib_path );
- return 1;
-
-FILEFOUND:
- ip = (size_t)((byte huge *)Rxcip - (byte huge *)Rxcodestart);
- MEMCPY(old_trap,_error_trap,sizeof(_error_trap));
+ ip = (size_t)((byte huge *)(context->interpreRxcip) - (byte huge *)(context->interpreRxcodestart));
+ MEMCPY((context->rexx_old_trap),(context->rexx_error_trap),sizeof((context->rexx_error_trap)));
  RxFileType(rxf);
  RxInitCompile(rxf,NULL);
  RxCompile();
 
  /* restore state */
- MEMCPY(_error_trap,old_trap,sizeof(_error_trap));
- Rxcodestart = (CIPTYPE*)LSTR(*_code);
- Rxcip = (CIPTYPE*)((byte huge *)Rxcodestart + ip);
- if (rxReturnCode)
-  RxSignalCondition(SC_SYNTAX);
+ MEMCPY((context->rexx_error_trap),(context->rexx_old_trap),sizeof((context->rexx_error_trap)));
+ (context->interpreRxcodestart) = (CIPTYPE*)LSTR(*(context->rexx_code));
+ (context->interpreRxcip) = (CIPTYPE*)((byte huge *)(context->interpreRxcodestart) + ip);
+
+ if ((context->rexxrxReturnCode)) RxSignalCondition(SC_SYNTAX);
  return 0;
 } /* _LoadRexxLibrary */
 
 /* ----------------- RxLoadLibrary ------------------- */
 int __CDECL
-RxLoadLibrary( PLstr libname, bool shared )
+RxLoadLibrary( PLstr libname )
 {
- RxFile  *rxf, *last;
-#if defined(UNIX) || defined(__CMS__) || defined(__MVS__)
- Lstr tmpstr;
- char *dlerrorstr;
-#endif
+  RxFile  *rxf, *last;
+  Lstr name;
+  Context *context = (Context*)CMSGetPG();
 
- /* Convert to ASCIIZ */
- L2STR(libname); LASCIIZ(*libname);
+  LINITSTR(name);
+  Lfx(&name,LLEN(*libname));
+  Lstrip(&name,libname,LBOTH,' ');
+  Lupper(&name);
 
- /* check to see if it is already loaded */
- for (rxf = rxFileList; rxf != NULL; rxf = rxf->next)
-  if (!strcmp(rxf->filename,LSTR(*libname)))
-   return -1;
+  /* Convert to C String */
+  L2STR(&name); LASCIIZ(name);
 
- /* create  a RxFile structure */
- rxf = RxFileAlloc(LSTR(*libname));
+  /* check to see if it is already loaded */
+  for (rxf = (context->rexxrxFileList); rxf != NULL; rxf = rxf->next)
+    if (!strcmp(rxf->filename,LSTR(name)))
+      return -1;
 
-#if defined(__GNUC__) && !defined(MSDOS)
- if (shared) {
-  /* try to load it as a shared library */
-# if !defined(__CMS__) && !defined(__MVS__)
-  rxf->libHandle = dlopen(LSTR(rxf->name),RTLD_NOW);
-  dlerrorstr = dlerror();
-# else
-  rxf->libHandle = NULL;
-  dlerrorstr = NULL;
-# endif
-  if (rxf->libHandle!=NULL) {
-   /* load the main function and execute it...*/
-   RxFileType(rxf);
-   goto LIB_LOADED;
+  /* create a RxFile structure */
+  rxf = RxFileAlloc(LSTR(name));
+
+  /* try to load the file as rexx library */
+  if (_LoadRexxLibrary(rxf,&name)) {
+    RxFileFree(rxf);
+    LFREESTR(name);
+    return 1;
   }
 
-  /* Unfortunatelly we have to handle errors with strings.
-   * Skip the errors when trying to load a rexx file instead
-   * of a dll-library */
-  if (dlerrorstr != NULL) {
-   if (STRSTR(dlerrorstr,"invalid ELF header") &&
-       STRSTR(dlerrorstr,"cannot open shared object file") &&
-       STRSTR(dlerrorstr,"Win32 error ")) {
-    LMKCONST(tmpstr,dlerrorstr);
-    Lerror(ERR_LIBRARY,0,&tmpstr);
-   }
-  }
- }
-#endif
+  /* find the last in the queue */
+  for (last = (context->rexxrxFileList); last->next != NULL; )
+    last = last->next;
+  last->next = rxf;
 
- /* try first to load the file as rexx library */
- if (_LoadRexxLibrary(rxf,libname)) {
-  RxFileFree(rxf);
-  return 1;
- }
+  LFREESTR(name);
 
-#if defined(UNIX) || defined(__CMS__) || defined(__MVS__)
-LIB_LOADED:
-#endif
- /* find the last in the queue */
- for (last = rxFileList; last->next != NULL; )
-  last = last->next;
- last->next = rxf;
- return 0;
+  return 0;
 } /* RxLoadLibrary */
 
 /* ----------------- RxRun ------------------ */
@@ -405,50 +315,51 @@ RxRun( char *filename, PLstr programstr,
 {
  RxProc *pr;
  int i;
+ Context *context = (Context*)CMSGetPG();
 
  /* --- set exit jmp position --- */
- if ((i=setjmp(_exit_trap))!=0)
+ if ((i=setjmp((context->rexx_exit_trap)))!=0)
   goto run_exit;
  /* --- set temporary error trap --- */
- if (setjmp(_error_trap)!=0)
-  return rxReturnCode;
+ if (setjmp((context->rexx_error_trap))!=0)
+  return (context->rexxrxReturnCode);
 
  /* ====== first load the file ====== */
  if (filename) {
-  rxFileList = RxFileAlloc(filename);
+  (context->rexxrxFileList) = RxFileAlloc(filename);
 
   /* --- Load file --- */
-  if (!RxFileLoad( rxFileList )) {
+  if (!RxFileLoad( (context->rexxrxFileList) )) {
 #ifndef WCE
    fprintf(STDERR,"Error %d running \"%s\": File not found\n",
-     ERR_FILE_NOT_FOUND, LSTR(rxFileList->name));
+     ERR_FILE_NOT_FOUND, LSTR((context->rexxrxFileList)->name));
 #else
    PUTS("Error: File not found.");
 #endif
-   RxFileFree(rxFileList);
+   RxFileFree((context->rexxrxFileList));
    return 1;
   }
  } else {
-  rxFileList = RxFileAlloc("<STDIN>");
-  Lfx(&(rxFileList->file), LLEN(*programstr));
-  Lstrcpy(&(rxFileList->file), programstr);
+  (context->rexxrxFileList) = RxFileAlloc("<STDIN>");
+  Lfx(&((context->rexxrxFileList)->file), LLEN(*programstr));
+  Lstrcpy(&((context->rexxrxFileList)->file), programstr);
  }
- RxFileType(rxFileList);
- LASCIIZ(rxFileList->file);
+ RxFileType((context->rexxrxFileList));
+ LASCIIZ((context->rexxrxFileList)->file);
 
 #ifdef __DEBUG__
- if (__debug__) {
-  printf("File is:\n%s\n",LSTR(rxFileList->file));
+ if ((context->rexx__debug__)) {
+  printf("File is:\n%s\n",LSTR((context->rexxrxFileList)->file));
   getchar();
  }
 #endif
 
  /* ====== setup procedure ====== */
- _rx_proc++;  /* increase program items */
- pr = _proc+_rx_proc; /* pr = Proc pointer  */
+ (context->rexx_rx_proc)++;  /* increase program items */
+ pr = (context->rexx_proc)+(context->rexx_rx_proc); /* pr = Proc pointer  */
 
  /* set program id counter */
- pr->id = _procidcnt++;
+ pr->id = (context->rexx_procidcnt)++;
 
  /* --- initialise Proc structure --- */
     /* arguments...  */
@@ -462,7 +373,13 @@ RxRun( char *filename, PLstr programstr,
  }
  pr->arg.r = NULL;
 
- pr->calltype = CT_PROGRAM; /* call type...  */
+ /* call type...  */
+ if (CMScalltype() == 5) {
+   if (CMSisproc()) pr->calltype = CT_PROCEDURE;
+   else pr->calltype = CT_FUNCTION;
+ }
+ else pr->calltype = CT_PROGRAM;
+
  pr->ip = 0;   /* procedure ip  */
  pr->stack = -1;  /* prg stck, will be set in interpret */
  pr->stacktop = -1;  /* no arguments  */
@@ -472,7 +389,7 @@ RxRun( char *filename, PLstr programstr,
  if (environment)
   Lscpy(pr->env,environment);
  else
-  Lstrcpy(pr->env,&(systemStr->key));
+  Lstrcpy(pr->env,&((context->rexxsystemStr)->key));
 #ifdef __CMS__
  pr->digits = 9;
 #else
@@ -481,57 +398,57 @@ RxRun( char *filename, PLstr programstr,
  pr->fuzz = 0;
  pr->form = SCIENTIFIC;
  pr->condition = 0;
- pr->lbl_error    = &(errorStr->key);
- pr->lbl_halt     = &(haltStr->key);
- pr->lbl_novalue  = &(noValueStr->key);
- pr->lbl_notready = &(notReadyStr->key);
- pr->lbl_syntax   = &(syntaxStr->key);
+ pr->lbl_error    = &((context->rexxerrorStr)->key);
+ pr->lbl_halt     = &((context->rexxhaltStr)->key);
+ pr->lbl_novalue  = &((context->rexxnoValueStr)->key);
+ pr->lbl_notready = &((context->rexxnotReadyStr)->key);
+ pr->lbl_syntax   = &((context->rexxsyntaxStr)->key);
  pr->codelen = 0;
  pr->trace = normal_trace;
  pr->interactive_trace = FALSE;
  if (tracestr && LLEN(*tracestr)) TraceSet(tracestr);
 
  /* ======= Compile file ====== */
- RxInitCompile(rxFileList,NULL);
+ RxInitCompile((context->rexxrxFileList),NULL);
  RxCompile();
 
 #ifdef __DEBUG__
- if (__debug__) {
+ if ((context->rexx__debug__)) {
   printf("Litterals are:\n");
-  BinPrint(rxLitterals.parent);
+  BinPrint((context->rexxrxLitterals).parent);
   getchar();
 
   printf("Labels(&functions) are:\n");
-  BinPrint(_labels.parent);
-  printf("Code Size: %d\n\n",LLEN(*_code));
+  BinPrint((context->rexx_labels).parent);
+  printf("Code Size: %d\n\n",LLEN(*(context->rexx_code)));
   getchar();
  }
 #endif
 
  /* ======= Execute code ======== */
- if (!rxReturnCode)
+ if (!(context->rexxrxReturnCode))
   RxInterpret();
 
 run_exit:
   /* pr pointer might have changed if Proc was resized */
- pr = _proc+_rx_proc;
+ pr = (context->rexx_proc)+(context->rexx_rx_proc);
 #ifdef __DEBUG__
- if (__debug__)
-  printf("Return Code = %d\n",rxReturnCode);
+ if ((context->rexx__debug__))
+  printf("Return Code = %d\n",(context->rexxrxReturnCode));
 #endif
 
  /* ======== free up memory ======== */
- RxFileFree(rxFileList);
+ RxFileFree((context->rexxrxFileList));
 
  LPFREE(pr->env);
- if (CompileClause) {
-  FREE(CompileClause);
-  CompileClause = NULL;
+ if ((context->compileCompileClause)) {
+  FREE((context->compileCompileClause));
+  (context->compileCompileClause) = NULL;
  }
 
  RxScopeFree(pr->scope);
  FREE(pr->scope);
- _rx_proc--;
+ (context->rexx_rx_proc)--;
 
- return rxReturnCode;
+ return (context->rexxrxReturnCode);
 } /* RxRun */

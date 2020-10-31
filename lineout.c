@@ -23,36 +23,24 @@
  */
 
 #include "lstring.h"
+#include <errno.h>
+#include <stdio.h>
+#include <cmssys.h>
 
 /* ---------------- Llineout ------------------- */
 int __CDECL
-Llineout( FILEP f, const PLstr line, long *curline, long start )
+Llineout( FILEP f, const PLstr line, long start )
 {
- int ch,prev='\n';
+  Context *context = (Context*)CMSGetPG();
+  /* find start line */
+  if (start>=0) {
+    if (!fsetrec(f,start)) {
+      if (errno==ENOTBLK) (context->lstring_Lerror)(ERR_NOT_RECORD_ACCESS,0);
+      else (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+    }
+  }
 
-#ifndef __CMS__
- /* find current line */
- if (start>=0) {
-  if (*curline>start) {
-   *curline = 1;
-   FSEEK(f,0,SEEK_SET);
-  }
-  while (start>*curline) {
-   ch = FGETC(f);
-   if (ch==-1) {
-    if (prev!='\n') (*curline)++;
-    break;
-   }
-   if (ch=='\n') (*curline)++;
-   prev = ch;
-  }
-  while (start > *curline) {
-   FPUTC('\n',f);
-   (*curline)++;
-  }
- }
-#endif
- Lwrite(f,line,TRUE);
- (*curline)++;
- return 0;  /* if everything ok */
+  Lwrite(f,line,TRUE);
+
+  return 0;  /* if everything ok */
 } /* Llineout */
