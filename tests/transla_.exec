@@ -11,7 +11,7 @@
   if translate("Foo Bar",,"") \==  "Foo Bar"    then say 'failed in test          7 '
   if translate("Foo Bar","",) \==  "       "    then say 'failed in test          8 '
   if translate("Foo Bar","",,'*') \==  "*******"  then say 'failed in test          9 '
-  if translate("Foo Bar",xrange('01'x,'ff'x)) \==  "Gpp!Cbs"  then say 'failed in test         10 '
+/*  if translate("Foo Bar",xrange('01'x,'ff'x)) \==  "Gpp!Cbs"  then say 'failed in test         10 ' ascii/ebcic */
   if translate("","klasjdf","woieruw") \==  ""   then say 'failed in test         11 '
   if translate("foobar","abcdef","fedcba") \==  "aooefr"  then say 'failed in test         12 '
   say "TRANSLATE OK"

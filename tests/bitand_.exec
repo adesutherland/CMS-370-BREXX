@@ -10,5 +10,5 @@ if bitand( '3456'x, '123456'x, '99'x ) \== '101410'x then say 'failed in test 5 
 if bitand( '123456'x,, '55'x) \== '101454'x then say 'failed in test 6 '
 if bitand( 'foobar' ) \== 'foobar' then say 'failed in test 7 '
 /* This one is ASCII dependent. */
-if bitand( 'FooBar' ,, 'df'x) \== 'FOOBAR' then say 'failed in test 8 '
+/* if bitand( 'FooBar' ,, 'df'x) \== 'FOOBAR' then say 'failed in test 8 ' */
 say "BITAND OK"
