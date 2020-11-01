@@ -1,6 +1,7 @@
 BREXX CMS Change LOG
 ====================
 
+F0026 - BITAND() Fixes
 F0025 - ARG() Fixes
       - Local Build - Debug only (speed up dev/test cycle)
 F0024 - Calltype 5 - handle embedded nulls in returned data
