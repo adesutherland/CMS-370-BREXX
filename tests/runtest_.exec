@@ -12,7 +12,7 @@ interpreter = ''
 end
 interpreter ' abbrev_'||suffix
 interpreter ' abs_'||suffix
-/* nyi interpreter ' address_'||suffix */
+interpreter ' address_'||suffix
 interpreter ' arg_'||suffix
 interpreter ' bitand_'||suffix
 interpreter ' bitor_'||suffix
