@@ -1,3 +1,4 @@
+/* */
 parse version x
 
 if pos('REXX-ooRexx_5.0.0',x) > 0 then

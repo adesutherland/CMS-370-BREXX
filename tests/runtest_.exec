@@ -24,7 +24,7 @@ interpreter ' charin_'||suffix
 interpreter ' charout_'||suffix
 interpreter ' chars_'||suffix
 interpreter ' compare_'||suffix
-/* nyi interpreter ' conditio_'||suffix */
+interpreter ' conditi_'||suffix
 interpreter ' copies_'||suffix
 interpreter ' countst_'||suffix
 interpreter ' c2d_'||suffix
@@ -52,14 +52,14 @@ interpreter ' min_'||suffix
 interpreter ' overlay_'||suffix
 interpreter ' pos_'||suffix
 interpreter ' qualify_'||suffix
-/* nyi interpreter ' queued_'||suffix */
+interpreter ' queued_'||suffix
 interpreter ' random_'||suffix
 interpreter ' reverse_'||suffix
 interpreter ' right_'||suffix
 interpreter ' sign_'||suffix
 interpreter ' sourcel_'||suffix
 interpreter ' space_'||suffix
-/* nyi interpreter ' stream_'||suffix */
+interpreter ' stream_'||suffix
 interpreter ' strip_'||suffix
 interpreter ' substr_'||suffix
 interpreter ' subword_'||suffix

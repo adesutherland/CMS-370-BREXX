@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+F0029 - Tidy up runtest_ exec etc.
+        C2D() Fixes
 F0028 - COUNTSTR() Fixes
 F0027 - ADDRESS() Test fix
 F0026 - BITAND() Fixes
