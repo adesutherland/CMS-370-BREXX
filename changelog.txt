@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+F0030 - DATATYPE() fixes
+      - Removed bifs_ exec
 F0029 - Tidy up runtest_ exec etc.
         C2D() Fixes
 F0028 - COUNTSTR() Fixes

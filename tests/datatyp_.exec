@@ -41,7 +41,7 @@ if datatype("1324.1234",'N') \== "1" then say 'failed in test 35 '
 if datatype("123.456.789",'N') \== "0" then say 'failed in test 36 '
 if datatype("",'N') \== "0" then say 'failed in test 37 '
 if datatype("foo bar",'S') \== "0" then say 'failed in test 38 '
-/* if datatype("??@##_Foo$Bar!!!",'S') \== "1" then say 'failed in test */
+if datatype("??@##_Foo$Bar!!!",'S') \== "1" then say 'failed in test 39'
 if datatype("",'S') \== "0" then say 'failed in test 40 '
 if datatype("foo bar",'U') \== "0" then say 'failed in test 41 '
 if datatype("Foo Bar",'U') \== "0" then say 'failed in test 42 '
