@@ -1,6 +1,7 @@
 BREXX CMS Change LOG
 ====================
 
+F0031 - Fix - Memory Leak with abnormal exits
 F0030 - DATATYPE() fixes
       - Removed bifs_ exec
 F0029 - Tidy up runtest_ exec etc.
