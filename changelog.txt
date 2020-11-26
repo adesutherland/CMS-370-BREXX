@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+CMS-0.9.9 - 26 Nov 2020
+      - Initial fixes for X2D() - not complete
 F0031 - Fix - Memory Leak with abnormal exits
 F0030 - DATATYPE() fixes
       - Removed bifs_ exec

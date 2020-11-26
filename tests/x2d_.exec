@@ -5,7 +5,7 @@ if x2d('0E') \== 14 then say 'failed in test 1 '
 if x2d('81') \== 129 then say 'failed in test 2 '
 if x2d('F81') \== 3969 then say 'failed in test 3 '
 if x2d('FF81') \== 65409 then say 'failed in test 4 '
-/* if x2d('c6 f0'x) \== 240 then say 'failed in test EBCDIC version */
+if x2d('c6 f0'x) \== 240 then say 'failed in test 5 ''
 if x2d('F0') \== 240 then say 'failed in test 6 '
 if x2d('81',2) \== -127 then say 'failed in test 7 '
 if x2d('81',4) \== 129 then say 'failed in test 8 '
@@ -13,7 +13,7 @@ if x2d('F081',4) \== -3967 then say 'failed in test 9 '
 if x2d('F081',3) \== 129 then say 'failed in test 10 '
 if x2d('F081',2) \== -127 then say 'failed in test 11 '
 if x2d('F081',1) \== 1 then say 'failed in test 12 '
-/* if x2d('0031',0) \== 0 then say 'failed in test 13 '*/
+if x2d('0031',0) \== 0 then say 'failed in test 13 ''
 /* These from Mark Hessling. */
 if x2d( 'ff80', 2) \== "-128" then say 'failed in test 14 '
 if x2d( 'ff80', 1) \== "0" then say 'failed in test 15 '
@@ -65,7 +65,7 @@ if X2D(ABS(RIGHT(LEFT(REVERSE(321),2),REVERSE(LEFT(123,ABS(-1)))))) \== '2' then
 if X2D(COPIES(0,249)||1) \== '1' then say 'failed in test 60 '
 if X2D(RIGHT(LEFT(REVERSE(321),2),REVERSE(LEFT(123,ABS(-1))))) \== '2' then say 'failed in test 61 '
 /* These from SCBx2d1 */
-/* if X2D('') \== '0' then say 'failed in test 62 ' brexx fails*/
+if X2D('') \== '0' then say 'failed in test 62 '
 if x2d(''X) \== '0' then say 'failed in test 63 '
 if X2D('a') \== '10' then say 'failed in test 64 '
 if X2D('0f') \== '15' then say 'failed in test 65 '

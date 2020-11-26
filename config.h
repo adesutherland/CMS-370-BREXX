@@ -1,7 +1,7 @@
 /* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
 
 /* The one version to rule them all! */
-#define CMS_VERSION "F0031"
+#define CMS_VERSION "0.9.9"
 /*
 #define CMS_VERSION "0.9.8"
 #define CMS_VERSION "F0020"
