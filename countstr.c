@@ -26,6 +26,8 @@ Lcountstr( const PLstr target, const PLstr source )
 {
  long output=0, position;
 
+ if (LLEN(*target) == 0) return 0;
+
  position = Lpos(target,source,0);
  while (position>0) {
   output++;

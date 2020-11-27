@@ -12,7 +12,7 @@ interpreter = ''
 end
 interpreter ' abbrev_'||suffix
 interpreter ' abs_'||suffix
-/* nyi interpreter ' address_'||suffix */
+interpreter ' address_'||suffix
 interpreter ' arg_'||suffix
 interpreter ' bitand_'||suffix
 interpreter ' bitor_'||suffix
@@ -20,14 +20,13 @@ interpreter ' bitxor_'||suffix
 interpreter ' b2x_'||suffix
 interpreter ' center_'||suffix
 interpreter ' changes_'||suffix
-/* nyi interpreter ' charin_'||suffix */
-/* nyi interpreter ' charout_'||suffix */
-/* nyi interpreter ' chars_'||suffix */
+interpreter ' charin_'||suffix
+interpreter ' charout_'||suffix
+interpreter ' chars_'||suffix
 interpreter ' compare_'||suffix
-/* nyi interpreter ' conditio_'||suffix */
+interpreter ' conditi_'||suffix
 interpreter ' copies_'||suffix
-say 'countst_ skipped - loops on vm/370!'
-/* interpreter ' countst_'||suffix */
+interpreter ' countst_'||suffix
 interpreter ' c2d_'||suffix
 interpreter ' c2x_'||suffix
 interpreter ' datatyp_'||suffix
@@ -45,22 +44,22 @@ interpreter ' insert_'||suffix
 interpreter ' lastpos_'||suffix
 interpreter ' left_'||suffix
 interpreter ' length_'||suffix
-/* nyi interpreter ' testin_'||suffix */
-/* nyi interpreter ' testout_'||suffix */
-/* nyi interpreter ' tests_'||suffix */
+interpreter ' linein_'||suffix
+interpreter ' lineout_'||suffix
+interpreter ' lines_'||suffix
 interpreter ' max_'||suffix
 interpreter ' min_'||suffix
 interpreter ' overlay_'||suffix
 interpreter ' pos_'||suffix
 interpreter ' qualify_'||suffix
-/* nyi interpreter ' queued_'||suffix */
+interpreter ' queued_'||suffix
 interpreter ' random_'||suffix
 interpreter ' reverse_'||suffix
 interpreter ' right_'||suffix
 interpreter ' sign_'||suffix
 interpreter ' sourcel_'||suffix
 interpreter ' space_'||suffix
-/* nyi interpreter ' stream_'||suffix */
+interpreter ' stream_'||suffix
 interpreter ' strip_'||suffix
 interpreter ' substr_'||suffix
 interpreter ' subword_'||suffix
@@ -80,12 +79,6 @@ interpreter ' xrange_'||suffix
 interpreter ' x2b_'||suffix
 interpreter ' x2c_'||suffix
 interpreter ' x2d_'||suffix
-interpreter ' lineout_'||suffix
-interpreter ' linein_'||suffix
-interpreter ' lines_'||suffix
-interpreter ' charout_'||suffix
-interpreter ' charin_'||suffix
-interpreter ' chars_'||suffix
 interpreter ' testexc'||suffix
 
 if system='CMS' then "CP SPOOL CONS STOP CLOSE"

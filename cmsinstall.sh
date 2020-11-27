@@ -35,6 +35,10 @@ herccontrol "/tape load brexx module z" -w "^Ready;"
 herccontrol "/tape rew" -w "^Ready;"
 herccontrol "/tape load brexx text z" -w "^Ready;"
 herccontrol "/tape rew" -w "^Ready;"
+herccontrol "/tape load brexxd module z" -w "^Ready;"
+herccontrol "/tape rew" -w "^Ready;"
+herccontrol "/tape load brexxd text z" -w "^Ready;"
+herccontrol "/tape rew" -w "^Ready;"
 herccontrol "/release z"  -w "^Ready;"
 
 # Done with tape

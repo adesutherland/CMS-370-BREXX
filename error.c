@@ -159,7 +159,30 @@ Rerror( const int errno, const int subno, ... )
    PUTCHAR('\n');
   }
 #endif
-  (context->rexxrxReturnCode) = errno + 20000;
-  longjmp((context->rexx_exit_trap),JMP_EXIT);
+
+     /* Unwind and free any procedure contexts */
+     while ((context->rexx_rx_proc) > 0) {
+         /* free everything that it is new */
+         if ((context->interpre_VarScope) != (context->rexx_proc)[(context->rexx_rx_proc) - 1].scope) {
+             RxScopeFree((context->interpre_VarScope));
+             FREE((context->interpre_VarScope));
+         }
+
+         if ((context->rexx_proc)[(context->rexx_rx_proc)].env !=
+             (context->rexx_proc)[(context->rexx_rx_proc) - 1].env) LPFREE(
+                 (context->rexx_proc)[(context->rexx_rx_proc)].env);
+
+         (context->rexx_rx_proc)--;
+         (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
+         (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+         (context->lstring_lNumericDigits) = (context->rexx_proc)[(context->rexx_rx_proc)].digits;
+         if ((context->rexx_proc)[(context->rexx_rx_proc)].trace & (normal_trace | off_trace | error_trace))
+             (context->interpre__trace) = FALSE;
+         else
+             (context->interpre__trace) = TRUE;
+     }
+
+     (context->rexxrxReturnCode) = errno + 20000;
+     longjmp((context->rexx_exit_trap), JMP_EXIT);
  }
 } /* Rerror */

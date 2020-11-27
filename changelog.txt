@@ -1,6 +1,27 @@
 BREXX CMS Change LOG
 ====================
 
+CMS-0.9.9 - 26 Nov 2020
+      - Initial fixes for X2D() - not complete
+F0031 - Fix - Memory Leak with abnormal exits
+F0030 - DATATYPE() fixes
+      - Removed bifs_ exec
+F0029 - Tidy up runtest_ exec etc.
+        C2D() Fixes
+F0028 - COUNTSTR() Fixes
+F0027 - ADDRESS() Test fix
+F0026 - BITAND() Fixes
+F0025 - ARG() Fixes
+      - Local Build - Debug only (speed up dev/test cycle)
+F0024 - Calltype 5 - handle embedded nulls in returned data
+      - SAY - handle embedded nulls (converted to spaces)
+      - Calltype 5 - handle embedded nulls in called function arguments
+F0023 - FIX - Ensure RC is set to 0 when returning from a calltype 5
+      - FIX - Push memory leak
+F0022 - MacOS Local Build Scripts
+      - Both Production and Debug Binaries Built
+F0010 - More tests
+
 CMS-0.9.8 - 4 October 2020
 F0021 - Fixed Debug Context in interpre.c
 F0020 - EXECCOMM Support

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Make BREXX on CMS
+# Make BREXX on CMS (Debug only)
 
 # Exit if there is an error
 set -e
@@ -39,26 +39,9 @@ herccontrol "/read *" -w "^Ready;"
 herccontrol "/yata -x -d f" -w "^Ready;"
 herccontrol "/erase yata txt a" -w "^Ready;"
 
-# Make source tape and vmarc
-herccontrol "/cp disc" -w "^VM/370 Online"
-herccontrol "/logon operator operator" -w "RECONNECTED AT"
-hetinit -n -d brexxsrc.aws
-herccontrol "devinit 480 io/brexxsrc.aws" -w "^HHCPN098I"
-herccontrol "/attach 480 to cmsuser as 181" -w "TAPE 480 ATTACH TO CMSUSER"
-herccontrol "devinit 00d io/brexxsrc.vmarc" -w "^HHCPN098I"
-herccontrol "/cp disc" -w "^VM/370 Online"
-herccontrol "/logon cmsuser cmsuser" -w "RECONNECTED AT"
-herccontrol "/begin"
-herccontrol "/tape dump * * f (noprint" -w "^Ready;"
-herccontrol "/detach 181" -w "^Ready;"
-herccontrol "/vmarc pack * * f (pun notrace" -w "^Ready;"
-
 # Build
 herccontrol "/ACC 193 E (ERASE" -w "^Ready;"
 herccontrol "/mkbrexx DEBUG" -w "^Ready;" -t 350
-herccontrol "/copy brexx text e brexxd = =" -w "^Ready;"
-herccontrol "/copy brexx module e brexxd = =" -w "^Ready;"
-herccontrol "/mkbrexx" -w "^Ready;" -t 350
 herccontrol "/rename * * e = = e2" -w "^Ready;"
 
 # Sanity test
@@ -66,7 +49,6 @@ herccontrol "/copy * * e = = a ( replace" -w "^Ready;"
 herccontrol "/copy sysprof exec s = = a" -w "^Ready;"
 herccontrol "/ipl cms" -w "^CMS VERSION"
 herccontrol "/" -w "^Ready;"
-herccontrol "/DMSREX" -w "^Ready;"
 herccontrol "/rexxtry" -w "^Rexxtry;"
 herccontrol "/parse version myver" -w "^Rexxtry;"
 herccontrol "/say myver" -w "^Rexxtry;"
@@ -74,26 +56,6 @@ herccontrol "/exit" -w "^Ready;"
 
 # Test suite
 herccontrol "/runtest_" -w "^Ready;"
-
-# Make binary tape and vmarc
-herccontrol "/cp disc" -w "^VM/370 Online"
-herccontrol "/logon operator operator" -w "RECONNECTED AT"
-hetinit -n -d brexxbin.aws
-herccontrol "devinit 480 io/brexxbin.aws" -w "^HHCPN098I"
-herccontrol "/attach 480 to cmsuser as 181" -w "TAPE 480 ATTACH TO CMSUSER"
-herccontrol "devinit 00d io/brexxbin.vmarc" -w "^HHCPN098I"
-herccontrol "/cp disc" -w "^VM/370 Online"
-herccontrol "/logon cmsuser cmsuser" -w "RECONNECTED AT"
-herccontrol "/begin"
-herccontrol "/tape dump * * e" -w "^Ready;"
-herccontrol "/detach 181" -w "^Ready;"
-herccontrol "/vmarc pack * * e (pun" -w "^Ready;"
-
-# Clean Up
-herccontrol "/erase brexx * a" -w "^Ready;"
-herccontrol "/erase brexxd * a" -w "^Ready;"
-herccontrol "/erase rexxtry exec a" -w "^Ready;"
-herccontrol "/erase sysprof exec a" -w "^Ready;"
 
 # LOGOFF
 herccontrol "/logoff" -w "^VM/370 Online"
