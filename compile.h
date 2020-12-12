@@ -22,8 +22,11 @@
  */
 
 #ifndef WIN
+
 # include "bmem.h"
+
 #endif
+
 #include "lstring.h"
 #include "bintree.h"
 #include "nextsymb.h"

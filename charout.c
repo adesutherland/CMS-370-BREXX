@@ -24,14 +24,13 @@
 
 /* ---------------- Lcharout ------------------- */
 void __CDECL
-Lcharout( FILEP f, const PLstr line, const long start )
-{
-  int l;
-  Context *context = (Context*)CMSGetPG();
-  if (start>=0) {
-    l = FSEEK(f,start,SEEK_SET);
-    if (l) (context->lstring_Lerror)(ERR_NOT_RANDOM_ACCESS,0);
-  }
+Lcharout(FILEP f, const PLstr line, const long start) {
+    int l;
+    Context *context = (Context *) CMSGetPG();
+    if (start >= 0) {
+        l = FSEEK(f, start, SEEK_SET);
+        if (l) (context->lstring_Lerror)(ERR_NOT_RANDOM_ACCESS, 0);
+    }
 
- Lwrite(f,line,FALSE);
+    Lwrite(f, line, FALSE);
 } /* Lcharout */

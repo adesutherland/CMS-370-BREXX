@@ -20,16 +20,15 @@
 
 /* ------------------ Labs ---------------------- */
 void __CDECL
-Labs( const PLstr to, const PLstr num )
-{
- L2NUM(num);
+Labs(const PLstr to, const PLstr num) {
+    L2NUM(num);
 
- switch (LTYPE(*num)) {
-  case LINTEGER_TY:
-   Licpy(to,labs(LINT(*num)));
-   break;
-  case LREAL_TY:
-   Lrcpy(to,fabs(LREAL(*num)));
-   break;
- }
+    switch (LTYPE(*num)) {
+        case LINTEGER_TY:
+            Licpy(to, labs(LINT(*num)));
+            break;
+        case LREAL_TY:
+            Lrcpy(to, fabs(LREAL(*num)));
+            break;
+    }
 } /* Labs */

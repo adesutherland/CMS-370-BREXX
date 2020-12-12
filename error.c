@@ -47,142 +47,144 @@
 
 /* ---------------- RxHaltTrap ----------------- */
 void __CDECL
-RxHaltTrap( int cnd )
-{
- Context *context = (Context*)CMSGetPG();
- if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_HALT) {
-  /* Reset HI */
-  CMSSetFlag(HALTFLAG,0);
-  RxSignalCondition(SC_HALT);
- } else (context->lstring_Lerror)(ERR_PROG_INTERRUPT,0);
+RxHaltTrap(int cnd) {
+    Context *context = (Context *) CMSGetPG();
+    if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_HALT) {
+        /* Reset HI */
+        CMSSetFlag(HALTFLAG, 0);
+        RxSignalCondition(SC_HALT);
+    } else (context->lstring_Lerror)(ERR_PROG_INTERRUPT, 0);
 } /* RxHaltTrap */
 
 /* ---------------- RxSignalCondition -------------- */
 void __CDECL
-RxSignalCondition( int cnd )
-{
- PBinLeaf leaf;
- RxFunc *func;
- PLstr cndstr;
- Context *context = (Context*)CMSGetPG();
+RxSignalCondition(int cnd) {
+    PBinLeaf leaf;
+    RxFunc *func;
+    PLstr cndstr;
+    Context *context = (Context *) CMSGetPG();
 
 /*///////// first we need to terminate all the interpret strings */
- switch (cnd) {
-  case SC_ERROR:
-   cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_error;
-   break;
-  case SC_HALT:
-   cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_halt;
-   break;
-  case SC_NOVALUE:
-   cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_novalue;
-   break;
-  case SC_NOTREADY:
-   cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_notready;
-   break;
-  case SC_SYNTAX:
-   cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_syntax;
-   break;
- }
- leaf = BinFind(&(context->rexx_labels),cndstr);
- if (leaf==NULL || ((RxFunc*)(leaf->value))->label==UNKNOWN_LABEL) {
-  if (cnd==SC_SYNTAX) /* disable the error handling */
-   (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_SYNTAX;
-  (context->lstring_Lerror)(ERR_UNEXISTENT_LABEL,1,cndstr);
- }
- func = (RxFunc*)(leaf->value);
- RxSetSpecialVar(SIGLVAR,TraceCurline(NULL,FALSE));
- (context->interpreRxcip) = (CIPTYPE*)((byte huge *)(context->interpreRxcodestart) + (size_t)(func->label));
- longjmp((context->rexx_error_trap),JMP_CONTINUE);
+    switch (cnd) {
+        case SC_ERROR:
+            cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_error;
+            break;
+        case SC_HALT:
+            cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_halt;
+            break;
+        case SC_NOVALUE:
+            cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_novalue;
+            break;
+        case SC_NOTREADY:
+            cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_notready;
+            break;
+        case SC_SYNTAX:
+            cndstr = (context->rexx_proc)[(context->rexx_rx_proc)].lbl_syntax;
+            break;
+    }
+    leaf = BinFind(&(context->rexx_labels), cndstr);
+    if (leaf == NULL || ((RxFunc *) (leaf->value))->label == UNKNOWN_LABEL) {
+        if (cnd == SC_SYNTAX) /* disable the error handling */
+            (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_SYNTAX;
+        (context->lstring_Lerror)(ERR_UNEXISTENT_LABEL, 1, cndstr);
+    }
+    func = (RxFunc *) (leaf->value);
+    RxSetSpecialVar(SIGLVAR, TraceCurline(NULL, FALSE));
+    (context->interpreRxcip) = (CIPTYPE *) (
+            (byte huge *) (context->interpreRxcodestart) +
+            (size_t) (func->label));
+    longjmp((context->rexx_error_trap), JMP_CONTINUE);
 } /* RxSignalCondition */
 
 /* ------------------ Rerror ------------------- */
 void __CDECL
-Rerror( const int errno, const int subno, ... )
-{
- int line;
- RxFile *rxf;
+Rerror(const int errno, const int subno, ...) {
+    int line;
+    RxFile *rxf;
 #ifndef WIN
- va_list ap;
+    va_list ap;
 #endif
- Context *context = (Context*)CMSGetPG();
+    Context *context = (Context *) CMSGetPG();
 
- if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_SYNTAX) {
-  RxSetSpecialVar(RCVAR,errno);
-  if ((context->nextsymbsymbolptr)==NULL) /* we are in intepret */
-   RxSignalCondition(SC_SYNTAX);
-  else {   /* we are in compile */
-   (context->rexxrxReturnCode) = errno;
-   longjmp((context->rexx_error_trap),JMP_ERROR);
-  }
- } else {
-  line = TraceCurline(&rxf,TRUE);
-  if ((context->nextsymbsymbolptr)==NULL) /* we are in intepret */
-   RxSetSpecialVar(SIGLVAR,line);
+    if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_SYNTAX) {
+        RxSetSpecialVar(RCVAR, errno);
+        if ((context->nextsymbsymbolptr) == NULL) /* we are in intepret */
+            RxSignalCondition(SC_SYNTAX);
+        else {   /* we are in compile */
+            (context->rexxrxReturnCode) = errno;
+            longjmp((context->rexx_error_trap), JMP_ERROR);
+        }
+    } else {
+        line = TraceCurline(&rxf, TRUE);
+        if ((context->nextsymbsymbolptr) == NULL) /* we are in intepret */
+            RxSetSpecialVar(SIGLVAR, line);
 
 #ifndef WIN
-  va_start(ap,subno);
-  Lerrortext(&(context->error_errmsg),errno,subno,&ap);
-  va_end(ap);
+        va_start(ap, subno);
+        Lerrortext(&(context->error_errmsg), errno, subno, &ap);
+        va_end(ap);
 
-  if (LLEN((context->error_errmsg))==0)
-   fprintf(STDERR," +++ Ooops unknown error %d.%d +++\n",errno,subno);
-  else {
-   LASCIIZ((context->error_errmsg));
-   if (subno==0)
-    fprintf(STDERR,
-     "Error %d running %s, line %d: %s\n",
-      errno,
-      LSTR(rxf->name),
-      line,
-      LSTR((context->error_errmsg)));
-   else
-    fprintf(STDERR,
-     "Error %d.%d running %s, line %d: %s\n",
-      errno,
-      subno,
-      LSTR(rxf->name),
-      line,
-      LSTR((context->error_errmsg)));
-  }
+        if (LLEN((context->error_errmsg)) == 0)
+            fprintf(STDERR, " +++ Ooops unknown error %d.%d +++\n", errno,
+                    subno);
+        else {
+            LASCIIZ((context->error_errmsg));
+            if (subno == 0)
+                fprintf(STDERR,
+                        "Error %d running %s, line %d: %s\n",
+                        errno,
+                        LSTR(rxf->name),
+                        line,
+                        LSTR((context->error_errmsg)));
+            else
+                fprintf(STDERR,
+                        "Error %d.%d running %s, line %d: %s\n",
+                        errno,
+                        subno,
+                        LSTR(rxf->name),
+                        line,
+                        LSTR((context->error_errmsg)));
+        }
 #else
-  {
-   PUTS("Error ");
-   PUTINT(errno,0,10);
-   PUTS(" running ");
-   PUTS(LSTR(rxf->name));
-   PUTS(" line ");
-   PUTINT(line,0,10);
-   PUTS(": ");
-   Lerrortext(&(context->error_errmsg),errno,subno,NULL);
-   Lprint(NULL,&(context->error_errmsg));
-   PUTCHAR('\n');
-  }
+        {
+         PUTS("Error ");
+         PUTINT(errno,0,10);
+         PUTS(" running ");
+         PUTS(LSTR(rxf->name));
+         PUTS(" line ");
+         PUTINT(line,0,10);
+         PUTS(": ");
+         Lerrortext(&(context->error_errmsg),errno,subno,NULL);
+         Lprint(NULL,&(context->error_errmsg));
+         PUTCHAR('\n');
+        }
 #endif
 
-     /* Unwind and free any procedure contexts */
-     while ((context->rexx_rx_proc) > 0) {
-         /* free everything that it is new */
-         if ((context->interpre_VarScope) != (context->rexx_proc)[(context->rexx_rx_proc) - 1].scope) {
-             RxScopeFree((context->interpre_VarScope));
-             FREE((context->interpre_VarScope));
-         }
+        /* Unwind and free any procedure contexts */
+        while ((context->rexx_rx_proc) > 0) {
+            /* free everything that it is new */
+            if ((context->interpre_VarScope) !=
+                (context->rexx_proc)[(context->rexx_rx_proc) - 1].scope) {
+                RxScopeFree((context->interpre_VarScope));
+                FREE((context->interpre_VarScope));
+            }
 
-         if ((context->rexx_proc)[(context->rexx_rx_proc)].env !=
-             (context->rexx_proc)[(context->rexx_rx_proc) - 1].env) LPFREE(
-                 (context->rexx_proc)[(context->rexx_rx_proc)].env);
+            if ((context->rexx_proc)[(context->rexx_rx_proc)].env !=
+                (context->rexx_proc)[(context->rexx_rx_proc) - 1].env) LPFREE(
+                    (context->rexx_proc)[(context->rexx_rx_proc)].env);
 
-         (context->rexx_rx_proc)--;
-         (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
-         (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
-         (context->lstring_lNumericDigits) = (context->rexx_proc)[(context->rexx_rx_proc)].digits;
-         if ((context->rexx_proc)[(context->rexx_rx_proc)].trace & (normal_trace | off_trace | error_trace))
-             (context->interpre__trace) = FALSE;
-         else
-             (context->interpre__trace) = TRUE;
-     }
+            (context->rexx_rx_proc)--;
+            (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
+            (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+            (context->lstring_lNumericDigits) = (context->rexx_proc)[(context->rexx_rx_proc)].digits;
+            if ((context->rexx_proc)[(context->rexx_rx_proc)].trace &
+                (normal_trace | off_trace | error_trace))
+                (context->interpre__trace) = FALSE;
+            else
+                (context->interpre__trace) = TRUE;
+        }
 
-     (context->rexxrxReturnCode) = errno + 20000;
-     longjmp((context->rexx_exit_trap), JMP_EXIT);
- }
+        (context->rexxrxReturnCode) = errno + 20000;
+        longjmp((context->rexx_exit_trap), JMP_EXIT);
+    }
 } /* Rerror */

@@ -95,10 +95,10 @@
 /*#define ERR_STACK_OVERFLOW 39*/
 
 /* ------------- error text  structure ------------------ */
-#define ERRNUM(a,b) (((a)<<8) | (b))
+#define ERRNUM(a, b) (((a)<<8) | (b))
 typedef struct terror_st {
- word errorno;
- char *errormsg;
+    word errorno;
+    char *errormsg;
 } ErrorMsg;
 
 #endif

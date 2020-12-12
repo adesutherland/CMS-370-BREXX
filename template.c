@@ -35,47 +35,47 @@
 /* ----------- vrefp --------- */
 /* variable reference position */
 static void
-vrefp( void )
-{
- Context *context = (Context*)CMSGetPG();
- nextsymbol(); /* skip left parenthesis */
+vrefp(void) {
+    Context *context = (Context *) CMSGetPG();
+    nextsymbol(); /* skip left parenthesis */
 
- if ((context->nextsymbsymbol) != ident_sy)
- (context->lstring_Lerror)( ERR_STRING_EXPECTED,7,&(context->nextsymbsymbolstr));
+    if ((context->nextsymbsymbol) != ident_sy)
+        (context->lstring_Lerror)(ERR_STRING_EXPECTED, 7,
+                                  &(context->nextsymbsymbolstr));
 
- _CodeAddByte( OP_LOAD );
-  _CodeAddPtr( SYMBOLADD2LITS );
-  TraceByte( nothing_middle );
- nextsymbol();
+    _CodeAddByte(OP_LOAD);
+    _CodeAddPtr(SYMBOLADD2LITS);
+    TraceByte(nothing_middle);
+    nextsymbol();
 
- _mustbe(ri_parent,ERR_INV_VAR_REFERENCE,1);
+    _mustbe(ri_parent, ERR_INV_VAR_REFERENCE, 1);
 } /* vrefp */
 
 /* -------- position ------- */
 /* variable reference position */
 static void
-position(void)
-{
- int type;
- Context *context = (Context*)CMSGetPG();
+position(void) {
+    int type;
+    Context *context = (Context *) CMSGetPG();
 
- if ((context->nextsymbsymbol)==le_parent)
-  vrefp();
- else
- if ((context->nextsymbsymbol)==literal_sy) {
-  type = _Lisnum(&(context->nextsymbsymbolstr));
-  if (type==LREAL_TY)
-   (context->lstring_Lerror)(ERR_INVALID_INTEGER,4,&(context->nextsymbsymbolstr));
-  else
-  if (type==LSTRING_TY)
-   (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,2,&(context->nextsymbsymbolstr));
-  _CodeAddByte(OP_PUSH);
-   _CodeAddPtr(SYMBOLADD2LITS_KEY);
-   TraceByte( nothing_middle );
-  nextsymbol();
- } else
-  (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,2,&(context->nextsymbsymbolstr));
- _CodeAddByte(OP_TOINT);
+    if ((context->nextsymbsymbol) == le_parent)
+        vrefp();
+    else if ((context->nextsymbsymbol) == literal_sy) {
+        type = _Lisnum(&(context->nextsymbsymbolstr));
+        if (type == LREAL_TY)
+            (context->lstring_Lerror)(ERR_INVALID_INTEGER, 4,
+                                      &(context->nextsymbsymbolstr));
+        else if (type == LSTRING_TY)
+            (context->lstring_Lerror)(ERR_INVALID_TEMPLATE, 2,
+                                      &(context->nextsymbsymbolstr));
+        _CodeAddByte(OP_PUSH);
+        _CodeAddPtr(SYMBOLADD2LITS_KEY);
+        TraceByte(nothing_middle);
+        nextsymbol();
+    } else
+        (context->lstring_Lerror)(ERR_INVALID_TEMPLATE, 2,
+                                  &(context->nextsymbsymbolstr));
+    _CodeAddByte(OP_TOINT);
 } /* position */
 
 /* -------------------------------------------------------------- */
@@ -91,122 +91,121 @@ position(void)
 /*  relative_pos := ('+' | '-') position                          */
 /* -------------------------------------------------------------- */
 void __CDECL
-C_template(void)
-{
- void *target_ptr=NULL;
- bool trigger, dot=FALSE;
- bool sign;
- int type;
- CTYPE pos;
- Context *context = (Context*)CMSGetPG();
+C_template(void) {
+    void *target_ptr = NULL;
+    bool trigger, dot = FALSE;
+    bool sign;
+    int type;
+    CTYPE pos;
+    Context *context = (Context *) CMSGetPG();
 
- _CodeAddByte(OP_PARSE);
- while (((context->nextsymbsymbol)!=semicolon_sy) && ((context->nextsymbsymbol)!=comma_sy)) {
-  trigger = FALSE;
-  switch ((context->nextsymbsymbol)) {
-   case ident_sy:
-   case dot_sy:
-    if (target_ptr || dot) {
-     /* trigger space */
-     trigger = TRUE;
-     _CodeAddByte(OP_TR_SPACE);
-     /* do not go to next (context->nextsymbsymbol) */
-    } else {
-     if ((context->nextsymbsymbol)==ident_sy)
-      target_ptr = SYMBOLADD2LITS;
-     else
-      dot = TRUE;
-     nextsymbol();
+    _CodeAddByte(OP_PARSE);
+    while (((context->nextsymbsymbol) != semicolon_sy) &&
+           ((context->nextsymbsymbol) != comma_sy)) {
+        trigger = FALSE;
+        switch ((context->nextsymbsymbol)) {
+            case ident_sy:
+            case dot_sy:
+                if (target_ptr || dot) {
+                    /* trigger space */
+                    trigger = TRUE;
+                    _CodeAddByte(OP_TR_SPACE);
+                    /* do not go to next (context->nextsymbsymbol) */
+                } else {
+                    if ((context->nextsymbsymbol) == ident_sy)
+                        target_ptr = SYMBOLADD2LITS;
+                    else
+                        dot = TRUE;
+                    nextsymbol();
+                }
+                break;
+
+            case minus_sy:
+            case plus_sy:
+                trigger = TRUE;
+                sign = ((context->nextsymbsymbol) == minus_sy);
+                nextsymbol();
+                pos = (context->compileCompileCodeLen);
+                position();
+                if (sign) {
+                    _CodeInsByte(pos, OP_PUSHTMP);
+                    _CodeAddByte(OP_NEG);
+                    TraceByte(nothing_middle);
+                }
+                _CodeAddByte(OP_TR_REL);
+                break;
+
+            case literal_sy:
+                trigger = TRUE;
+
+                if ((context->nextsymbsymbolisstr)) {
+                    _CodeAddByte(OP_PUSH);
+                    _CodeAddPtr(SYMBOLADD2LITS_KEY);
+                    TraceByte(nothing_middle);
+                    _CodeAddByte(OP_TR_LIT);
+                    nextsymbol();
+                } else {
+                    type = _Lisnum(&(context->nextsymbsymbolstr));
+                    if (type == LREAL_TY)
+                        (context->lstring_Lerror)(ERR_INVALID_INTEGER, 4,
+                                                  &(context->nextsymbsymbolstr));
+                    else if (type == LSTRING_TY)
+                        (context->lstring_Lerror)(ERR_INVALID_TEMPLATE, 1,
+                                                  &(context->nextsymbsymbolstr));
+
+                    _CodeAddByte(OP_PUSH);
+                    _CodeAddPtr(SYMBOLADD2LITS_KEY);
+                    TraceByte(nothing_middle);
+                    _CodeAddByte(OP_TOINT);
+                    _CodeAddByte(OP_TR_ABS);
+                    nextsymbol();
+                }
+                break;
+
+            case le_parent:
+                trigger = TRUE;
+                vrefp();
+                _CodeAddByte(OP_TR_LIT);
+                break;
+
+            case eq_sy:
+                trigger = TRUE;
+                nextsymbol();
+                position();
+                _CodeAddByte(OP_TOINT);
+                _CodeAddByte(OP_TR_ABS);
+                break;
+
+            default:
+                (context->lstring_Lerror)(ERR_INVALID_TEMPLATE, 0);
+        } /* end of switch */
+        if (trigger) {
+            if (target_ptr) {
+                _CodeAddByte(OP_CREATE);
+                _CodeAddPtr(target_ptr);
+                _CodeAddByte(OP_PVAR);
+                TraceByte(other_middle);
+                target_ptr = NULL;
+            } else if (dot) {
+                _CodeAddByte(OP_PDOT);
+                TraceByte(dot_middle);
+                dot = FALSE;
+            }
+        }
+    } /* end of while */
+
+    if (target_ptr) { /* assign the remaining part */
+        _CodeAddByte(OP_TR_END);
+        _CodeAddByte(OP_CREATE);
+        _CodeAddPtr(target_ptr);
+        _CodeAddByte(OP_PVAR);
+        TraceByte(other_middle);
+    } else if (dot) {
+        _CodeAddByte(OP_TR_END);
+        _CodeAddByte(OP_PDOT);
+        TraceByte(dot_middle);
     }
-    break;
 
-   case minus_sy:
-   case plus_sy:
-    trigger = TRUE;
-    sign = ((context->nextsymbsymbol)==minus_sy);
-    nextsymbol();
-    pos = (context->compileCompileCodeLen);
-    position();
-    if (sign) {
-     _CodeInsByte(pos,OP_PUSHTMP);
-     _CodeAddByte(OP_NEG);
-     TraceByte( nothing_middle );
-    }
-    _CodeAddByte(OP_TR_REL);
-    break;
-
-   case literal_sy:
-    trigger = TRUE;
-
-    if ((context->nextsymbsymbolisstr)) {
-     _CodeAddByte(OP_PUSH);
-      _CodeAddPtr(SYMBOLADD2LITS_KEY);
-      TraceByte( nothing_middle );
-     _CodeAddByte(OP_TR_LIT);
-     nextsymbol();
-    } else {
-     type = _Lisnum(&(context->nextsymbsymbolstr));
-     if (type==LREAL_TY)
-      (context->lstring_Lerror)(ERR_INVALID_INTEGER,4,&(context->nextsymbsymbolstr));
-     else
-     if (type==LSTRING_TY)
-      (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,1,&(context->nextsymbsymbolstr));
-
-     _CodeAddByte(OP_PUSH);
-      _CodeAddPtr(SYMBOLADD2LITS_KEY);
-      TraceByte( nothing_middle );
-     _CodeAddByte(OP_TOINT);
-     _CodeAddByte(OP_TR_ABS);
-     nextsymbol();
-    }
-    break;
-
-   case le_parent:
-    trigger = TRUE;
-    vrefp();
-    _CodeAddByte(OP_TR_LIT);
-    break;
-
-   case eq_sy:
-    trigger = TRUE;
-    nextsymbol();
-    position();
-    _CodeAddByte(OP_TOINT);
-    _CodeAddByte(OP_TR_ABS);
-    break;
-
-   default:
-    (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,0);
-  } /* end of switch */
-  if (trigger) {
-   if (target_ptr) {
-    _CodeAddByte(OP_CREATE);
-     _CodeAddPtr(target_ptr);
-    _CodeAddByte(OP_PVAR);
-     TraceByte( other_middle );
-    target_ptr = NULL;
-   } else
-   if (dot) {
-    _CodeAddByte(OP_PDOT);
-     TraceByte( dot_middle );
-    dot = FALSE;
-   }
-  }
- } /* end of while */
-
- if (target_ptr) { /* assign the remaining part */
-  _CodeAddByte(OP_TR_END);
-  _CodeAddByte(OP_CREATE);
-   _CodeAddPtr(target_ptr);
-  _CodeAddByte(OP_PVAR);
-   TraceByte( other_middle );
- } else
- if (dot) {
-  _CodeAddByte(OP_TR_END);
-  _CodeAddByte(OP_PDOT);
-   TraceByte( dot_middle );
- }
-
- _CodeAddByte(OP_POP);
-  _CodeAddByte(1);
+    _CodeAddByte(OP_POP);
+    _CodeAddByte(1);
 } /* C_template */

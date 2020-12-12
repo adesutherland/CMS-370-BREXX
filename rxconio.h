@@ -8,9 +8,9 @@
 ||
 */
 
-#define ANSI_GOTOXY(z,s)  gotoxy(z,s)
+#define ANSI_GOTOXY(z, s)  gotoxy(z,s)
 #define ANSI_CLEAR_SCREEN()  clrscr()
-#define ANSI_COLOR(f,b)   textcolor(f) ; textbackground(b)
+#define ANSI_COLOR(f, b)   textcolor(f) ; textbackground(b)
 #define ANSI_FG_LCOLOR(f)  textcolor(f)
 #define ANSI_ERASE_EOL()  clreol()
 #define ANSI_MODE(m)   textmode(m)
@@ -26,23 +26,23 @@
 #define ANSI_ATTR(m)   ANSI_PRINTF("\033[%dm", (m))
 
 enum conio_functions {
- f_ansicls=f_lastfunc+1,
- f_ansieraseeol,
- f_ansidelline,
- f_ansiinsline,
- f_getch,
- f_kbhit,
- f_wherex,
- f_wherey,
- f_ansimode,
- f_ansiattr,
- f_setcursor,
- f_ansicolor,
- f_ansigoto,
- f_ansicursorup,
- f_ansicursordown,
- f_ansicursorright,
- f_ansicursorleft,
- f_ansisavecursor,
- f_ansiloadcursor
+    f_ansicls = f_lastfunc + 1,
+    f_ansieraseeol,
+    f_ansidelline,
+    f_ansiinsline,
+    f_getch,
+    f_kbhit,
+    f_wherex,
+    f_wherey,
+    f_ansimode,
+    f_ansiattr,
+    f_setcursor,
+    f_ansicolor,
+    f_ansigoto,
+    f_ansicursorup,
+    f_ansicursordown,
+    f_ansicursorright,
+    f_ansicursorleft,
+    f_ansisavecursor,
+    f_ansiloadcursor
 };

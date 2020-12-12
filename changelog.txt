@@ -1,6 +1,11 @@
 BREXX CMS Change LOG
 ====================
 
+F0032 - Code reformatting
+        Added fake CMAKE so the IDEs can show code errors/warnings
+        Local Build - Stop MSYS2 rewriting directory paths in the docker container
+        Use dos2unix to fixup shell scripts
+
 CMS-0.9.9 - 26 Nov 2020
       - Initial fixes for X2D() - not complete
 F0031 - Fix - Memory Leak with abnormal exits

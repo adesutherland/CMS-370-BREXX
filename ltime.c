@@ -51,11 +51,15 @@
  * struct timeval is
  */
 # include <time.h>
+
 # if !defined(__CMS__) && !defined(__MVS__)
+
 #  include <sys/time.h>
 #  include <unistd.h>
+
 # endif
 #endif
+
 #include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
@@ -63,223 +67,222 @@
 
 /* ------------------ _Ltimeinit ----------------- */
 void __CDECL
-_Ltimeinit( void )
-{
- Context *context = (Context*)CMSGetPG();
+_Ltimeinit(void) {
+    Context *context = (Context *) CMSGetPG();
 #if defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
- struct time t;
+    struct time t;
 #elif defined(WCE)
- /* nothing to declare */
+    /* nothing to declare */
 #elif defined(_MSC_VER)
- struct _timeb tb;
+    struct _timeb tb;
 #elif defined(__CMS__) || defined(__MVS__)
- unsigned int vmnow[2];
- struct tm * tv;
- time_t rawtime;
+    unsigned int vmnow[2];
+    struct tm * tv;
+    time_t rawtime;
 #else
- struct timeval tv;
- struct timezone tz;
+    struct timeval tv;
+    struct timezone tz;
 #endif
 
 #ifdef WCE
- (context->ltime_elapsed) = (double)GetTickCount() / 1000.0;
+    (context->ltime_elapsed) = (double)GetTickCount() / 1000.0;
 #elif defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
- gettime(&t);
- (context->ltime_elapsed) = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
-  (double)t.ti_sec + (double)t.ti_hund/100.0;
+    gettime(&t);
+    (context->ltime_elapsed) = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
+     (double)t.ti_sec + (double)t.ti_hund/100.0;
 #elif defined(_MSC_VER)
- _ftime(&tb);
- (context->ltime_elapsed) = (double)tb.time + (double)tb.millitm/1000.0;
+    _ftime(&tb);
+    (context->ltime_elapsed) = (double)tb.time + (double)tb.millitm/1000.0;
 #elif defined(__CMS__)
- rawtime = rexclock(vmnow);
- tv=gmtime(&rawtime);
- (context->ltime_elapsed) = (double)vmnow[0] + (double)vmnow[1]/1000000.0;
+    rawtime = rexclock(vmnow);
+    tv=gmtime(&rawtime);
+    (context->ltime_elapsed) = (double)vmnow[0] + (double)vmnow[1]/1000000.0;
 #elif defined(__MVS__)
- rawtime = __getclk(vmnow);
- tv=gmtime(&rawtime);
- (context->ltime_elapsed) = (double)(vmnow[0] >> 12) + (double)(vmnow[1] >> 12)/1000000.0;
+    rawtime = __getclk(vmnow);
+    tv=gmtime(&rawtime);
+    (context->ltime_elapsed) = (double)(vmnow[0] >> 12) + (double)(vmnow[1] >> 12)/1000000.0;
 #else
- gettimeofday(&tv,&tz);
- (context->ltime_elapsed) = tv.tv_sec + (double)tv.tv_usec/1000000.0;
+    gettimeofday(&tv, &tz);
+    (context->ltime_elapsed) = tv.tv_sec + (double) tv.tv_usec / 1000000.0;
 #endif
 } /* _Ltimeinit */
 
 /* -------------------- Ltime ---------------------- */
 void __CDECL
-Ltime( const PLstr timestr, char option )
-{
- double unow;
- int hour;
- Context *context = (Context*)CMSGetPG();
+Ltime(const PLstr timestr, char option) {
+    double unow;
+    int hour;
+    Context *context = (Context *) CMSGetPG();
 #ifdef WCE
- SYSTEMTIME time;
- TCHAR buf[30];
- TCHAR *ampm;
+    SYSTEMTIME time;
+    TCHAR buf[30];
+    TCHAR *ampm;
 #else
- time_t now;
- char *ampm;
- struct tm *tmdata ;
+    time_t now;
+    char *ampm;
+    struct tm *tmdata;
 # if defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
-  struct time t;
+    struct time t;
 # elif defined(_MSC_VER)
-  struct _timeb tb;
+    struct _timeb tb;
 # elif defined(__CMS__) || defined(__MVS__)
-  unsigned int vmnow[2];
-  struct tm * tv;
+    unsigned int vmnow[2];
+    struct tm * tv;
 # else
-  struct timeval tv;
-  struct timezone tz;
+    struct timeval tv;
+    struct timezone tz;
 # endif
 #endif
 
- option = (context->lstring_l2u)[(byte)option];
- Lfx(timestr,30); LZEROSTR(*timestr);
+    option = (context->lstring_l2u)[(byte) option];
+    Lfx(timestr, 30);
+    LZEROSTR(*timestr);
 
 #ifndef WCE
- now = time(NULL);
- tmdata = localtime(&now) ;
+    now = time(NULL);
+    tmdata = localtime(&now);
 #else
- GetLocalTime(&time);
+    GetLocalTime(&time);
 #endif
 
- switch (option) {
-  case 'C':
+    switch (option) {
+        case 'C':
 #ifndef WCE
-   hour = tmdata->tm_hour ;
-   ampm = (hour>11) ? "pm" : "am" ;
-   if ((hour=hour%12)==0)  hour = 12 ;
-   sprintf(LSTR(*timestr),"%d:%02d%s",
-    hour, tmdata->tm_min, ampm) ;
+            hour = tmdata->tm_hour;
+            ampm = (hour > 11) ? "pm" : "am";
+            if ((hour = hour % 12) == 0) hour = 12;
+            sprintf(LSTR(*timestr), "%d:%02d%s",
+                    hour, tmdata->tm_min, ampm);
 #else
-   hour = time.wHour ;
-   ampm = (hour>11) ? TEXT("pm") : TEXT("am");
-   if ((hour=hour%12)==0)  hour = 12 ;
-   swprintf(buf,TEXT("%d:%02d%s"),
-    hour, time.wMinute, ampm) ;
+            hour = time.wHour ;
+            ampm = (hour>11) ? TEXT("pm") : TEXT("am");
+            if ((hour=hour%12)==0)  hour = 12 ;
+            swprintf(buf,TEXT("%d:%02d%s"),
+             hour, time.wMinute, ampm) ;
 #endif
-   break;
+            break;
 
-  case 'E':
+        case 'E':
 #ifdef WCE
-   unow = (double)GetTickCount() / 1000.0;
+            unow = (double)GetTickCount() / 1000.0;
 #elif defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
-   gettime(&t);
-   unow = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
-    (double)t.ti_sec + (double)t.ti_hund/100.0;
+            gettime(&t);
+            unow = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
+             (double)t.ti_sec + (double)t.ti_hund/100.0;
 #elif defined(_MSC_VER)
-   _ftime(&tb);
-   unow = (double)tb.time + (double)tb.millitm/1000.0;
+            _ftime(&tb);
+            unow = (double)tb.time + (double)tb.millitm/1000.0;
 #elif defined(__CMS__)
-   rexclock(vmnow);
-   unow = (double)vmnow[0]+(double)vmnow[1]/1000000.0;
+            rexclock(vmnow);
+            unow = (double)vmnow[0]+(double)vmnow[1]/1000000.0;
 #elif defined(__MVS__)
-   __getclk(vmnow);
-   unow = (double)(vmnow[0]>>12)+(double)(vmnow[1]>>12)/1000000.0;
+            __getclk(vmnow);
+            unow = (double)(vmnow[0]>>12)+(double)(vmnow[1]>>12)/1000000.0;
 #else
-   gettimeofday(&tv,&tz);
-   unow = (double)tv.tv_sec + (double)tv.tv_usec/1000000.0;
+            gettimeofday(&tv, &tz);
+            unow = (double) tv.tv_sec + (double) tv.tv_usec / 1000000.0;
 #endif
-   LREAL(*timestr) = unow-(context->ltime_elapsed);
-   LTYPE(*timestr) = LREAL_TY;
-   LLEN(*timestr) = sizeof(double);
-   return;
+            LREAL(*timestr) = unow - (context->ltime_elapsed);
+            LTYPE(*timestr) = LREAL_TY;
+            LLEN(*timestr) = sizeof(double);
+            return;
 
-  case 'H':
+        case 'H':
 #ifndef WCE
-   sprintf(LSTR(*timestr), "%d", tmdata->tm_hour) ;
+            sprintf(LSTR(*timestr), "%d", tmdata->tm_hour);
 #else
-   swprintf(buf, TEXT("%d"), time.wHour) ;
+            swprintf(buf, TEXT("%d"), time.wHour) ;
 #endif
-   break;
+            break;
 
-  case 'L':
+        case 'L':
 #ifdef WCE
-   swprintf(buf, TEXT("%02d:%02d:%02d.%03d"), time.wHour,
-     time.wMinute, time.wSecond, time.wMilliseconds) ;
+            swprintf(buf, TEXT("%02d:%02d:%02d.%03d"), time.wHour,
+              time.wMinute, time.wSecond, time.wMilliseconds) ;
 #elif defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
-   gettime(&t);
-   sprintf(LSTR(*timestr), "%02d:%02d:%02d.%02d",
-    t.ti_hour, t.ti_min, t.ti_sec, t.ti_hund);
+            gettime(&t);
+            sprintf(LSTR(*timestr), "%02d:%02d:%02d.%02d",
+             t.ti_hour, t.ti_min, t.ti_sec, t.ti_hund);
 #elif defined(_MSC_VER)
-   _ftime(&tb);
-   sprintf(LSTR(*timestr), "%02d:%02d:%02d.%03ld",
-    tmdata->tm_hour, tmdata->tm_min,
-    tmdata->tm_sec, tb.millitm) ;
+            _ftime(&tb);
+            sprintf(LSTR(*timestr), "%02d:%02d:%02d.%03ld",
+             tmdata->tm_hour, tmdata->tm_min,
+             tmdata->tm_sec, tb.millitm) ;
 #elif defined(__CMS__) || defined(__MVS__)
-   /* need to provide a replacement here for CMS & MVS */
+            /* need to provide a replacement here for CMS & MVS */
 #else
-   gettimeofday(&tv,&tz);
-   sprintf(LSTR(*timestr), "%02d:%02d:%02d.%06ld",
-    tmdata->tm_hour, tmdata->tm_min,
-    tmdata->tm_sec, tv.tv_usec) ;
+            gettimeofday(&tv, &tz);
+            sprintf(LSTR(*timestr), "%02d:%02d:%02d.%06ld",
+                    tmdata->tm_hour, tmdata->tm_min,
+                    tmdata->tm_sec, tv.tv_usec);
 #endif
-   break;
+            break;
 
-  case 'M':
+        case 'M':
 #ifndef WCE
-   sprintf(LSTR(*timestr), "%d",
-    tmdata->tm_hour*60 + tmdata->tm_min) ;
+            sprintf(LSTR(*timestr), "%d",
+                    tmdata->tm_hour * 60 + tmdata->tm_min);
 #else
-   swprintf(buf, TEXT("%d"),
-    time.wHour*60 + time.wMinute);
+            swprintf(buf, TEXT("%d"),
+             time.wHour*60 + time.wMinute);
 #endif
-   break;
+            break;
 
-  case 'N':
+        case 'N':
 #ifndef WCE
-   sprintf(LSTR(*timestr), "%02d:%02d:%02d",
-    tmdata->tm_hour, tmdata->tm_min,
-    tmdata->tm_sec ) ;
+            sprintf(LSTR(*timestr), "%02d:%02d:%02d",
+                    tmdata->tm_hour, tmdata->tm_min,
+                    tmdata->tm_sec);
 #else
-   swprintf(buf, TEXT("%02d:%02d:%02d"),
-    time.wHour, time.wMinute, time.wSecond);
+            swprintf(buf, TEXT("%02d:%02d:%02d"),
+             time.wHour, time.wMinute, time.wSecond);
 #endif
-   break;
+            break;
 
-  case 'R':
+        case 'R':
 #ifdef WCE
-   unow = (double)GetTickCount() / 1000.0;
+            unow = (double)GetTickCount() / 1000.0;
 #elif defined(MSDOS) && !defined(__WIN32__) && !defined(_MSC_VER)
-   gettime(&t);
-   unow = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
-    (double)t.ti_sec + (double)t.ti_hund/100.0;
+            gettime(&t);
+            unow = (double)t.ti_hour*3600 + (double)t.ti_min*60 +
+             (double)t.ti_sec + (double)t.ti_hund/100.0;
 #elif defined(_MSC_VER)
-   _ftime(&tb);
-   unow = (double)tb.time + (double)tb.millitm/1000.0;
+            _ftime(&tb);
+            unow = (double)tb.time + (double)tb.millitm/1000.0;
 #elif defined(__CMS__)
-   rexclock(vmnow);
-   unow=(double)vmnow[0] + (double)vmnow[1]/1000000.0;
+            rexclock(vmnow);
+            unow=(double)vmnow[0] + (double)vmnow[1]/1000000.0;
 #elif defined(__MVS__)
-   __getclk(vmnow);
-   unow=(double)(vmnow[0] >> 12) + (double)(vmnow[1] >> 12)/1000000.0;
+            __getclk(vmnow);
+            unow=(double)(vmnow[0] >> 12) + (double)(vmnow[1] >> 12)/1000000.0;
 #else
-   gettimeofday(&tv,&tz);
-   unow = (double)tv.tv_sec + (double)tv.tv_usec/1000000.0;
+            gettimeofday(&tv, &tz);
+            unow = (double) tv.tv_sec + (double) tv.tv_usec / 1000000.0;
 #endif
-   LREAL(*timestr) = unow-(context->ltime_elapsed);
-   (context->ltime_elapsed) = unow;
-   LTYPE(*timestr) = LREAL_TY;
-   LLEN(*timestr) = sizeof(double);
-   return;
+            LREAL(*timestr) = unow - (context->ltime_elapsed);
+            (context->ltime_elapsed) = unow;
+            LTYPE(*timestr) = LREAL_TY;
+            LLEN(*timestr) = sizeof(double);
+            return;
 
-  case 'S':
+        case 'S':
 #ifndef WCE
-   sprintf(LSTR(*timestr), "%ld",
-    (long)((long)(tmdata->tm_hour*60L)+tmdata->tm_min)
-    *60L + (long)tmdata->tm_sec) ;
+            sprintf(LSTR(*timestr), "%ld",
+                    (long) ((long) (tmdata->tm_hour * 60L) + tmdata->tm_min)
+                    * 60L + (long) tmdata->tm_sec);
 #else
-   swprintf(buf, TEXT("%ld"),
-    (long)((long)(time.wHour*60L)+time.wMinute)
-    *60L + (long)time.wSecond) ;
+            swprintf(buf, TEXT("%ld"),
+             (long)((long)(time.wHour*60L)+time.wMinute)
+             *60L + (long)time.wSecond) ;
 #endif
-   break;
+            break;
 
-  default:
-   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
- }
+        default:
+            (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+    }
 #ifndef WCE
- LLEN(*timestr) = STRLEN(LSTR(*timestr));
+    LLEN(*timestr) = STRLEN(LSTR(*timestr));
 #else
- wcstombs(LSTR(*timestr), buf, LLEN(*timestr)=wcslen(buf));
+    wcstombs(LSTR(*timestr), buf, LLEN(*timestr)=wcslen(buf));
 #endif
 } /* Ltime */

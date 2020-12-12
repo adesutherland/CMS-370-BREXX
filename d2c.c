@@ -22,47 +22,46 @@
 
 /* -------------------- Ld2c -------------------- */
 void __CDECL
-Ld2c( const PLstr to, const PLstr from, long n )
-{
- int   i;
- long  num,n2;
- bool  negative;
+Ld2c(const PLstr to, const PLstr from, long n) {
+    int i;
+    long num, n2;
+    bool negative;
 
- num = Lrdint(from);
+    num = Lrdint(from);
 
- if (n==0) {
-  LZEROSTR(*to);
-  return;
- }
- if (n<0) n=0;
+    if (n == 0) {
+        LZEROSTR(*to);
+        return;
+    }
+    if (n < 0) n = 0;
 
- negative = (num<0);
- if (negative)
-  num = -num-1;
+    negative = (num < 0);
+    if (negative)
+        num = -num - 1;
 
- if (n>sizeof(long)) n=sizeof(long);
- Lfx(to,(size_t)n);
+    if (n > sizeof(long)) n = sizeof(long);
+    Lfx(to, (size_t) n);
 
- n2 = n? n: sizeof(long);
- for (i=0; num && i<n2; i++) {
-  LSTR(*to)[i] = (char)(num & 0xFF);
-  if (negative)
-   LSTR(*to)[i] ^= 0xFF;
-  num >>= 8;
- }
- if (i==0) {
-  LSTR(*to)[i] = 0x00;
-  if (negative)
-   LSTR(*to)[i] ^= 0xFF;
-  i++;
- }
+    n2 = n ? n : sizeof(long);
+    for (i = 0; num && i < n2; i++) {
+        LSTR(*to)[i] = (char) (num & 0xFF);
+        if (negative)
+            LSTR(*to)[i] ^= 0xFF;
+        num >>= 8;
+    }
+    if (i == 0) {
+        LSTR(*to)[i] = 0x00;
+        if (negative)
+            LSTR(*to)[i] ^= 0xFF;
+        i++;
+    }
 
- while (i<n) {
-  LSTR(*to)[i] = negative? 0xFF : 0x00;
-  i++;
- }
+    while (i < n) {
+        LSTR(*to)[i] = negative ? 0xFF : 0x00;
+        i++;
+    }
 
- LTYPE(*to) = LSTRING_TY;
- LLEN(*to) = i;
- Lreverse(to);
+    LTYPE(*to) = LSTRING_TY;
+    LLEN(*to) = i;
+    Lreverse(to);
 } /* Ld2c */

@@ -187,7 +187,7 @@
 
 /* -------------------- I/O -------------------- */
 #ifdef HAS_STDIO
- /* --- Use the standard I/O --- */
+/* --- Use the standard I/O --- */
 # define STDIN  stdin
 # define STDOUT  stdout
 # define STDERR  stderr
@@ -212,7 +212,7 @@
 #  define CHDIR  chdir
 # endif
 #else
- /* --- Use the home made I/O --- */
+/* --- Use the home made I/O --- */
 # define STDIN  NULL
 # define STDOUT  NULL
 # define STDERR  NULL

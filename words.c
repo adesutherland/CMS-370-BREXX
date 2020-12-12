@@ -19,15 +19,14 @@
 
 /* ----------------- Lwords ------------------ */
 long __CDECL
-Lwords( const PLstr from )
-{
- long i=0,r=0;
+Lwords(const PLstr from) {
+    long i = 0, r = 0;
 
- L2STR(from);
- for (;;) {
-  LSKIPBLANKS(*from,i);
-  if (i>=LLEN(*from)) return r;
-  r++;
-  LSKIPWORD(*from,i);
- }
+    L2STR(from);
+    for (;;) {
+        LSKIPBLANKS(*from, i);
+        if (i >= LLEN(*from)) return r;
+        r++;
+        LSKIPWORD(*from, i);
+    }
 } /* Lwords */

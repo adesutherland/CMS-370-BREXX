@@ -56,7 +56,9 @@
 #endif
 
 #ifdef WIN32
+
 # include <limits.h>
+
 # define MAXLONG LONG_MAX
 #endif
 
@@ -71,99 +73,94 @@
 # elif defined(HAVE_HISTORY_H)
 #  include <history.h>
 # endif
-  /* no history */
+/* no history */
 #endif /* HAVE_READLINE_HISTORY */
 
 /* ================= Lstring routines ================== */
 
 /* -------------------- Linit ---------------- */
 void __CDECL
-Linit( LerrorFunc Lerr)
-{
- size_t i;
- Context *context = (Context*)CMSGetPG();
+Linit(LerrorFunc Lerr) {
+    size_t i;
+    Context *context = (Context *) CMSGetPG();
 
- /* setup error function */
- (context->lstring_Lerror) = Lerr;
+    /* setup error function */
+    (context->lstring_Lerror) = Lerr;
 
- /* setup upper */
- for (i=0; i<256; i++)  (context->lstring_u2l)[i] = (context->lstring_l2u)[i] = i;
- for (i=0; clower[i]; i++) {
-  (context->lstring_l2u)[ (byte)clower[i] & 0xFF ] = cUPPER [i];
-  (context->lstring_u2l)[ (byte)cUPPER[i] & 0xFF ] = clower [i];
- }
+    /* setup upper */
+    for (i = 0; i < 256; i++)
+        (context->lstring_u2l)[i] = (context->lstring_l2u)[i] = i;
+    for (i = 0; clower[i]; i++) {
+        (context->lstring_l2u)[(byte) clower[i] & 0xFF] = cUPPER[i];
+        (context->lstring_u2l)[(byte) cUPPER[i] & 0xFF] = clower[i];
+    }
 
 #ifdef HAVE_READLINE_HISTORY
- using_history();
+    using_history();
 #endif
 
- /* setup time */
- _Ltimeinit();
+    /* setup time */
+    _Ltimeinit();
 } /* Linit */
 
 /* -------------- _Lfree ------------------- */
 void __CDECL
-_Lfree(void *str)
-{
- LPFREE((PLstr)str);
+_Lfree(void *str) {
+    LPFREE((PLstr) str);
 } /* _Lfree */
 
 /* ---------------- Lfx -------------------- */
 void __CDECL
-Lfx( const PLstr s, size_t len )
-{
- size_t max;
+Lfx(const PLstr s, size_t len) {
+    size_t max;
 
- if (LISNULL(*s)) {
-  LSTR(*s) = (char *) MALLOC( (max = LNORMALISE(len))+LEXTRA, "Lstr" );
-  LLEN(*s) = 0;
-  LMAXLEN(*s) = max;
-  LTYPE(*s) = LSTRING_TY;
+    if (LISNULL(*s)) {
+        LSTR(*s) = (char *) MALLOC((max = LNORMALISE(len)) + LEXTRA, "Lstr");
+        LLEN(*s) = 0;
+        LMAXLEN(*s) = max;
+        LTYPE(*s) = LSTRING_TY;
 #ifdef USEOPTION
-  LOPT(*s) = 0;
+        LOPT(*s) = 0;
 #endif
- } else
+    } else
 #ifdef USEOPTION
- if (!LOPTION(*s,LOPTFIX) && LMAXLEN(*s)<len) {
-  LSTR(*s) = (char *) REALLOC( LSTR(*s), (max=LNORMALISE(len))+LEXTRA);
-  LMAXLEN(*s) = max;
- }
+        if (!LOPTION(*s,LOPTFIX) && LMAXLEN(*s)<len) {
+         LSTR(*s) = (char *) REALLOC( LSTR(*s), (max=LNORMALISE(len))+LEXTRA);
+         LMAXLEN(*s) = max;
+        }
 #else
- if (LMAXLEN(*s) < len) {
-  LSTR(*s) = (char *) REALLOC( LSTR(*s), (max=LNORMALISE(len))+LEXTRA);
-  LMAXLEN(*s) = max;
- }
+    if (LMAXLEN(*s) < len) {
+        LSTR(*s) = (char *) REALLOC(LSTR(*s), (max = LNORMALISE(len)) + LEXTRA);
+        LMAXLEN(*s) = max;
+    }
 
 #endif
 } /* Lfx */
 
 /* ---------------- Licpy ------------------ */
 void __CDECL
-Licpy( const PLstr to, const long from )
-{
- LLEN(*to)  = sizeof(long);
- LTYPE(*to) = LINTEGER_TY;
- LINT(*to)  = from;
+Licpy(const PLstr to, const long from) {
+    LLEN(*to) = sizeof(long);
+    LTYPE(*to) = LINTEGER_TY;
+    LINT(*to) = from;
 } /* Licpy */
 
 /* ---------------- Lrcpy ------------------ */
 void __CDECL
-Lrcpy( const PLstr to, const double from )
-{
- LLEN(*to)  = sizeof(double);
- LTYPE(*to) = LREAL_TY;
- LREAL(*to) = from;
+Lrcpy(const PLstr to, const double from) {
+    LLEN(*to) = sizeof(double);
+    LTYPE(*to) = LREAL_TY;
+    LREAL(*to) = from;
 } /* Lrcpy */
 
 /* ---------------- Lmcpy ------------------ */
 void __CDECL
-Lmcpy( const PLstr to, const char *from, size_t len)
-{
+Lmcpy(const PLstr to, const char *from, size_t len) {
     if (!from)
-        Lfx(to,len=0);
+        Lfx(to, len = 0);
     else {
-        Lfx(to,len);
-        MEMCPY( LSTR(*to), from, len );
+        Lfx(to, len);
+        MEMCPY(LSTR(*to), from, len);
     }
     LLEN(*to) = len;
     LTYPE(*to) = LSTRING_TY;
@@ -171,204 +168,190 @@ Lmcpy( const PLstr to, const char *from, size_t len)
 
 /* ---------------- Lscpy ------------------ */
 void __CDECL
-Lscpy( const PLstr to, const char *from )
-{
- size_t len;
+Lscpy(const PLstr to, const char *from) {
+    size_t len;
 
- if (!from)
-  Lfx(to,len=0);
- else {
-  Lfx(to,len = STRLEN(from));
-  MEMCPY( LSTR(*to), from, len );
- }
- LLEN(*to) = len;
- LTYPE(*to) = LSTRING_TY;
+    if (!from)
+        Lfx(to, len = 0);
+    else {
+        Lfx(to, len = STRLEN(from));
+        MEMCPY(LSTR(*to), from, len);
+    }
+    LLEN(*to) = len;
+    LTYPE(*to) = LSTRING_TY;
 } /* Lscpy */
 
 #if !defined(__CMS__) && !defined(__MVS__)
+
 /* ---------------- Lwscpy ------------------ */
 void __CDECL
-Lwscpy(const PLstr to, const wchar_t *from )
-{
- size_t len;
+Lwscpy(const PLstr to, const wchar_t *from) {
+    size_t len;
 
- if (!from)
-  Lfx(to,len=0);
- else {
-  Lfx(to,len = wcslen(from));
-  wcstombs(LSTR(*to), from ,len );
- }
- LLEN(*to) = len;
- LTYPE(*to) = LSTRING_TY;
+    if (!from)
+        Lfx(to, len = 0);
+    else {
+        Lfx(to, len = wcslen(from));
+        wcstombs(LSTR(*to), from, len);
+    }
+    LLEN(*to) = len;
+    LTYPE(*to) = LSTRING_TY;
 } /* Lwscpy */
 #endif
 
 /* ---------------- Lcat ------------------- */
 void __CDECL
-Lcat( const PLstr to, const char *from )
-{
- size_t l;
+Lcat(const PLstr to, const char *from) {
+    size_t l;
 
- if (from==NULL) return;
+    if (from == NULL) return;
 
- if (LLEN(*to)==0)
-  Lscpy( to, from );
- else {
-  L2STR(to);
-  l=LLEN(*to) + STRLEN(from);
-  if (LMAXLEN(*to)<l) Lfx(to,l);
-  STRCPY( LSTR(*to) + LLEN(*to), from );
-  LLEN(*to) = l;
- }
+    if (LLEN(*to) == 0)
+        Lscpy(to, from);
+    else {
+        L2STR(to);
+        l = LLEN(*to) + STRLEN(from);
+        if (LMAXLEN(*to) < l) Lfx(to, l);
+        STRCPY(LSTR(*to) + LLEN(*to), from);
+        LLEN(*to) = l;
+    }
 } /* Lcat */
 
 /* ------------------ Lcmp ------------------- */
 int __CDECL
-Lcmp( const PLstr a, const char *b )
-{
- int r,blen;
+Lcmp(const PLstr a, const char *b) {
+    int r, blen;
 
- L2STR(a);
+    L2STR(a);
 
- blen = STRLEN(b);
- if ( (r=MEMCMP( LSTR(*a), b, MIN(LLEN(*a),blen)))!=0 )
-  return r;
- else {
-  if (LLEN(*a) > blen)
-   return 1;
-  else
-  if (LLEN(*a) == blen)
-   return 0;
-  else
-   return -1;
- }
+    blen = STRLEN(b);
+    if ((r = MEMCMP(LSTR(*a), b, MIN(LLEN(*a), blen))) != 0)
+        return r;
+    else {
+        if (LLEN(*a) > blen)
+            return 1;
+        else if (LLEN(*a) == blen)
+            return 0;
+        else
+            return -1;
+    }
 } /* Lcmp */
 
 /* ---------------- Lstrcpy ----------------- */
 void __CDECL
-Lstrcpy( const PLstr to, const PLstr from )
-{
- if (LLEN(*from)==0) {
-  LLEN(*to) = 0;
-  LTYPE(*to) = LSTRING_TY;
- } else {
-  if (LMAXLEN(*to)<=LLEN(*from)) Lfx(to,LLEN(*from));
-  switch ( LTYPE(*from) ) {
-   case LSTRING_TY:
-    MEMCPY( LSTR(*to), LSTR(*from), LLEN(*from) );
-    break;
+Lstrcpy(const PLstr to, const PLstr from) {
+    if (LLEN(*from) == 0) {
+        LLEN(*to) = 0;
+        LTYPE(*to) = LSTRING_TY;
+    } else {
+        if (LMAXLEN(*to) <= LLEN(*from)) Lfx(to, LLEN(*from));
+        switch (LTYPE(*from)) {
+            case LSTRING_TY:
+                MEMCPY(LSTR(*to), LSTR(*from), LLEN(*from));
+                break;
 
-   case LINTEGER_TY:
-    LINT(*to) = LINT(*from);
-    break;
+            case LINTEGER_TY:
+                LINT(*to) = LINT(*from);
+                break;
 
-   case LREAL_TY:
-    LREAL(*to) = LREAL(*from);
-    break;
-  }
-  LTYPE(*to) = LTYPE(*from);
-  LLEN(*to) = LLEN(*from);
- }
+            case LREAL_TY:
+                LREAL(*to) = LREAL(*from);
+                break;
+        }
+        LTYPE(*to) = LTYPE(*from);
+        LLEN(*to) = LLEN(*from);
+    }
 } /* Lstrcpy */
 
 /* ----------------- Lstrcat ------------------ */
 void __CDECL
-Lstrcat( const PLstr to, const PLstr from )
-{
- size_t l;
- if (LLEN(*from)==0) return;
+Lstrcat(const PLstr to, const PLstr from) {
+    size_t l;
+    if (LLEN(*from) == 0) return;
 
- if (LLEN(*to)==0) {
-  Lstrcpy( to, from );
-  return;
- }
+    if (LLEN(*to) == 0) {
+        Lstrcpy(to, from);
+        return;
+    }
 
- L2STR(to);
- L2STR(from);
+    L2STR(to);
+    L2STR(from);
 
- l = LLEN(*to)+LLEN(*from);
- if (LMAXLEN(*to) <= l)
-  Lfx(to, l);
- MEMCPY( LSTR(*to) + LLEN(*to), LSTR(*from), LLEN(*from) );
- LLEN(*to) = l;
+    l = LLEN(*to) + LLEN(*from);
+    if (LMAXLEN(*to) <= l)
+        Lfx(to, l);
+    MEMCPY(LSTR(*to) + LLEN(*to), LSTR(*from), LLEN(*from));
+    LLEN(*to) = l;
 } /* Lstrcat */
 
 /* ----------------- _Lstrcmp ----------------- */
 /* -- Low level strcmp, suppose that both of -- */
 /* -- are of the same type                      */
 int __CDECL
-_Lstrcmp( const PLstr a, const PLstr b )
-{
- int r;
+_Lstrcmp(const PLstr a, const PLstr b) {
+    int r;
 
- if ( (r=MEMCMP( LSTR(*a), LSTR(*b), MIN(LLEN(*a),LLEN(*b))))!=0 )
-  return r;
- else {
-  if (LLEN(*a) > LLEN(*b))
-   return 1;
-  else
-  if (LLEN(*a) == LLEN(*b)) {
-   if (LTYPE(*a) > LTYPE(*b))
-    return 1;
-   else
-   if (LTYPE(*a) < LTYPE(*b))
-    return -1;
-   return 0;
-  } else
-   return -1;
- }
+    if ((r = MEMCMP(LSTR(*a), LSTR(*b), MIN(LLEN(*a), LLEN(*b)))) != 0)
+        return r;
+    else {
+        if (LLEN(*a) > LLEN(*b))
+            return 1;
+        else if (LLEN(*a) == LLEN(*b)) {
+            if (LTYPE(*a) > LTYPE(*b))
+                return 1;
+            else if (LTYPE(*a) < LTYPE(*b))
+                return -1;
+            return 0;
+        } else
+            return -1;
+    }
 } /* _Lstrcmp */
 
 /* ----------------- Lstrcmp ------------------ */
 int __CDECL
-Lstrcmp( const PLstr a, const PLstr b )
-{
- int r;
+Lstrcmp(const PLstr a, const PLstr b) {
+    int r;
 
- L2STR(a);
- L2STR(b);
+    L2STR(a);
+    L2STR(b);
 
- if ( (r=MEMCMP( LSTR(*a), LSTR(*b), MIN(LLEN(*a),LLEN(*b))))!=0 )
-  return r;
- else {
-  if (LLEN(*a) > LLEN(*b))
-   return 1;
-  else
-  if (LLEN(*a) == LLEN(*b))
-   return 0;
-  else
-   return -1;
- }
+    if ((r = MEMCMP(LSTR(*a), LSTR(*b), MIN(LLEN(*a), LLEN(*b)))) != 0)
+        return r;
+    else {
+        if (LLEN(*a) > LLEN(*b))
+            return 1;
+        else if (LLEN(*a) == LLEN(*b))
+            return 0;
+        else
+            return -1;
+    }
 }  /* Lstrcmp */
 
 /* ----------------- Lstrset ------------------ */
 void __CDECL
-Lstrset( const PLstr to, const size_t length, const char value)
-{
- Lfx(to,length);
- LTYPE(*to) = LSTRING_TY;
- LLEN(*to) = length;
- MEMSET(LSTR(*to),value,length);
+Lstrset(const PLstr to, const size_t length, const char value) {
+    Lfx(to, length);
+    LTYPE(*to) = LSTRING_TY;
+    LLEN(*to) = length;
+    MEMSET(LSTR(*to), value, length);
 }  /* Lstrset */
 
 /* ----------------- _Lsubstr ----------------- */
 /* WARNING!!! length is size_t type DO NOT PASS A NEGATIVE value */
 void __CDECL
-_Lsubstr( const PLstr to, const PLstr from, size_t start, size_t length )
-{
- L2STR(from);
+_Lsubstr(const PLstr to, const PLstr from, size_t start, size_t length) {
+    L2STR(from);
 
- start--;
- if ((length==0) || (length+start>LLEN(*from)))
-  length = LLEN(*from) - start;
+    start--;
+    if ((length == 0) || (length + start > LLEN(*from)))
+        length = LLEN(*from) - start;
 
- if (start<LLEN(*from)) {
-  if (LMAXLEN(*to)<length) Lfx(to,length);
-  MEMCPY( LSTR(*to), LSTR(*from)+start, length );
-  LLEN(*to) = length;
- } else
-  LZEROSTR(*to);
- LTYPE(*to) = LSTRING_TY;
+    if (start < LLEN(*from)) {
+        if (LMAXLEN(*to) < length) Lfx(to, length);
+        MEMCPY(LSTR(*to), LSTR(*from) + start, length);
+        LLEN(*to) = length;
+    } else LZEROSTR(*to);
+    LTYPE(*to) = LSTRING_TY;
 }  /* Lstrsub */
 
 /* ------------------------ _Lisnum ----------------------- */
@@ -380,18 +363,17 @@ _Lsubstr( const PLstr to, const PLstr from, size_t start, size_t length )
 /* ie.   '  2.0 '  this should be LINTEGER not LREAL        */
 /* -------------------------------------------------------- */
 int __CDECL
-_Lisnum( const PLstr s )
-{
- bool F, R;
- register char *ch;
- Context *context = (Context*)CMSGetPG();
+_Lisnum(const PLstr s) {
+    bool F, R;
+    register char *ch;
+    Context *context = (Context *) CMSGetPG();
 
- int sign;
- int exponent;
- int expsign;
- int fractionDigits;
+    int sign;
+    int exponent;
+    int expsign;
+    int fractionDigits;
 
- (context->lstring_lLastScannedNumber) = 0.0;
+    (context->lstring_lLastScannedNumber) = 0.0;
 
 /* ---
 #ifdef USEOPTION
@@ -404,260 +386,257 @@ _Lisnum( const PLstr s )
 #endif
 --- */
 
- ch = LSTR(*s);
- if (ch==NULL) return LSTRING_TY;
- LASCIIZ(*s); /* ///// Remember to erase LASCIIZ
+    ch = LSTR(*s);
+    if (ch == NULL) return LSTRING_TY;
+    LASCIIZ(*s); /* ///// Remember to erase LASCIIZ
     ///// before all the calls to Lisnum */
 
- /* skip leading spaces */
- while (ISSPACE(*ch)) ch++;
+    /* skip leading spaces */
+    while (ISSPACE(*ch)) ch++;
 
- /* accept one sign */
- if (*ch=='-') {
-  sign = TRUE;
-  ch++;
- } else {
-  sign=FALSE;
-  if (*ch=='+')
-   ch++;
- }
+    /* accept one sign */
+    if (*ch == '-') {
+        sign = TRUE;
+        ch++;
+    } else {
+        sign = FALSE;
+        if (*ch == '+')
+            ch++;
+    }
 
- /* skip following spaces after sign */
- while (ISSPACE(*ch)) ch++;
+    /* skip following spaces after sign */
+    while (ISSPACE(*ch)) ch++;
 
- /* accept many digits */
- R = FALSE;
+    /* accept many digits */
+    R = FALSE;
 
- (context->lstring_lLastScannedNumber) = 0.0;
- fractionDigits=0;
- exponent=0;
- expsign=FALSE;
+    (context->lstring_lLastScannedNumber) = 0.0;
+    fractionDigits = 0;
+    exponent = 0;
+    expsign = FALSE;
 
- if (IN_RANGE('0',*ch,'9')) {
-  (context->lstring_lLastScannedNumber) = (context->lstring_lLastScannedNumber)*10.0 + (*ch-'0');
-  ch++;
-  F = TRUE;
-  while (IN_RANGE('0',*ch,'9')) {
-   (context->lstring_lLastScannedNumber) = (context->lstring_lLastScannedNumber)*10.0 + (*ch-'0');
-   ch++;
-  }
-  if (!*ch) goto isnumber;
- } else
-  F = FALSE;
+    if (IN_RANGE('0', *ch, '9')) {
+        (context->lstring_lLastScannedNumber) =
+                (context->lstring_lLastScannedNumber) * 10.0 + (*ch - '0');
+        ch++;
+        F = TRUE;
+        while (IN_RANGE('0', *ch, '9')) {
+            (context->lstring_lLastScannedNumber) =
+                    (context->lstring_lLastScannedNumber) * 10.0 + (*ch - '0');
+            ch++;
+        }
+        if (!*ch) goto isnumber;
+    } else
+        F = FALSE;
 
- /* accept one dot */
- if (*ch=='.') {
-  R = TRUE;
-  ch++;
+    /* accept one dot */
+    if (*ch == '.') {
+        R = TRUE;
+        ch++;
 
-  /* accept many digits */
-  if (IN_RANGE('0',*ch,'9')) {
-   (context->lstring_lLastScannedNumber) = (context->lstring_lLastScannedNumber)*10.0 + (*ch-'0');
-   fractionDigits++;
-   ch++;
-   while (IN_RANGE('0',*ch,'9')) {
-    (context->lstring_lLastScannedNumber) = (context->lstring_lLastScannedNumber)*10.0 + (*ch-'0');
-    fractionDigits++;
-    ch++;
-   }
-  } else
-   if (!F) return LSTRING_TY;
+        /* accept many digits */
+        if (IN_RANGE('0', *ch, '9')) {
+            (context->lstring_lLastScannedNumber) =
+                    (context->lstring_lLastScannedNumber) * 10.0 + (*ch - '0');
+            fractionDigits++;
+            ch++;
+            while (IN_RANGE('0', *ch, '9')) {
+                (context->lstring_lLastScannedNumber) =
+                        (context->lstring_lLastScannedNumber) * 10.0 +
+                        (*ch - '0');
+                fractionDigits++;
+                ch++;
+            }
+        } else if (!F) return LSTRING_TY;
 
-  if (!*ch) goto isnumber;
- } else
-  if (!F) return LSTRING_TY;
+        if (!*ch) goto isnumber;
+    } else if (!F) return LSTRING_TY;
 
 
- /* accept on 'e' or 'E' */
- if (*ch=='e' || *ch=='E') {
-  ch++;
-  R = TRUE;
-  /* accept one sign */
-  if (*ch=='-') {
-   expsign = TRUE;
-   ch++;
-  } else
-  if (*ch=='+')
-   ch++;
+    /* accept on 'e' or 'E' */
+    if (*ch == 'e' || *ch == 'E') {
+        ch++;
+        R = TRUE;
+        /* accept one sign */
+        if (*ch == '-') {
+            expsign = TRUE;
+            ch++;
+        } else if (*ch == '+')
+            ch++;
 
-  /* accept many digits */
-  if (IN_RANGE('0',*ch,'9')) {
-   exponent = exponent*10+(*ch-'0');
-   ch++;
-   while (IN_RANGE('0',*ch,'9')) {
-    exponent = exponent*10+(*ch-'0');
-    ch++;
-   }
-  } else
-   return LSTRING_TY;
- }
+        /* accept many digits */
+        if (IN_RANGE('0', *ch, '9')) {
+            exponent = exponent * 10 + (*ch - '0');
+            ch++;
+            while (IN_RANGE('0', *ch, '9')) {
+                exponent = exponent * 10 + (*ch - '0');
+                ch++;
+            }
+        } else
+            return LSTRING_TY;
+    }
 
- /* accept many blanks */
- while (ISSPACE(*ch)) ch++;
+    /* accept many blanks */
+    while (ISSPACE(*ch)) ch++;
 
- /* is it end of string */
- if (*ch) return LSTRING_TY;
+    /* is it end of string */
+    if (*ch) return LSTRING_TY;
 
-isnumber:
- if (expsign) exponent = -exponent;
+    isnumber:
+    if (expsign) exponent = -exponent;
 
- exponent -= fractionDigits;
+    exponent -= fractionDigits;
 
- if (exponent)
+    if (exponent)
 #ifdef __BORLAND_C__
-  (context->lstring_lLastScannedNumber) *= pow10(exponent);
+        (context->lstring_lLastScannedNumber) *= pow10(exponent);
 #else
-  (context->lstring_lLastScannedNumber) *= pow(10.0,(double)exponent);
+        (context->lstring_lLastScannedNumber) *= pow(10.0, (double) exponent);
 #endif
 
- if ((context->lstring_lLastScannedNumber)>LONG_MAX)
-  R = TRUE; /* Treat it as real number */
+    if ((context->lstring_lLastScannedNumber) > LONG_MAX)
+        R = TRUE; /* Treat it as real number */
 
- if (sign)
-  (context->lstring_lLastScannedNumber) = -(context->lstring_lLastScannedNumber);
+    if (sign)
+        (context->lstring_lLastScannedNumber) = -(context->lstring_lLastScannedNumber);
 
- if (R) return LREAL_TY;
+    if (R) return LREAL_TY;
 
- return LINTEGER_TY;
+    return LINTEGER_TY;
 } /* _Lisnum */
 
 /* ------------------ L2str ------------------- */
 void __CDECL
-L2str( const PLstr s )
-{
- Context *context = (Context*)CMSGetPG();
- if (LTYPE(*s)==LINTEGER_TY) {
+L2str(const PLstr s) {
+    Context *context = (Context *) CMSGetPG();
+    if (LTYPE(*s) == LINTEGER_TY) {
 #if defined(WCE) || defined(__BORLANDC__)
-  LTOA(LINT(*s),LSTR(*s),10);
+        LTOA(LINT(*s),LSTR(*s),10);
 #else
-  sprintf(LSTR(*s), "%ld", LINT(*s));
+        sprintf(LSTR(*s), "%ld", LINT(*s));
 #endif
-  LLEN(*s) = STRLEN(LSTR(*s));
- } else { /* LREAL_TY */
+        LLEN(*s) = STRLEN(LSTR(*s));
+    } else { /* LREAL_TY */
 #ifdef __CMS__
-  Lformat(s, s, -1, -1, 0, 0);
+        Lformat(s, s, -1, -1, 0, 0);
 #else
-  /* There is a problem with the Windows CE */
-  char str[50];
-  size_t len;
+        /* There is a problem with the Windows CE */
+        char str[50];
+        size_t len;
 
-  GCVT(LREAL(*s),(context->lstring_lNumericDigits),str);
-  /* --- remove the last dot from the number --- */
-  len = STRLEN(str);
+        GCVT(LREAL(*s), (context->lstring_lNumericDigits), str);
+        /* --- remove the last dot from the number --- */
+        len = STRLEN(str);
 #ifdef WCE
-  if (str[len-1] == '.') len--;
+        if (str[len-1] == '.') len--;
 #endif
-  if (len>=LMAXLEN(*s)) Lfx(s,len);
-  MEMCPY(LSTR(*s),str,len);
-  LLEN(*s) = len;
+        if (len >= LMAXLEN(*s)) Lfx(s, len);
+        MEMCPY(LSTR(*s), str, len);
+        LLEN(*s) = len;
 #endif
- }
- LTYPE(*s) = LSTRING_TY;
+    }
+    LTYPE(*s) = LSTRING_TY;
 } /* L2str */
 
 /* ------------------ L2int ------------------- */
 void __CDECL
-L2int( const PLstr s )
-{
- Context *context = (Context*)CMSGetPG();
- if (LTYPE(*s)==LREAL_TY) {
-  if ((double)((long)LREAL(*s)) == LREAL(*s))
-   LINT(*s) = (long)LREAL(*s);
-  else
-   (context->lstring_Lerror)(ERR_INVALID_INTEGER,0);
- } else { /* LSTRING_TY */
-  LASCIIZ(*s);
-  switch (_Lisnum(s)) {
-   case LINTEGER_TY:
-    /*///LINT(*s) = atol( LSTR(*s) ); */
-    LINT(*s) = (long)(context->lstring_lLastScannedNumber);
-    break;
+L2int(const PLstr s) {
+    Context *context = (Context *) CMSGetPG();
+    if (LTYPE(*s) == LREAL_TY) {
+        if ((double) ((long) LREAL(*s)) == LREAL(*s))
+            LINT(*s) = (long) LREAL(*s);
+        else
+            (context->lstring_Lerror)(ERR_INVALID_INTEGER, 0);
+    } else { /* LSTRING_TY */
+        LASCIIZ(*s);
+        switch (_Lisnum(s)) {
+            case LINTEGER_TY:
+                /*///LINT(*s) = atol( LSTR(*s) ); */
+                LINT(*s) = (long) (context->lstring_lLastScannedNumber);
+                break;
 
-   case LREAL_TY:
-    /*///LREAL(*s) = strtod( LSTR(*s), NULL ); */
-    LREAL(*s) = (context->lstring_lLastScannedNumber);
-    if ((double)((long)LREAL(*s)) == LREAL(*s))
-     LINT(*s) = (long)LREAL(*s);
-    else
-     (context->lstring_Lerror)(ERR_INVALID_INTEGER,0);
-    break;
+            case LREAL_TY:
+                /*///LREAL(*s) = strtod( LSTR(*s), NULL ); */
+                LREAL(*s) = (context->lstring_lLastScannedNumber);
+                if ((double) ((long) LREAL(*s)) == LREAL(*s))
+                    LINT(*s) = (long) LREAL(*s);
+                else
+                    (context->lstring_Lerror)(ERR_INVALID_INTEGER, 0);
+                break;
 
-   default:
-    (context->lstring_Lerror)(ERR_INVALID_INTEGER,0);
-  }
- }
- LTYPE(*s) = LINTEGER_TY;
- LLEN(*s) = sizeof(long);
+            default:
+                (context->lstring_Lerror)(ERR_INVALID_INTEGER, 0);
+        }
+    }
+    LTYPE(*s) = LINTEGER_TY;
+    LLEN(*s) = sizeof(long);
 } /* L2int */
 
 /* ------------------ L2real ------------------- */
 void __CDECL
-L2real( const PLstr s )
-{
- Context *context = (Context*)CMSGetPG();
- if (LTYPE(*s)==LINTEGER_TY)
-  LREAL(*s) = (double)LINT(*s);
- else { /* LSTRING_TY */
-  LASCIIZ(*s);
-  if (_Lisnum(s)!=LSTRING_TY)
-   /*/////LREAL(*s) = strtod( LSTR(*s), NULL ); */
-   LREAL(*s) = (context->lstring_lLastScannedNumber);
-  else
-   (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
- }
- LTYPE(*s) = LREAL_TY;
- LLEN(*s) = sizeof(double);
+L2real(const PLstr s) {
+    Context *context = (Context *) CMSGetPG();
+    if (LTYPE(*s) == LINTEGER_TY)
+        LREAL(*s) = (double) LINT(*s);
+    else { /* LSTRING_TY */
+        LASCIIZ(*s);
+        if (_Lisnum(s) != LSTRING_TY)
+            /*/////LREAL(*s) = strtod( LSTR(*s), NULL ); */
+            LREAL(*s) = (context->lstring_lLastScannedNumber);
+        else
+            (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
+    }
+    LTYPE(*s) = LREAL_TY;
+    LLEN(*s) = sizeof(double);
 } /* L2real */
 
 /* ------------------- _L2num -------------------- */
 /* this function is used when we know to what type */
 /* we should change the string                     */
 void __CDECL
-_L2num( const PLstr s, const int type )
-{
- Context *context = (Context*)CMSGetPG();
- LASCIIZ(*s);
- switch (type) {
-  case LINTEGER_TY:
-   /*////LINT(*s) = atol( LSTR(*s) ); */
-   LINT(*s) = (long)(context->lstring_lLastScannedNumber);
-   LTYPE(*s) = LINTEGER_TY;
-   LLEN(*s) = sizeof(long);
-   break;
+_L2num(const PLstr s, const int type) {
+    Context *context = (Context *) CMSGetPG();
+    LASCIIZ(*s);
+    switch (type) {
+        case LINTEGER_TY:
+            /*////LINT(*s) = atol( LSTR(*s) ); */
+            LINT(*s) = (long) (context->lstring_lLastScannedNumber);
+            LTYPE(*s) = LINTEGER_TY;
+            LLEN(*s) = sizeof(long);
+            break;
 
-  case LREAL_TY:
-   /*////LREAL(*s) = strtod( LSTR(*s), NULL ); */
-   LREAL(*s) = (context->lstring_lLastScannedNumber);
-   if ((double)((long)LREAL(*s)) == LREAL(*s)) {
-    LINT(*s) = (long)LREAL(*s);
-    LTYPE(*s) = LINTEGER_TY;
-    LLEN(*s) = sizeof(long);
-   } else {
-    LTYPE(*s) = LREAL_TY;
-    LLEN(*s) = sizeof(double);
-   }
-   break;
-  default:
-   (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
- }
+        case LREAL_TY:
+            /*////LREAL(*s) = strtod( LSTR(*s), NULL ); */
+            LREAL(*s) = (context->lstring_lLastScannedNumber);
+            if ((double) ((long) LREAL(*s)) == LREAL(*s)) {
+                LINT(*s) = (long) LREAL(*s);
+                LTYPE(*s) = LINTEGER_TY;
+                LLEN(*s) = sizeof(long);
+            } else {
+                LTYPE(*s) = LREAL_TY;
+                LLEN(*s) = sizeof(double);
+            }
+            break;
+        default:
+            (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
+    }
 } /* _L2num */
 
 /* ------------------ L2num ------------------- */
 void __CDECL
-L2num( const PLstr s )
-{
- Context *context = (Context*)CMSGetPG();
- switch (_Lisnum(s)) {
-  case LINTEGER_TY:
-   /*//LINT(*s) = atol( LSTR(*s) ); */
-   LINT(*s) = (long)(context->lstring_lLastScannedNumber);
-   LTYPE(*s) = LINTEGER_TY;
-   LLEN(*s) = sizeof(long);
-   break;
+L2num(const PLstr s) {
+    Context *context = (Context *) CMSGetPG();
+    switch (_Lisnum(s)) {
+        case LINTEGER_TY:
+            /*//LINT(*s) = atol( LSTR(*s) ); */
+            LINT(*s) = (long) (context->lstring_lLastScannedNumber);
+            LTYPE(*s) = LINTEGER_TY;
+            LLEN(*s) = sizeof(long);
+            break;
 
-  case LREAL_TY:
-   /*///LREAL(*s) = strtod( LSTR(*s), NULL ); */
-   LREAL(*s) = (context->lstring_lLastScannedNumber);
+        case LREAL_TY:
+            /*///LREAL(*s) = strtod( LSTR(*s), NULL ); */
+            LREAL(*s) = (context->lstring_lLastScannedNumber);
 /*
 //// Numbers like 2.0 should be treated as real and not as integer
 //// because in cases like factorial while give an error result
@@ -667,70 +646,69 @@ L2num( const PLstr s )
 ////    LLEN(*s) = sizeof(long);
 ////   } else {
 */
-    LTYPE(*s) = LREAL_TY;
-    LLEN(*s) = sizeof(double);
+            LTYPE(*s) = LREAL_TY;
+            LLEN(*s) = sizeof(double);
 /*
 ////   }
 */
-   break;
+            break;
 
-  default:
-   (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
- }
+        default:
+            (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
+    }
 } /* L2num */
 
 /* ----------------- Lrdint ------------------ */
 long __CDECL
-Lrdint( const PLstr s )
-{
- Context *context = (Context*)CMSGetPG();
- if (LTYPE(*s)==LINTEGER_TY) return LINT(*s);
+Lrdint(const PLstr s) {
+    Context *context = (Context *) CMSGetPG();
+    if (LTYPE(*s) == LINTEGER_TY) return LINT(*s);
 
- if (LTYPE(*s)==LREAL_TY) {
-  if ((double)((long)LREAL(*s)) == LREAL(*s))
-   return (long)LREAL(*s);
-  else
-   (context->lstring_Lerror)(ERR_INVALID_INTEGER,0);
- } else { /* LSTRING_TY */
-  LASCIIZ(*s);
-  switch (_Lisnum(s)) {
-   case LINTEGER_TY:
-    /*///return atol( LSTR(*s) ); */
-    return (long)(context->lstring_lLastScannedNumber);
+    if (LTYPE(*s) == LREAL_TY) {
+        if ((double) ((long) LREAL(*s)) == LREAL(*s))
+            return (long) LREAL(*s);
+        else
+            (context->lstring_Lerror)(ERR_INVALID_INTEGER, 0);
+    } else { /* LSTRING_TY */
+        LASCIIZ(*s);
+        switch (_Lisnum(s)) {
+            case LINTEGER_TY:
+                /*///return atol( LSTR(*s) ); */
+                return (long) (context->lstring_lLastScannedNumber);
 
-   case LREAL_TY:
-    /*///d = strtod( LSTR(*s), NULL );
-    //////if ((double)((long)d) == d)
-    ////// return (long)d; */
-    if ((double)((long)(context->lstring_lLastScannedNumber)) == (context->lstring_lLastScannedNumber))
-     return (long)(context->lstring_lLastScannedNumber);
-    else
-     (context->lstring_Lerror)(ERR_INVALID_INTEGER,0);
-    break;
+            case LREAL_TY:
+                /*///d = strtod( LSTR(*s), NULL );
+                //////if ((double)((long)d) == d)
+                ////// return (long)d; */
+                if ((double) ((long) (context->lstring_lLastScannedNumber)) ==
+                    (context->lstring_lLastScannedNumber))
+                    return (long) (context->lstring_lLastScannedNumber);
+                else
+                    (context->lstring_Lerror)(ERR_INVALID_INTEGER, 0);
+                break;
 
-   default:
-    (context->lstring_Lerror)(ERR_INVALID_INTEGER,0);
-  }
- }
- return 0; /* never gets here but keeps compiler happy */
+            default:
+                (context->lstring_Lerror)(ERR_INVALID_INTEGER, 0);
+        }
+    }
+    return 0; /* never gets here but keeps compiler happy */
 } /* Lrdint */
 
 /* ----------------- Lrdreal ------------------ */
 double __CDECL
-Lrdreal( const PLstr s )
-{
- Context *context = (Context*)CMSGetPG();
- if (LTYPE(*s)==LREAL_TY) return LREAL(*s);
+Lrdreal(const PLstr s) {
+    Context *context = (Context *) CMSGetPG();
+    if (LTYPE(*s) == LREAL_TY) return LREAL(*s);
 
- if (LTYPE(*s)==LINTEGER_TY)
-  return (double)LINT(*s);
- else { /* LSTRING_TY */
-  LASCIIZ(*s);
-  if (_Lisnum(s)!=LSTRING_TY)
-   /*///// return strtod( LSTR(*s), NULL ); */
-   return (context->lstring_lLastScannedNumber);
-  else
-   (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
- }
- return 0.0;
+    if (LTYPE(*s) == LINTEGER_TY)
+        return (double) LINT(*s);
+    else { /* LSTRING_TY */
+        LASCIIZ(*s);
+        if (_Lisnum(s) != LSTRING_TY)
+            /*///// return strtod( LSTR(*s), NULL ); */
+            return (context->lstring_lLastScannedNumber);
+        else
+            (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
+    }
+    return 0.0;
 } /* Lrdreal */

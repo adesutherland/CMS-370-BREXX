@@ -29,35 +29,34 @@
  * -------------------------------------------------------------------- */
 void __CDECL
 Lsubstr(const PLstr to, const PLstr from,
- long start, long length, const char pad )
-{
- size_t l;
+        long start, long length, const char pad) {
+    size_t l;
 
- L2STR(from);
+    L2STR(from);
 
- start--;
- if (start<0) start = 0;
+    start--;
+    if (start < 0) start = 0;
 
- if (length<=0) {
-  if (length==0 || start>=LLEN(*from)) {
-   LZEROSTR(*to);
-   return;
-  }
-  length = LLEN(*from) - start;
- }
+    if (length <= 0) {
+        if (length == 0 || start >= LLEN(*from)) {
+            LZEROSTR(*to);
+            return;
+        }
+        length = LLEN(*from) - start;
+    }
 
- Lfx(to,(size_t)length);
+    Lfx(to, (size_t) length);
 
- if (start<LLEN(*from)) {
-  if (length+start>LLEN(*from)) {
-   l = LLEN(*from) - (size_t)start;
-   MEMMOVE( LSTR(*to), LSTR(*from)+start, l);
-   MEMSET( LSTR(*to)+l, pad, (size_t)length-l);
-  } else
-   MEMMOVE( LSTR(*to), LSTR(*from)+start, (size_t)length);
- } else
-  MEMSET(LSTR(*to),pad,(size_t)length);
+    if (start < LLEN(*from)) {
+        if (length + start > LLEN(*from)) {
+            l = LLEN(*from) - (size_t) start;
+            MEMMOVE(LSTR(*to), LSTR(*from) + start, l);
+            MEMSET(LSTR(*to) + l, pad, (size_t) length - l);
+        } else
+            MEMMOVE(LSTR(*to), LSTR(*from) + start, (size_t) length);
+    } else
+        MEMSET(LSTR(*to), pad, (size_t) length);
 
- LTYPE(*to) = LSTRING_TY;
- LLEN(*to) = (size_t)length;
+    LTYPE(*to) = LSTRING_TY;
+    LLEN(*to) = (size_t) length;
 } /* Lstrsub */

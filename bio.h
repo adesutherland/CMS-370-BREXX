@@ -28,16 +28,24 @@
 #define __BIO_H__
 
 #ifndef __WINDOWS_H
+
 # include <windows.h>
+
 #endif
 #ifndef __OS_H__
+
 # include <os.h>
+
 #endif
 #ifndef __LDEFS_H__
+
 # include <ldefs.h>
+
 #endif
 #ifndef __WINIO_H__
+
 # include <winio.h>
+
 #endif
 
 #define EOF  (-1)
@@ -57,30 +65,43 @@
 #define BIO_EOF  BIT6
 
 typedef struct {
- HANDLE handle;
- int mode;
+    HANDLE handle;
+    int mode;
 } BFILE;
 
-BFILE* __CDECL Bfopen(const char *filename, const char *mode);
+BFILE *__CDECL Bfopen(const char *filename, const char *mode);
+
 int __CDECL Bfclose(BFILE *stream);
+
 #ifdef __BORLANDC__
 # define Bfseek(s,o,w) _llseek(s->handle,o,w)
 #endif
+
 int __CDECL Bfseek(BFILE *stream, int distance, int method);
+
 #define Bftell(s) Bfseek(s,0L,SEEK_CUR)
+
 int __CDECL Bfeof(BFILE *stream);
+
 int __CDECL Bfflush(BFILE *stream);
+
 void __CDECL Bfputs(const char *s, BFILE *stream);
+
 int __CDECL Bfgetc(BFILE *stream);
+
 int __CDECL Bfputc(char ch, BFILE *stream);
 
 char __CDECL Bgetchar(void);
+
 void __CDECL Bputs(const char *s);
+
 void __CDECL Bputch(char ch);
+
 void __CDECL Bputint(long num, int length, int radix);
 
-char* __CDECL Bgetcwd(char* buffer, int maxlen);
-int __CDECL Bchdir(char* newdir);
+char *__CDECL Bgetcwd(char *buffer, int maxlen);
+
+int __CDECL Bchdir(char *newdir);
 
 void __CDECL Brel2absdir(LPTSTR buffer, int maxlen, LPCTSTR reldir);
 

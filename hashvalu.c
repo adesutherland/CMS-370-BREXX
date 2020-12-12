@@ -34,25 +34,30 @@
 
 /* --------------- Lhashvalue ------------------ */
 dword __CDECL
-Lhashvalue( const PLstr str )
-{
- dword value = 0;
- size_t i,l=0;
+Lhashvalue(const PLstr str) {
+    dword value = 0;
+    size_t i, l = 0;
 
- if (LISNULL(*str)) return 0;
+    if (LISNULL(*str)) return 0;
 
- switch (LTYPE(*str)) {
-  case LINTEGER_TY: l = sizeof(long); break;
-  case LREAL_TY:    l = sizeof(double); break;
-  case LSTRING_TY:  l = MIN(255,LLEN(*str)); break;
- }
- for (i=0; i<l; i++)
-  value = 31*value + LSTR(*str)[i];
+    switch (LTYPE(*str)) {
+        case LINTEGER_TY:
+            l = sizeof(long);
+            break;
+        case LREAL_TY:
+            l = sizeof(double);
+            break;
+        case LSTRING_TY:
+            l = MIN(255, LLEN(*str));
+            break;
+    }
+    for (i = 0; i < l; i++)
+        value = 31 * value + LSTR(*str)[i];
 /* for (i=0; i<l; i+=4) {
   for (j=0; j<4 && i+j<l; j++)
    value ^= LSTR(*str)[i+j] << (8*j);
   value = (value>>3) | (value<<29);
  }
 */
- return value;
+    return value;
 } /* Lhashvalue */

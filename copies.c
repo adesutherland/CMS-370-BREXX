@@ -19,34 +19,33 @@
 
 /* ------------------ Lcopies -------------------- */
 void __CDECL
-Lcopies( const PLstr to, const PLstr from, long n )
-{
- Lstr tmp,tmp2;
- long l;
+Lcopies(const PLstr to, const PLstr from, long n) {
+    Lstr tmp, tmp2;
+    long l;
 
- LZEROSTR(*to);
- if (n<0 || !LLEN(*from)) return;
- L2STR(to);
+    LZEROSTR(*to);
+    if (n < 0 || !LLEN(*from)) return;
+    L2STR(to);
 
- Lfx(to, (size_t)(LLEN(*from)*n) );
+    Lfx(to, (size_t) (LLEN(*from) * n));
 
- LINITSTR(tmp);
- LINITSTR(tmp2);
+    LINITSTR(tmp);
+    LINITSTR(tmp2);
 
- l = 1;
- while (l<n) l<<=1;
- l>>=1;
- Lfx(&tmp,(size_t)l);
- Lfx(&tmp2,(size_t)l);
+    l = 1;
+    while (l < n) l <<= 1;
+    l >>= 1;
+    Lfx(&tmp, (size_t) l);
+    Lfx(&tmp2, (size_t) l);
 
- Lstrcpy(&tmp,from);
- while (n != 0 ) {
-  if (n&1) Lstrcat(to,&tmp);
-  Lstrcpy(&tmp2,&tmp);
-  Lstrcat(&tmp,&tmp2);
-  n >>= 1;
- }
+    Lstrcpy(&tmp, from);
+    while (n != 0) {
+        if (n & 1) Lstrcat(to, &tmp);
+        Lstrcpy(&tmp2, &tmp);
+        Lstrcat(&tmp, &tmp2);
+        n >>= 1;
+    }
 
- LFREESTR(tmp);
- LFREESTR(tmp2);
+    LFREESTR(tmp);
+    LFREESTR(tmp2);
 } /* Lcopies */

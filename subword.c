@@ -25,35 +25,34 @@
 
 /* ----------------- Lsubword ------------------ */
 void __CDECL
-Lsubword( const PLstr to, const PLstr from, long n, long length )
-{
- long i;
- Lstr tmp;
+Lsubword(const PLstr to, const PLstr from, long n, long length) {
+    long i;
+    Lstr tmp;
 
- if (n<=0) n = 1;
- i = Lwordindex(from,n);
+    if (n <= 0) n = 1;
+    i = Lwordindex(from, n);
 
- if (i==0) {
-  LZEROSTR(*to);
-  return;
- }
+    if (i == 0) {
+        LZEROSTR(*to);
+        return;
+    }
 
- LINITSTR(tmp);
+    LINITSTR(tmp);
 
- if (length<=0) {
-  if (length<0) _Lsubstr(&tmp,from,(size_t)i,0);
-  goto fin;
- }
- n = i--;
- for (;;) {
-  length--;
-  LSKIPWORD(*from,i);
-  if ((i>=LLEN(*from)) || !length) break;
-  LSKIPBLANKS(*from,i);
-  if (i>=LLEN(*from)) break;
- }
- _Lsubstr(&tmp,from,(size_t)n,(size_t)(i-n+1));
-fin:
- Lstrip(to,&tmp,LTRAILING,' ');
- LFREESTR(tmp);
+    if (length <= 0) {
+        if (length < 0) _Lsubstr(&tmp, from, (size_t) i, 0);
+        goto fin;
+    }
+    n = i--;
+    for (;;) {
+        length--;
+        LSKIPWORD(*from, i);
+        if ((i >= LLEN(*from)) || !length) break;
+        LSKIPBLANKS(*from, i);
+        if (i >= LLEN(*from)) break;
+    }
+    _Lsubstr(&tmp, from, (size_t) n, (size_t) (i - n + 1));
+    fin:
+    Lstrip(to, &tmp, LTRAILING, ' ');
+    LFREESTR(tmp);
 } /* Lsubword */

@@ -22,7 +22,7 @@
 typedef unsigned char byte;
 typedef unsigned short word;
 typedef unsigned long dword;
-typedef int  bool;
+typedef int bool;
 
 /* ---------------- comonly used definitions ----------------- */
 #ifndef FALSE
@@ -98,24 +98,24 @@ typedef int  bool;
 #endif
 #define CTL(a)  (('a') & 0x1F)
 
-#define SWAP(a,b) a ^= b ^= a ^= b;
+#define SWAP(a, b) a ^= b ^= a ^= b;
 
 #define DIMENSION(p) (sizeof(p) / sizeof(p[0]))
 #define ABS(a)  (((a)<0)?-(a):(a))
 
 #ifndef MAX
-# define MAX(a,b) (((a)>(b))?(a):(b))
-# define MIN(a,b) (((a)<(b))?(a):(b))
+# define MAX(a, b) (((a)>(b))?(a):(b))
+# define MIN(a, b) (((a)<(b))?(a):(b))
 #endif
 
-#define MAX3(a,b,c) MAX(MAX(a,b),c)
-#define MAX4(a,b,c,d) MAX(MAX3(a,b,c),d)
+#define MAX3(a, b, c) MAX(MAX(a,b),c)
+#define MAX4(a, b, c, d) MAX(MAX3(a,b,c),d)
 
-#define MIN3(a,b,c) MIN(MIN(a,b),c)
-#define MIN4(a,b,c,d) MIN(MIN3(a,b,c),d)
+#define MIN3(a, b, c) MIN(MIN(a,b),c)
+#define MIN4(a, b, c, d) MIN(MIN3(a,b,c),d)
 
-#define RANGE(a,x,b) ((x)<(a)?(a): ((x)>(b)?(b):(x)))
-#define IN_RANGE(a,x,b) (((a) <= (x)) && ((x) <= (b)))
+#define RANGE(a, x, b) ((x)<(a)?(a): ((x)>(b)?(b):(x)))
+#define IN_RANGE(a, x, b) (((a) <= (x)) && ((x) <= (b)))
 
 #define TRUNC(a) ((a)>=0? (int)(a) : (int)((a)-1))
 #define ROUND(a) ((a)>=0? (int)((a)+0.5): -(int)(0.5-(a)))

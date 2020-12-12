@@ -19,12 +19,11 @@
 
 /* ------------------- Ldec ------------------ */
 void __CDECL
-Ldec( const PLstr num )
-{
- L2NUM(num);
+Ldec(const PLstr num) {
+    L2NUM(num);
 
- if (LTYPE(*num)==LINTEGER_TY)
-  LINT(*num) -= 1;
- else
-  LREAL(*num) -= 1.0;
+    if (LTYPE(*num) == LINTEGER_TY)
+        LINT(*num) -= 1;
+    else
+        LREAL(*num) -= 1.0;
 } /* Ldec */

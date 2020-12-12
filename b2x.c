@@ -24,31 +24,30 @@
 
 /* ------------------- Lb2x ------------------- */
 void __CDECL
-Lb2x( const PLstr to, const PLstr from )
-{
- long i;
- int j,k;
- char *c;
- Context *context = (Context*)CMSGetPG();
+Lb2x(const PLstr to, const PLstr from) {
+    long i;
+    int j, k;
+    char *c;
+    Context *context = (Context *) CMSGetPG();
 
- Lstrcpy(to,from);
- Lreverse(to);
- c = LSTR(*to);
+    Lstrcpy(to, from);
+    Lreverse(to);
+    c = LSTR(*to);
 
- for (i=j=k=0; i<LLEN(*to); i++) {
-  if (ISSPACE(LSTR(*to)[i])) continue;
-  if (LSTR(*to)[i]<'0' || LSTR(*to)[i]>'1')
-   (context->lstring_Lerror)(ERR_INVALID_HEX_CONST,0);
+    for (i = j = k = 0; i < LLEN(*to); i++) {
+        if (ISSPACE(LSTR(*to)[i])) continue;
+        if (LSTR(*to)[i] < '0' || LSTR(*to)[i] > '1')
+            (context->lstring_Lerror)(ERR_INVALID_HEX_CONST, 0);
 
-  j |= ((LSTR(*to)[i]=='1')&1) << k;
-  if (++k==4) {
-   *c++ = chex[j];
-   j=k=0;
-  }
- }
- if (k) *c++ = chex[j];
- *c = 0;
- LLEN(*to) = STRLEN(LSTR(*to));
- LTYPE(*to) = LSTRING_TY;
- Lreverse(to);
+        j |= ((LSTR(*to)[i] == '1') & 1) << k;
+        if (++k == 4) {
+            *c++ = chex[j];
+            j = k = 0;
+        }
+    }
+    if (k) *c++ = chex[j];
+    *c = 0;
+    LLEN(*to) = STRLEN(LSTR(*to));
+    LTYPE(*to) = LSTRING_TY;
+    Lreverse(to);
 } /* Lb2x */

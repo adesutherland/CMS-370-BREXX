@@ -84,146 +84,175 @@
 #define CODEFIXUP(p,v) *(word *)(LSTR(*(context->compileCompileCode)) + (p)) = (v)
 #define CLAUSESTEP sizeof(byte)
 #else
-#define CODEFIXUP(p,v) *(dword *)(LSTR(*(context->compileCompileCode)) + (p)) = (v)
-#define CODEFIXUPB(p,v) CODEFIXUP(p,v)
+#define CODEFIXUP(p, v) *(dword *)(LSTR(*(context->compileCompileCode)) + (p)) = (v)
+#define CODEFIXUPB(p, v) CODEFIXUP(p,v)
 #define CLAUSESTEP sizeof(dword)
 #endif
 
 /* ---- function prototypes ---- */
-int __CDECL C_expr( int );
-void __CDECL C_template( void );
-TBltFunc* __CDECL C_isBuiltin( PLstr );
+int __CDECL C_expr(int);
+
+void __CDECL C_template(void);
+
+TBltFunc *__CDECL C_isBuiltin(PLstr);
 
 typedef struct loop_st {
- size_t Citerate;
- size_t Cleave;
- int noofvars;
- PLstr ctrlvar;
+    size_t Citerate;
+    size_t Cleave;
+    int noofvars;
+    PLstr ctrlvar;
 } LoopCtrl;
 
 /* ------------ local prototypes ------------ */
 static bool C_instr(bool);
-static int  C_chk4assign(void);
+
+static int C_chk4assign(void);
 
 static void C_address(void);
+
 static void C_assign(void);
+
 static void C_arg(void);
+
 static void C_call(void);
+
 static void C_do(void);
+
 static void C_drop(void);
+
 static void C_error(void);
+
 static void C_exit(void);
+
 static void C_if(void);
+
 static void C_interpret(void);
+
 static void C_iterate(void);
+
 static void C_leave(void);
+
 static void C_lower(void);
+
 static void C_nop(void);
+
 static void C_numeric(void);
+
 static void C_parse(void);
+
 static void C_pull(void);
+
 static void C_push(void);
+
 static void C_queue(void);
+
 static void C_return(void);
+
 static void C_say(void);
+
 static void C_select(void);
+
 static void C_signal(void);
+
 static void C_trace(void);
+
 static void C_upper(void);
 
 /* ---------------------------------------------------------- */
 /* because ths is const we shall keep it really global */
 static const
 struct sort_list_st {
- char *name;
- void (*func)(void);
+    char *name;
+
+    void (*func)(void);
 }
 /*  WARNING THE LIST MUST BE SORTED!!!!!!!!!!!! */
 statements_list[] = {
- {"ADDRESS", C_address },
- {"ARG",  C_arg  },
- {"CALL", C_call  },
- {"DO",  C_do  },
- {"DROP", C_drop  },
- {"ELSE", C_error  },
- {"EXIT", C_exit  },
- {"IF",  C_if  },
- {"INTERPRET", C_interpret },
- {"ITERATE", C_iterate },
- {"LEAVE", C_leave  },
- {"LOWER", C_lower  },
- {"NOP",  C_nop  },
- {"NUMERIC", C_numeric },
- {"OTHERWISE", C_error  },
- {"PARSE", C_parse  },
- {"PROCEDURE", C_error  },
- {"PULL", C_pull  },
- {"PUSH", C_push  },
- {"QUEUE", C_queue  },
- {"RETURN", C_return },
- {"SAY",  C_say  },
- {"SELECT", C_select },
- {"SIGNAL", C_signal },
- {"THEN", C_error  },
- {"TRACE", C_trace  },
- {"UPPER", C_upper  },
- {"WHEN", C_error  }
+        {"ADDRESS", C_address},
+        {"ARG", C_arg},
+        {"CALL", C_call},
+        {"DO", C_do},
+        {"DROP", C_drop},
+        {"ELSE", C_error},
+        {"EXIT", C_exit},
+        {"IF", C_if},
+        {"INTERPRET", C_interpret},
+        {"ITERATE", C_iterate},
+        {"LEAVE", C_leave},
+        {"LOWER", C_lower},
+        {"NOP", C_nop},
+        {"NUMERIC", C_numeric},
+        {"OTHERWISE", C_error},
+        {"PARSE", C_parse},
+        {"PROCEDURE", C_error},
+        {"PULL", C_pull},
+        {"PUSH", C_push},
+        {"QUEUE", C_queue},
+        {"RETURN", C_return},
+        {"SAY", C_say},
+        {"SELECT", C_select},
+        {"SIGNAL", C_signal},
+        {"THEN", C_error},
+        {"TRACE", C_trace},
+        {"UPPER", C_upper},
+        {"WHEN", C_error}
 };
 
 /* ---------------- crloopctrl ------------------- */
 static LoopCtrl *
-crloopctrl( size_t it, size_t le, int vars, PLstr cv )
-{
- LoopCtrl *lc;
- Context *context = (Context*)CMSGetPG();
+crloopctrl(size_t it, size_t le, int vars, PLstr cv) {
+    LoopCtrl *lc;
+    Context *context = (Context *) CMSGetPG();
 
- lc = (LoopCtrl *) MALLOC(sizeof(LoopCtrl),"LoopCtrl");
- lc->Citerate = it;
- lc->Cleave = le;
- lc->noofvars = vars;
- lc->ctrlvar = cv;
+    lc = (LoopCtrl *) MALLOC(sizeof(LoopCtrl), "LoopCtrl");
+    lc->Citerate = it;
+    lc->Cleave = le;
+    lc->noofvars = vars;
+    lc->ctrlvar = cv;
 
- DQPUSH(&(context->compile_Loop),lc);
- return lc;
+    DQPUSH(&(context->compile_Loop), lc);
+    return lc;
 } /* LoopCtrl */
 
 /* ------------- CreateClause ---------------- */
 static void
-CreateClause( void )
-{
- Context *context = (Context*)CMSGetPG();
- /* --- Check if the previous mnemonic was a NEWCLAUSE also --- */
- if ((context->compileCompileCurClause) &&
-     (context->compileCompileClause)[(context->compileCompileCurClause)-1].code ==
-     (context->compileCompileCodeLen)-CLAUSESTEP)
-  return;
+CreateClause(void) {
+    Context *context = (Context *) CMSGetPG();
+    /* --- Check if the previous mnemonic was a NEWCLAUSE also --- */
+    if ((context->compileCompileCurClause) &&
+        (context->compileCompileClause)[(context->compileCompileCurClause) -
+                                        1].code ==
+        (context->compileCompileCodeLen) - CLAUSESTEP)
+        return;
 
- /* --- create a clause --- */
- (context->compileCompileClause)[(context->compileCompileCurClause)].ptr     = (context->nextsymbsymbolprevptr);
- (context->compileCompileClause)[(context->compileCompileCurClause)].line    = (context->nextsymbsymboline);
- (context->compileCompileClause)[(context->compileCompileCurClause)].code    = (context->compileCompileCodeLen);
- (context->compileCompileClause)[(context->compileCompileCurClause)].nesting = (context->compileCompileNesting);
- (context->compileCompileClause)[(context->compileCompileCurClause)].fptr    = (context->compileCompileRxFile);
+    /* --- create a clause --- */
+    (context->compileCompileClause)[(context->compileCompileCurClause)].ptr = (context->nextsymbsymbolprevptr);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].line = (context->nextsymbsymboline);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].code = (context->compileCompileCodeLen);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].nesting = (context->compileCompileNesting);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].fptr = (context->compileCompileRxFile);
 
- (context->compileCompileCurClause)++;
- if ((context->compileCompileCurClause)==(context->compileCompileClauseItems)) {
-  (context->compileCompileClause) = (Clause*)REALLOC((context->compileCompileClause),
-    ((context->compileCompileClauseItems)+CLAUSE_INC)*sizeof(Clause));
-  (context->compileCompileClauseItems) += CLAUSE_INC;
- }
+    (context->compileCompileCurClause)++;
+    if ((context->compileCompileCurClause) ==
+        (context->compileCompileClauseItems)) {
+        (context->compileCompileClause) = (Clause *) REALLOC(
+                (context->compileCompileClause),
+                ((context->compileCompileClauseItems) + CLAUSE_INC) *
+                sizeof(Clause));
+        (context->compileCompileClauseItems) += CLAUSE_INC;
+    }
 
- _CodeAddByte(OP_NEWCLAUSE);
+    _CodeAddByte(OP_NEWCLAUSE);
 } /* CreateClause */
 
 /* --------------- _mustbe -------------------- */
 void __CDECL
-_mustbe( enum symboltype sym, int errno, int subno )
-{
- Context *context = (Context*)CMSGetPG();
- if ((context->nextsymbsymbol)==sym)
-  nextsymbol();
- else
-  (context->lstring_Lerror)(errno,subno,&(context->nextsymbsymbolstr));
+_mustbe(enum symboltype sym, int errno, int subno) {
+    Context *context = (Context *) CMSGetPG();
+    if ((context->nextsymbsymbol) == sym)
+        nextsymbol();
+    else
+        (context->lstring_Lerror)(errno, subno, &(context->nextsymbsymbolstr));
 /*
 ///// This is not correct!!!!!
 */
@@ -285,250 +314,253 @@ _CodeAddWord( word w )
 
 /* --------------- _CodeInsByte --------------- */
 dword
-_CodeInsByte( dword pos, dword d )
-{
- Context *context = (Context*)CMSGetPG();
- if ((context->compileCompileCodeLen)+sizeof(d) >= LMAXLEN(*(context->compileCompileCode))) {
-  Lfx((context->compileCompileCode), (context->compileCompileCodeLen) + CODE_INC);
-  (context->compileCompileCodePtr) = (byte*)LSTR(*(context->compileCompileCode)) + (context->compileCompileCodeLen);
- }
- /* shift entire code by one dword */
- MEMMOVE(LSTR(*(context->compileCompileCode))+pos+sizeof(dword),
-  LSTR(*(context->compileCompileCode))+pos,
-  (context->compileCompileCodeLen)-pos);
- *(dword *)(LSTR(*(context->compileCompileCode))+pos) = d;
- (context->compileCompileCodePtr) += sizeof(d);
- (context->compileCompileCodeLen) += sizeof(d);
- return (context->compileCompileCodeLen);
+_CodeInsByte(dword pos, dword d) {
+    Context *context = (Context *) CMSGetPG();
+    if ((context->compileCompileCodeLen) + sizeof(d) >=
+        LMAXLEN(*(context->compileCompileCode))) {
+        Lfx((context->compileCompileCode),
+            (context->compileCompileCodeLen) + CODE_INC);
+        (context->compileCompileCodePtr) =
+                (byte *) LSTR(*(context->compileCompileCode)) +
+                (context->compileCompileCodeLen);
+    }
+    /* shift entire code by one dword */
+    MEMMOVE(LSTR(*(context->compileCompileCode)) + pos + sizeof(dword),
+            LSTR(*(context->compileCompileCode)) + pos,
+            (context->compileCompileCodeLen) - pos);
+    *(dword *) (LSTR(*(context->compileCompileCode)) + pos) = d;
+    (context->compileCompileCodePtr) += sizeof(d);
+    (context->compileCompileCodeLen) += sizeof(d);
+    return (context->compileCompileCodeLen);
 } /* _CodeInsByte */
 
 /* --------------- _CodeAddDWord --------------- */
 dword
-_CodeAddDWord( dword d )
-{
- dword pos;
- Context *context = (Context*)CMSGetPG();
+_CodeAddDWord(dword d) {
+    dword pos;
+    Context *context = (Context *) CMSGetPG();
 
- if ((context->compileCompileCodeLen)+sizeof(d) >= LMAXLEN(*(context->compileCompileCode))) {
-  Lfx((context->compileCompileCode), (context->compileCompileCodeLen) + CODE_INC);
-  (context->compileCompileCodePtr) = (byte*)LSTR(*(context->compileCompileCode)) + (context->compileCompileCodeLen);
- }
- pos = (context->compileCompileCodeLen);
- *(dword *)(context->compileCompileCodePtr) = d;
- (context->compileCompileCodePtr) += sizeof(d);
- (context->compileCompileCodeLen) += sizeof(d);
- return pos;
+    if ((context->compileCompileCodeLen) + sizeof(d) >=
+        LMAXLEN(*(context->compileCompileCode))) {
+        Lfx((context->compileCompileCode),
+            (context->compileCompileCodeLen) + CODE_INC);
+        (context->compileCompileCodePtr) =
+                (byte *) LSTR(*(context->compileCompileCode)) +
+                (context->compileCompileCodeLen);
+    }
+    pos = (context->compileCompileCodeLen);
+    *(dword *) (context->compileCompileCodePtr) = d;
+    (context->compileCompileCodePtr) += sizeof(d);
+    (context->compileCompileCodeLen) += sizeof(d);
+    return pos;
 } /* _CodeAddWord */
 
 #endif
 
 /* --------------- _CodeAddPtr ---------------- */
 dword
-_CodeAddPtr( void *ptr )
-{
- dword pos;
- Context *context = (Context*)CMSGetPG();
+_CodeAddPtr(void *ptr) {
+    dword pos;
+    Context *context = (Context *) CMSGetPG();
 
- if ((context->compileCompileCodeLen)+sizeof(ptr) >= LMAXLEN(*(context->compileCompileCode))) {
-  Lfx((context->compileCompileCode), (context->compileCompileCodeLen) + CODE_INC);
-  (context->compileCompileCodePtr) = (byte*)LSTR(*(context->compileCompileCode)) + (context->compileCompileCodeLen);
- }
- pos = (context->compileCompileCodeLen);
- *(dword *)(context->compileCompileCodePtr) = (dword)ptr;
- (context->compileCompileCodePtr) += sizeof(ptr);
- (context->compileCompileCodeLen) += sizeof(ptr);
- return pos;
+    if ((context->compileCompileCodeLen) + sizeof(ptr) >=
+        LMAXLEN(*(context->compileCompileCode))) {
+        Lfx((context->compileCompileCode),
+            (context->compileCompileCodeLen) + CODE_INC);
+        (context->compileCompileCodePtr) =
+                (byte *) LSTR(*(context->compileCompileCode)) +
+                (context->compileCompileCodeLen);
+    }
+    pos = (context->compileCompileCodeLen);
+    *(dword *) (context->compileCompileCodePtr) = (dword) ptr;
+    (context->compileCompileCodePtr) += sizeof(ptr);
+    (context->compileCompileCodeLen) += sizeof(ptr);
+    return pos;
 } /* _CodeAddPtr */
 
 /* -------------- _Add2Lits ----------------- */
 void *
-_Add2Lits( PLstr lit, int hasdot )
-{
- PBinLeaf leaf;
- PLstr tosearch;
- Lstr newstr,numstr,aux;
- char *ch;
- int i,t,cnt,start,stop;
- IdentInfo *inf;
- Context *context = (Context*)CMSGetPG();
+_Add2Lits(PLstr lit, int hasdot) {
+    PBinLeaf leaf;
+    PLstr tosearch;
+    Lstr newstr, numstr, aux;
+    char *ch;
+    int i, t, cnt, start, stop;
+    IdentInfo *inf;
+    Context *context = (Context *) CMSGetPG();
 
- /* Find in tree */
- tosearch = lit;
- LINITSTR(numstr);
- t = _Lisnum(lit);
- if (t == LINTEGER_TY) {
-  Lstrcpy(&numstr,lit);
-  L2int(&numstr);
-  if (!Lstrcmp(&numstr,lit)) {
-   L2int(&numstr);
-   tosearch = &numstr;
-  }
- }
- else
- if (t == LREAL_TY) {
-  Lstrcpy(&numstr,lit);
-  L2real(&numstr);
-  if (!Lstrcmp(&numstr,lit)) {
-   L2real(&numstr);
-   tosearch = &numstr;
-  }
- }
+    /* Find in tree */
+    tosearch = lit;
+    LINITSTR(numstr);
+    t = _Lisnum(lit);
+    if (t == LINTEGER_TY) {
+        Lstrcpy(&numstr, lit);
+        L2int(&numstr);
+        if (!Lstrcmp(&numstr, lit)) {
+            L2int(&numstr);
+            tosearch = &numstr;
+        }
+    } else if (t == LREAL_TY) {
+        Lstrcpy(&numstr, lit);
+        L2real(&numstr);
+        if (!Lstrcmp(&numstr, lit)) {
+            L2real(&numstr);
+            tosearch = &numstr;
+        }
+    }
 
- leaf = BinFind( &(context->rexxrxLitterals), tosearch );
- if (leaf==NULL)
-  if (tosearch == &numstr)
-   leaf = BinFind(&(context->rexxrxLitterals),tosearch);
+    leaf = BinFind(&(context->rexxrxLitterals), tosearch);
+    if (leaf == NULL)
+        if (tosearch == &numstr)
+            leaf = BinFind(&(context->rexxrxLitterals), tosearch);
 
- if (leaf==NULL) {
-  LINITSTR(newstr); Lfx(&newstr,1);
-  Lstrcpy(&newstr,tosearch);
+    if (leaf == NULL) {
+        LINITSTR(newstr);
+        Lfx(&newstr, 1);
+        Lstrcpy(&newstr, tosearch);
 
 #ifdef USEOPTION
-  /* set the option for faster recognition */
-  if (LTYPE(newstr) == LINTEGER_TY)
-   LSETOPT(newstr,LOPTINT);
-  else
-  if (LTYPE(newstr) == LREAL_TY)
-   LSETOPT(newstr,LOPTREAL);
+        /* set the option for faster recognition */
+        if (LTYPE(newstr) == LINTEGER_TY)
+         LSETOPT(newstr,LOPTINT);
+        else
+        if (LTYPE(newstr) == LREAL_TY)
+         LSETOPT(newstr,LOPTREAL);
 #endif
 
-  if ((LTYPE(newstr)==LSTRING_TY) &&
-   !LISNULL(newstr) && Ldatatype(&newstr,'S'))
-  {
-   LASCIIZ(newstr);
-   if (hasdot) {
-    /* count number of dots */
-    for (cnt=1,ch=LSTR(newstr); *ch; ch++)
-     if (*ch == '.')
-      cnt++;
+        if ((LTYPE(newstr) == LSTRING_TY) &&
+            !LISNULL(newstr) && Ldatatype(&newstr, 'S')) {
+            LASCIIZ(newstr);
+            if (hasdot) {
+                /* count number of dots */
+                for (cnt = 1, ch = LSTR(newstr); *ch; ch++)
+                    if (*ch == '.')
+                        cnt++;
 
-    /* allocate space */
-    inf = (IdentInfo*)MALLOC
-     (sizeof(IdentInfo)+(cnt-1)*sizeof(PBinLeaf),
-     "ID_INFO_STEM");
-    /* count substrings and add them to lits */
-    inf->id = NO_CACHE;
-    inf->stem = cnt;
+                /* allocate space */
+                inf = (IdentInfo *) MALLOC
+                (sizeof(IdentInfo) + (cnt - 1) * sizeof(PBinLeaf),
+                 "ID_INFO_STEM");
+                /* count substrings and add them to lits */
+                inf->id = NO_CACHE;
+                inf->stem = cnt;
 
-    /* scan for substrings */
-    LINITSTR(aux);
-    _Lsubstr(&aux,&newstr,1,hasdot);
-    inf->leaf[0] = _Add2Lits(&aux,FALSE);
+                /* scan for substrings */
+                LINITSTR(aux);
+                _Lsubstr(&aux, &newstr, 1, hasdot);
+                inf->leaf[0] = _Add2Lits(&aux, FALSE);
 
-    stop = hasdot+1; /* after the dot */
-    ch = LSTR(newstr)+hasdot;
-    i = 1;
-    while (1) {
-     while (*ch=='.') {
-      inf->leaf[i++] = NULL;
-      ch++; stop++;
-     }
-     if (!*ch) {
-      inf->leaf[i++] = NULL;
-      break;
-     }
+                stop = hasdot + 1; /* after the dot */
+                ch = LSTR(newstr) + hasdot;
+                i = 1;
+                while (1) {
+                    while (*ch == '.') {
+                        inf->leaf[i++] = NULL;
+                        ch++;
+                        stop++;
+                    }
+                    if (!*ch) {
+                        inf->leaf[i++] = NULL;
+                        break;
+                    }
 
-     start = stop; /* find next dot */
-     while (*ch && *ch!='.') {
-      ch++; stop++;
-     }
-     _Lsubstr(&aux,&newstr,start,stop-start);
-     inf->leaf[i++] = _Add2Lits(&aux,FALSE);
-     if (!*ch) break;
-     if (*ch=='.') {
-      ch++; stop++;
-     }
+                    start = stop; /* find next dot */
+                    while (*ch && *ch != '.') {
+                        ch++;
+                        stop++;
+                    }
+                    _Lsubstr(&aux, &newstr, start, stop - start);
+                    inf->leaf[i++] = _Add2Lits(&aux, FALSE);
+                    if (!*ch) break;
+                    if (*ch == '.') {
+                        ch++;
+                        stop++;
+                    }
+                }
+                LFREESTR(aux);
+            } else {
+                inf = (IdentInfo *) MALLOC(sizeof(IdentInfo), "ID_INFO");
+                inf->stem = 0;
+                inf->leaf[0] = NULL;
+            }
+            inf->id = NO_CACHE;
+        } else
+            inf = NULL;
+
+        leaf = BinAdd(&(context->rexxrxLitterals), &newstr, inf);
     }
-    LFREESTR(aux);
-   } else {
-    inf = (IdentInfo*)MALLOC(sizeof(IdentInfo),"ID_INFO");
-    inf->stem = 0;
-    inf->leaf[0] = NULL;
-   }
-   inf->id = NO_CACHE;
-  } else
-   inf = NULL;
-
-  leaf = BinAdd( &(context->rexxrxLitterals), &newstr, inf );
- }
- LFREESTR(numstr);
- return leaf;
+    LFREESTR(numstr);
+    return leaf;
 } /* _Add2Lits */
 
 /* ------------------- _AddLabel ------------------ */
 PBinLeaf
-_AddLabel( int type, size_t offset )
-{
- PBinLeaf leaf;
- Lstr newstr;
- RxFunc *func;
- TBltFunc *isbuiltin;
- Context *context = (Context*)CMSGetPG();
+_AddLabel(int type, size_t offset) {
+    PBinLeaf leaf;
+    Lstr newstr;
+    RxFunc *func;
+    TBltFunc *isbuiltin;
+    Context *context = (Context *) CMSGetPG();
 
- /* --- check to see if we are interpeting a string --- */
- if ((context->compile_str_interpreted) && type == FT_LABEL && offset != UNKNOWN_LABEL)
-  (context->lstring_Lerror)(ERR_UNEXPECTED_LABEL,1,&(context->nextsymbsymbolstr));
+    /* --- check to see if we are interpeting a string --- */
+    if ((context->compile_str_interpreted) && type == FT_LABEL &&
+        offset != UNKNOWN_LABEL)
+        (context->lstring_Lerror)(ERR_UNEXPECTED_LABEL, 1,
+                                  &(context->nextsymbsymbolstr));
 
- /* --- Find in tree --- */
- leaf = BinFind(&(context->rexx_labels), &(context->nextsymbsymbolstr));
- if (leaf==NULL) {
-  LINITSTR(newstr);
-  Lstrcpy(&newstr,&(context->nextsymbsymbolstr));
-  func = (RxFunc *)MALLOC(sizeof(RxFunc),"FuncLabel");
-  func->type    = type;
-  func->builtin = NULL;
-  func->label   = offset;
+    /* --- Find in tree --- */
+    leaf = BinFind(&(context->rexx_labels), &(context->nextsymbsymbolstr));
+    if (leaf == NULL) {
+        LINITSTR(newstr);
+        Lstrcpy(&newstr, &(context->nextsymbsymbolstr));
+        func = (RxFunc *) MALLOC(sizeof(RxFunc), "FuncLabel");
+        func->type = type;
+        func->builtin = NULL;
+        func->label = offset;
 
-  if ((context->nextsymbsymbolisstr)) {
-   func->type = FT_SYSTEM;
-   func->systype = SYST_UNKNOWN;
-  }
+        if ((context->nextsymbsymbolisstr)) {
+            func->type = FT_SYSTEM;
+            func->systype = SYST_UNKNOWN;
+        } else if (type == FT_FUNCTION) {
+            isbuiltin = C_isBuiltin(&(context->nextsymbsymbolstr));
+            if (isbuiltin == NULL) {
+                /* then it might be internal external or system */
+                func->type = FT_FUNCTION;
+                func->label = offset;
+            } else {
+                func->type = FT_BUILTIN;
+                func->builtin = isbuiltin;
+            }
+        }
 
-  else if (type==FT_FUNCTION) {
-   isbuiltin = C_isBuiltin(&(context->nextsymbsymbolstr));
-   if (isbuiltin==NULL) {
-    /* then it might be internal external or system */
-    func->type = FT_FUNCTION;
-    func->label = offset;
-   } else {
-    func->type = FT_BUILTIN;
-    func->builtin = isbuiltin;
-   }
-  }
-
-  leaf = BinAdd(&(context->rexx_labels), &newstr, func);
- } else
- if (offset != UNKNOWN_LABEL) {
-  func = (RxFunc*)(leaf->value);
-  if (func->label == UNKNOWN_LABEL) {
-   /* label found change function type - Internal calls have priority */
-   if (func->type==FT_BUILTIN || func->type==FT_SYSTEM)
-    func->type = FT_INTERNAL;
-   func->label = offset;
-  }
- }
- return leaf;
+        leaf = BinAdd(&(context->rexx_labels), &newstr, func);
+    } else if (offset != UNKNOWN_LABEL) {
+        func = (RxFunc *) (leaf->value);
+        if (func->label == UNKNOWN_LABEL) {
+            /* label found change function type - Internal calls have priority */
+            if (func->type == FT_BUILTIN || func->type == FT_SYSTEM)
+                func->type = FT_INTERNAL;
+            func->label = offset;
+        }
+    }
+    return leaf;
 } /* _AddLabel */
 
 /* -------------------------------------------------------------- */
 /* C_error,  reports an error, when an illegal (context->nextsymbsymbol) is found.   */
 /* -------------------------------------------------------------- */
 static void
-C_error(void)
-{
- Context *context = (Context*)CMSGetPG();
+C_error(void) {
+    Context *context = (Context *) CMSGetPG();
 
- if (!CMP("ELSE")) (context->lstring_Lerror)(ERR_THEN_UNEXCEPTED,2);
- else
- if (!CMP("OTHERWISE")) (context->lstring_Lerror)(ERR_WHEN_UNCEPTED,0);
- else
- if (!CMP("PROCEDURE")) (context->lstring_Lerror)(ERR_UNEXPECTED_PROC,0);
- else
- if (!CMP("THEN")) (context->lstring_Lerror)(ERR_THEN_UNEXCEPTED,1);
- else
- if (!CMP("WHEN")) (context->lstring_Lerror)(ERR_WHEN_UNCEPTED,0);
- else
-  (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
+    if (!CMP("ELSE")) (context->lstring_Lerror)(ERR_THEN_UNEXCEPTED, 2);
+    else if (!CMP("OTHERWISE")) (context->lstring_Lerror)(ERR_WHEN_UNCEPTED, 0);
+    else if (!CMP("PROCEDURE"))
+        (context->lstring_Lerror)(ERR_UNEXPECTED_PROC, 0);
+    else if (!CMP("THEN")) (context->lstring_Lerror)(ERR_THEN_UNEXCEPTED, 1);
+    else if (!CMP("WHEN")) (context->lstring_Lerror)(ERR_WHEN_UNCEPTED, 0);
+    else
+        (context->lstring_Lerror)(ERR_INVALID_EXPRESSION, 0);
 } /* C_error */
 
 /* -------------------------------------------------------------- */
@@ -538,47 +570,46 @@ C_error(void)
 /*      for an evaluated enviroment name.                         */
 /* -------------------------------------------------------------- */
 static void
-C_address( void )
-{
- Context *context = (Context*)CMSGetPG();
+C_address(void) {
+    Context *context = (Context *) CMSGetPG();
 
- if ((context->nextsymbsymbol) == semicolon_sy) {
-  _CodeAddByte(OP_PUSH);
-   _CodeAddPtr((context->rexxsystemStr));
-   TraceByte( other_middle );
-  _CodeAddByte(OP_STOREOPT);
-   _CodeAddByte(environment_opt);
-  return;
- }
+    if ((context->nextsymbsymbol) == semicolon_sy) {
+        _CodeAddByte(OP_PUSH);
+        _CodeAddPtr((context->rexxsystemStr));
+        TraceByte(other_middle);
+        _CodeAddByte(OP_STOREOPT);
+        _CodeAddByte(environment_opt);
+        return;
+    }
 
- if ((context->nextsymbsymbol)==le_parent || identCMP("VALUE")) {
-  if ((context->nextsymbsymbol)==ident_sy) nextsymbol();
-  C_expr(exp_normal);
+    if ((context->nextsymbsymbol) == le_parent || identCMP("VALUE")) {
+        if ((context->nextsymbsymbol) == ident_sy) nextsymbol();
+        C_expr(exp_normal);
 #ifdef MSDOS
-  _CodeAddByte(OP_COPY2TMP);
-  _CodeAddByte(OP_UPPER);
+        _CodeAddByte(OP_COPY2TMP);
+        _CodeAddByte(OP_UPPER);
 #endif
-  _CodeAddByte(OP_STOREOPT);
-   _CodeAddByte(environment_opt);
- } else
- if ((context->nextsymbsymbol)==literal_sy || (context->nextsymbsymbol)==ident_sy) {
-  _CodeAddByte(OP_PUSH);
-   _CodeAddPtr(SYMBOLADD2LITS_KEY);
-   TraceByte( other_middle );
+        _CodeAddByte(OP_STOREOPT);
+        _CodeAddByte(environment_opt);
+    } else if ((context->nextsymbsymbol) == literal_sy ||
+               (context->nextsymbsymbol) == ident_sy) {
+        _CodeAddByte(OP_PUSH);
+        _CodeAddPtr(SYMBOLADD2LITS_KEY);
+        TraceByte(other_middle);
 #ifdef MSDOS
-  _CodeAddByte(OP_COPY2TMP);
-  _CodeAddByte(OP_UPPER);
+        _CodeAddByte(OP_COPY2TMP);
+        _CodeAddByte(OP_UPPER);
 #endif
-  nextsymbol();
-  if ((context->nextsymbsymbol)!=semicolon_sy) {
-   C_expr(exp_normal);
-   _CodeAddByte(OP_SYSTEM);
-  } else {
-   _CodeAddByte(OP_STOREOPT);
-    _CodeAddByte(environment_opt);
-  }
- } else
-  (context->lstring_Lerror)(ERR_INVALID_EXPRESSION,0);
+        nextsymbol();
+        if ((context->nextsymbsymbol) != semicolon_sy) {
+            C_expr(exp_normal);
+            _CodeAddByte(OP_SYSTEM);
+        } else {
+            _CodeAddByte(OP_STOREOPT);
+            _CodeAddByte(environment_opt);
+        }
+    } else
+        (context->lstring_Lerror)(ERR_INVALID_EXPRESSION, 0);
 } /* C_address */
 
 /* -------------------------------------------------------------- */
@@ -587,21 +618,20 @@ C_address( void )
 /*      into variables. Short for PARSE UPPER ARG.                */
 /* -------------------------------------------------------------- */
 static void
-C_arg( void )
-{
- int ai;
- Context *context = (Context*)CMSGetPG();
+C_arg(void) {
+    int ai;
+    Context *context = (Context *) CMSGetPG();
 
- ai = 0;
- do {
-  if ((context->nextsymbsymbol)==comma_sy) nextsymbol();
-  _CodeAddByte(OP_LOADARG);
-   _CodeAddByte(ai);
-  _CodeAddByte(OP_COPY2TMP);
-  _CodeAddByte(OP_UPPER);
-  C_template();
-  ai++;
- } while ((context->nextsymbsymbol)==comma_sy);
+    ai = 0;
+    do {
+        if ((context->nextsymbsymbol) == comma_sy) nextsymbol();
+        _CodeAddByte(OP_LOADARG);
+        _CodeAddByte(ai);
+        _CodeAddByte(OP_COPY2TMP);
+        _CodeAddByte(OP_UPPER);
+        C_template();
+        ai++;
+    } while ((context->nextsymbsymbol) == comma_sy);
 } /* C_arg */
 
 /* -------------------------------------------------------------- */
@@ -613,78 +643,78 @@ C_arg( void )
 /*      returned.                                                 */
 /* -------------------------------------------------------------- */
 static void
-C_call( void )
-{
- int     ia, func, line, realarg=0;
- word    existarg=0,bp=1,lastarg=0; /* bit mapped, if arguments exist */
- void    *lbl;
- Context *context = (Context*)CMSGetPG();
+C_call(void) {
+    int ia, func, line, realarg = 0;
+    word existarg = 0, bp = 1, lastarg = 0; /* bit mapped, if arguments exist */
+    void *lbl;
+    Context *context = (Context *) CMSGetPG();
 
- /* keep line number */
- line = (context->nextsymbsymboline);
- func = ((context->nextsymbsymbol)==function_sy);
+    /* keep line number */
+    line = (context->nextsymbsymboline);
+    func = ((context->nextsymbsymbol) == function_sy);
 
- if ( ((context->nextsymbsymbol)!=ident_sy) &&
-  ((context->nextsymbsymbol)!=literal_sy) &&
-  ((context->nextsymbsymbol)!=function_sy))
-   (context->lstring_Lerror)(ERR_STRING_EXPECTED,0);
+    if (((context->nextsymbsymbol) != ident_sy) &&
+        ((context->nextsymbsymbol) != literal_sy) &&
+        ((context->nextsymbsymbol) != function_sy))
+        (context->lstring_Lerror)(ERR_STRING_EXPECTED, 0);
 
 /* ///////// NOT CORRECT //////////// */
 /* Make it work as the SIGNAL ON ...  */
- if (!CMP("OFF") || (!CMP("ON"))) {
-  C_signal();
-  return;
- }
+    if (!CMP("OFF") || (!CMP("ON"))) {
+        C_signal();
+        return;
+    }
 /* ///////////////////////////////// */
 
- lbl = _AddLabel( FT_FUNCTION, UNKNOWN_LABEL );
+    lbl = _AddLabel(FT_FUNCTION, UNKNOWN_LABEL);
 
- /* since we don't know if it is going to return
-    a result then we create a stack space */
- _CodeAddByte(OP_PUSHTMP);
+    /* since we don't know if it is going to return
+       a result then we create a stack space */
+    _CodeAddByte(OP_PUSHTMP);
 
- nextsymbol();
- ia = 0;
+    nextsymbol();
+    ia = 0;
 
- if (((context->nextsymbsymbol)!=semicolon_sy) || (func && ((context->nextsymbsymbol)!=ri_parent))) {
-  if ((context->nextsymbsymbol) != comma_sy) {
-   C_expr(exp_normal);
-   realarg++;
-   lastarg = ia+1;
-   existarg |= bp; /* argument exist */
-  }
-  ia++;
-  bp <<= 1;       /* increase bit position */
+    if (((context->nextsymbsymbol) != semicolon_sy) ||
+        (func && ((context->nextsymbsymbol) != ri_parent))) {
+        if ((context->nextsymbsymbol) != comma_sy) {
+            C_expr(exp_normal);
+            realarg++;
+            lastarg = ia + 1;
+            existarg |= bp; /* argument exist */
+        }
+        ia++;
+        bp <<= 1;       /* increase bit position */
 
-  while ((context->nextsymbsymbol)==comma_sy) {
-   nextsymbol();
-   if (ia>=MAXARGS)
-    (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
-   if (! ( ((context->nextsymbsymbol)==comma_sy) ||
-    ((context->nextsymbsymbol)==ri_parent)||
-    ((context->nextsymbsymbol)==semicolon_sy))) {
-     C_expr(exp_normal);
-     realarg++;
-     lastarg = ia+1;
-     existarg |= bp;
-   }
-   ia++;
-   bp <<= 1;       /* increase bit position */
-  }
- }
+        while ((context->nextsymbsymbol) == comma_sy) {
+            nextsymbol();
+            if (ia >= MAXARGS)
+                (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+            if (!(((context->nextsymbsymbol) == comma_sy) ||
+                  ((context->nextsymbsymbol) == ri_parent) ||
+                  ((context->nextsymbsymbol) == semicolon_sy))) {
+                C_expr(exp_normal);
+                realarg++;
+                lastarg = ia + 1;
+                existarg |= bp;
+            }
+            ia++;
+            bp <<= 1;       /* increase bit position */
+        }
+    }
 
 
- _CodeAddByte(OP_CALL);
-  _CodeAddPtr(lbl); /* call pointer */
-  _CodeAddByte(lastarg); /* arguments */
-  _CodeAddByte(realarg); /* real args */
-  _CodeAddWord(existarg); /* which exist */
-  _CodeAddWord(line); /* (context->nextsymbsymbol) line */
-  _CodeAddByte(CT_PROCEDURE); /* call type */
- TraceByte( nothing_middle );
+    _CodeAddByte(OP_CALL);
+    _CodeAddPtr(lbl); /* call pointer */
+    _CodeAddByte(lastarg); /* arguments */
+    _CodeAddByte(realarg); /* real args */
+    _CodeAddWord(existarg); /* which exist */
+    _CodeAddWord(line); /* (context->nextsymbsymbol) line */
+    _CodeAddByte(CT_PROCEDURE); /* call type */
+    TraceByte(nothing_middle);
 
- if (func)
-  _mustbe(ri_parent,ERR_UNMATCHED_PARAN,0);
+    if (func)
+        _mustbe(ri_parent, ERR_UNMATCHED_PARAN, 0);
 } /* C_call */
 
 /* -------------------------------------------------------------- */
@@ -707,14 +737,13 @@ C_call( void )
 /* -------------------------------------------------------------- */
 /* --- DO until END --- */
 static void
-DOuntilEND(void)
-{
- Context *context = (Context*)CMSGetPG();
- while (1) {  /* no need for leave & iterate label */
-  SKIP_SEMICOLONS;
-  if (C_instr(TRUE)) break;
- }
- nextsymbol(); /* Skip END */
+DOuntilEND(void) {
+    Context *context = (Context *) CMSGetPG();
+    while (1) {  /* no need for leave & iterate label */
+        SKIP_SEMICOLONS;
+        if (C_instr(TRUE)) break;
+    }
+    nextsymbol(); /* Skip END */
 } /* DOuntilEND */
 
 #define DO_ASSIGN 0x0001
@@ -727,216 +756,229 @@ DOuntilEND(void)
 
 /* --- C_do --- */
 static void
-C_do(void)
-{
- Context *context = (Context*)CMSGetPG();
- /*
-  * I must define a label for ITERATE and LEAVE in all the cases
-  * except the case of single loop;  DO ... END
-  */
- enum stat_type old_statement = (context->nextsymbsymbolstat);
- LoopCtrl *lc;
- PLstr CtrlVar=NULL;
- void *cv_ptr=NULL;
- size_t body_p, iterate_p, fix_iterate=0, leave_p, fix_leave=0;
- size_t untilexpr=0, overuntil, untilend=0;
- size_t pat=0,tmp;
- word idx=0, idxTO=0, idxBY=0, idxFOR=0;
- int dotype=0;
+C_do(void) {
+    Context *context = (Context *) CMSGetPG();
+    /*
+     * I must define a label for ITERATE and LEAVE in all the cases
+     * except the case of single loop;  DO ... END
+     */
+    enum stat_type old_statement = (context->nextsymbsymbolstat);
+    LoopCtrl *lc;
+    PLstr CtrlVar = NULL;
+    void *cv_ptr = NULL;
+    size_t body_p, iterate_p, fix_iterate = 0, leave_p, fix_leave = 0;
+    size_t untilexpr = 0, overuntil, untilend = 0;
+    size_t pat = 0, tmp;
+    word idx = 0, idxTO = 0, idxBY = 0, idxFOR = 0;
+    int dotype = 0;
 
- /* Simplest case */
- if ((context->nextsymbsymbol)==semicolon_sy) { /* SINGLE LOOP */
-  (context->nextsymbsymbolstat) = in_do_st;
-  DOuntilEND();
-  (context->nextsymbsymbolstat) = old_statement;
-  return;
- }
+    /* Simplest case */
+    if ((context->nextsymbsymbol) == semicolon_sy) { /* SINGLE LOOP */
+        (context->nextsymbsymbolstat) = in_do_st;
+        DOuntilEND();
+        (context->nextsymbsymbolstat) = old_statement;
+        return;
+    }
 
- (context->nextsymbsymbolstat) = in_do_init_st;
+    (context->nextsymbsymbolstat) = in_do_init_st;
 
- /* --- First check for repetition --- */
- /* --- and construct header       --- */
+    /* --- First check for repetition --- */
+    /* --- and construct header       --- */
 
- if (C_chk4assign()) {
-  cv_ptr = SYMBOLADD2LITS;
-  CtrlVar = &(((PBinLeaf)cv_ptr)->key);
+    if (C_chk4assign()) {
+        cv_ptr = SYMBOLADD2LITS;
+        CtrlVar = &(((PBinLeaf) cv_ptr)->key);
 
-  C_assign();
-  dotype |= DO_ASSIGN;
-  while ((context->nextsymbsymbol)==to_sy || (context->nextsymbsymbol)==for_sy || (context->nextsymbsymbol)==by_sy)
-  switch ((context->nextsymbsymbol)) {
-   case to_sy:
-    if (idxTO)
-     (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX,0);
-    idxTO = ++idx;
-    nextsymbol(); /* Skip TO */
-    dotype |= DO_TO;
-    C_expr(exp_tmp);
-    break;
-   case by_sy:
-    if (idxBY)
-     (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX,0);
-    idxBY = ++idx;
-    nextsymbol(); /* Skip BY */
-    dotype |= DO_BY;
-    C_expr(exp_normal);
-    _CodeAddByte(OP_BYINIT);
-     pat = _CodeAddWord(0); /* Patch position */
-    break;
-   case for_sy:
-    if (idxFOR)
-     (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX,0);
-    idxFOR = ++idx;
-    nextsymbol(); /* Skip FOR */
-    dotype |= DO_FOR;
-    C_expr(exp_normal);
-    _CodeAddByte(OP_FORINIT);
-    break;
-   default:
-    (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX,0);
-  }
- } else /* end of C_chk4assign */
- if (identCMP("FOREVER")) {
-  dotype |= DO_FOREVER;
-  nextsymbol(); /* Skip FOREVER */
- } else
- /* --- Check for WHILE/UNTIL --- */
- if (identCMP("WHILE")) /* do nothing */;
- else
- if (identCMP("UNTIL")) /* do nothing */;
- else {  /* ----- REPETITION LOOP ----- */
-  if (idxFOR)
-   (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX,0);
-  idxFOR = ++idx;
-  if (identCMP("FOR")) nextsymbol(); /* skip FOR */
-  dotype |= DO_FOR;
-  C_expr(exp_normal);
-  _CodeAddByte(OP_FORINIT);
- }
+        C_assign();
+        dotype |= DO_ASSIGN;
+        while ((context->nextsymbsymbol) == to_sy ||
+               (context->nextsymbsymbol) == for_sy ||
+               (context->nextsymbsymbol) == by_sy)
+            switch ((context->nextsymbsymbol)) {
+                case to_sy:
+                    if (idxTO)
+                        (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX, 0);
+                    idxTO = ++idx;
+                    nextsymbol(); /* Skip TO */
+                    dotype |= DO_TO;
+                    C_expr(exp_tmp);
+                    break;
+                case by_sy:
+                    if (idxBY)
+                        (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX, 0);
+                    idxBY = ++idx;
+                    nextsymbol(); /* Skip BY */
+                    dotype |= DO_BY;
+                    C_expr(exp_normal);
+                    _CodeAddByte(OP_BYINIT);
+                    pat = _CodeAddWord(0); /* Patch position */
+                    break;
+                case for_sy:
+                    if (idxFOR)
+                        (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX, 0);
+                    idxFOR = ++idx;
+                    nextsymbol(); /* Skip FOR */
+                    dotype |= DO_FOR;
+                    C_expr(exp_normal);
+                    _CodeAddByte(OP_FORINIT);
+                    break;
+                default:
+                    (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX, 0);
+            }
+    } else /* end of C_chk4assign */
+    if (identCMP("FOREVER")) {
+        dotype |= DO_FOREVER;
+        nextsymbol(); /* Skip FOREVER */
+    } else
+        /* --- Check for WHILE/UNTIL --- */
+    if (identCMP("WHILE")) /* do nothing */;
+    else if (identCMP("UNTIL")) /* do nothing */;
+    else {  /* ----- REPETITION LOOP ----- */
+        if (idxFOR)
+            (context->lstring_Lerror)(ERR_INVALID_DO_SYNTAX, 0);
+        idxFOR = ++idx;
+        if (identCMP("FOR")) nextsymbol(); /* skip FOR */
+        dotype |= DO_FOR;
+        C_expr(exp_normal);
+        _CodeAddByte(OP_FORINIT);
+    }
 
- /* Create a jmp reference at the end and to the iterate pos */
- /* jump over leave "jmp" */
+    /* Create a jmp reference at the end and to the iterate pos */
+    /* jump over leave "jmp" */
 
- _CodeAddByte(OP_JMP); tmp=_CodeAddWord(0);
- leave_p = (context->compileCompileCodeLen);
- _CodeAddByte(OP_JMP); fix_leave =_CodeAddWord(0);
+    _CodeAddByte(OP_JMP);
+    tmp = _CodeAddWord(0);
+    leave_p = (context->compileCompileCodeLen);
+    _CodeAddByte(OP_JMP);
+    fix_leave = _CodeAddWord(0);
 
- if (dotype & DO_ASSIGN) {
-  iterate_p = (context->compileCompileCodeLen);
-  _CodeAddByte(OP_JMP); fix_iterate = _CodeAddWord(0);
- }
+    if (dotype & DO_ASSIGN) {
+        iterate_p = (context->compileCompileCodeLen);
+        _CodeAddByte(OP_JMP);
+        fix_iterate = _CodeAddWord(0);
+    }
 
- CODEFIXUP(tmp,(context->compileCompileCodeLen));
- body_p = (context->compileCompileCodeLen);
+    CODEFIXUP(tmp, (context->compileCompileCodeLen));
+    body_p = (context->compileCompileCodeLen);
 
- /* --- Create the main loop control --- */
- if (dotype & DO_ASSIGN)
-  lc = crloopctrl(iterate_p,leave_p,idx,CtrlVar);
- else
-  lc = crloopctrl(body_p,leave_p,idx,CtrlVar);
+    /* --- Create the main loop control --- */
+    if (dotype & DO_ASSIGN)
+        lc = crloopctrl(iterate_p, leave_p, idx, CtrlVar);
+    else
+        lc = crloopctrl(body_p, leave_p, idx, CtrlVar);
 
 
- if ((context->nextsymbsymbol)==while_sy || identCMP("WHILE")) {
-  dotype |= DO_WHILE;
-  nextsymbol();  /* Skip WHILE */
-  C_expr(exp_normal);
-  _CodeAddByte(OP_JF); _CodeAddWord(leave_p);
- } else
- if ((context->nextsymbsymbol)==until_sy || identCMP("UNTIL")) {
-  dotype |= DO_UNTIL;
-  nextsymbol();  /* Skip UNTIL */
-  _CodeAddByte(OP_JMP);
-   overuntil = _CodeAddWord(0);
-  untilexpr = (context->compileCompileCodeLen);
+    if ((context->nextsymbsymbol) == while_sy || identCMP("WHILE")) {
+        dotype |= DO_WHILE;
+        nextsymbol();  /* Skip WHILE */
+        C_expr(exp_normal);
+        _CodeAddByte(OP_JF);
+        _CodeAddWord(leave_p);
+    } else if ((context->nextsymbsymbol) == until_sy || identCMP("UNTIL")) {
+        dotype |= DO_UNTIL;
+        nextsymbol();  /* Skip UNTIL */
+        _CodeAddByte(OP_JMP);
+        overuntil = _CodeAddWord(0);
+        untilexpr = (context->compileCompileCodeLen);
 
-  /* modify to the correct iterate address */
-  /* to check the UNTIL expr after the iteration */
-  lc->Citerate = (context->compileCompileCodeLen);
+        /* modify to the correct iterate address */
+        /* to check the UNTIL expr after the iteration */
+        lc->Citerate = (context->compileCompileCodeLen);
 
-  C_expr(exp_normal);
-  _CodeAddByte(OP_JT); _CodeAddWord(leave_p);
-  _CodeAddByte(OP_JMP);
-   untilend = _CodeAddWord(0);
-  CODEFIXUP(overuntil,(context->compileCompileCodeLen));
- }
+        C_expr(exp_normal);
+        _CodeAddByte(OP_JT);
+        _CodeAddWord(leave_p);
+        _CodeAddByte(OP_JMP);
+        untilend = _CodeAddWord(0);
+        CODEFIXUP(overuntil, (context->compileCompileCodeLen));
+    }
 
- /* --- create code for TO,BY,FOR --- */
- if (idxTO) {
-  _CodeAddByte(OP_DUP); _CodeAddByte(idx-idxTO);
-  _CodeAddByte(OP_LOAD);
-   _CodeAddPtr(cv_ptr);
-   TraceByte( nothing_middle );
+    /* --- create code for TO,BY,FOR --- */
+    if (idxTO) {
+        _CodeAddByte(OP_DUP);
+        _CodeAddByte(idx - idxTO);
+        _CodeAddByte(OP_LOAD);
+        _CodeAddPtr(cv_ptr);
+        TraceByte(nothing_middle);
 
-  if (idxBY) {
-   CODEFIXUP(pat,(context->compileCompileCodeLen)); /* Patch reference */
-  }
-  _CodeAddByte(OP_TGE);  /* This byte will be patched */
-   TraceByte( nothing_middle );
-  _CodeAddByte(OP_JF); _CodeAddWord(leave_p);
- }
- if (idxFOR) {
-  _CodeAddByte(OP_DECFOR);
-   _CodeAddByte(idx-idxFOR); /* variable */
-   _CodeAddWord(leave_p);
- }
+        if (idxBY) {
+            CODEFIXUP(pat,
+                      (context->compileCompileCodeLen)); /* Patch reference */
+        }
+        _CodeAddByte(OP_TGE);  /* This byte will be patched */
+        TraceByte(nothing_middle);
+        _CodeAddByte(OP_JF);
+        _CodeAddWord(leave_p);
+    }
+    if (idxFOR) {
+        _CodeAddByte(OP_DECFOR);
+        _CodeAddByte(idx - idxFOR); /* variable */
+        _CodeAddWord(leave_p);
+    }
 
- /* ===== main body ====== */
- _CodeAddByte(OP_NEWCLAUSE);
- (context->nextsymbsymbolstat) = in_do_st;
- _mustbe(semicolon_sy,ERR_INVALID_DO_SYNTAX,0);
- DOuntilEND();
+    /* ===== main body ====== */
+    _CodeAddByte(OP_NEWCLAUSE);
+    (context->nextsymbsymbolstat) = in_do_st;
+    _mustbe(semicolon_sy, ERR_INVALID_DO_SYNTAX, 0);
+    DOuntilEND();
 
- if (CtrlVar) {
-  if ((context->nextsymbsymbol) == ident_sy) {
-   if(!Lstrcmp(&(context->nextsymbsymbolstr),CtrlVar))
-    nextsymbol();
-   else
-    (context->lstring_Lerror)(ERR_UNMATCHED_END,2,&(context->nextsymbsymbolstr));
-  } else
-  if ((context->nextsymbsymbol) != semicolon_sy)
-   (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED,1,&(context->nextsymbsymbolstr));
- } else
- if ((context->nextsymbsymbol) == ident_sy)
-  (context->lstring_Lerror)(ERR_UNMATCHED_END,3,&(context->nextsymbsymbolstr));
+    if (CtrlVar) {
+        if ((context->nextsymbsymbol) == ident_sy) {
+            if (!Lstrcmp(&(context->nextsymbsymbolstr), CtrlVar))
+                nextsymbol();
+            else
+                (context->lstring_Lerror)(ERR_UNMATCHED_END, 2,
+                                          &(context->nextsymbsymbolstr));
+        } else if ((context->nextsymbsymbol) != semicolon_sy)
+            (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED, 1,
+                                      &(context->nextsymbsymbolstr));
+    } else if ((context->nextsymbsymbol) == ident_sy)
+        (context->lstring_Lerror)(ERR_UNMATCHED_END, 3,
+                                  &(context->nextsymbsymbolstr));
 
- /* --- if UNTIL in DO --- */
- if (dotype & DO_UNTIL) {
-  _CodeAddByte(OP_JMP); _CodeAddWord( untilexpr );
-  CODEFIXUP(untilend,(context->compileCompileCodeLen));
- }
+    /* --- if UNTIL in DO --- */
+    if (dotype & DO_UNTIL) {
+        _CodeAddByte(OP_JMP);
+        _CodeAddWord(untilexpr);
+        CODEFIXUP(untilend, (context->compileCompileCodeLen));
+    }
 
- /* --- calc next value --- */
- if (dotype & DO_ASSIGN) {
-  CODEFIXUP(fix_iterate,(context->compileCompileCodeLen));
-  if (idxBY) {
-   _CodeAddByte(OP_LOAD);
-    _CodeAddPtr(cv_ptr);
-    TraceByte( nothing_middle );
-   _CodeAddByte(OP_DUP); _CodeAddByte(0);
-   _CodeAddByte(OP_DUP); _CodeAddByte(idx-idxBY+2);
-   _CodeAddByte(OP_ADD);
-    TraceByte( other_middle );
-   _CodeAddByte(OP_POP); _CodeAddByte(1);
-  } else {
-   _CodeAddByte(OP_LOAD);
-    _CodeAddPtr(cv_ptr);
-    TraceByte( nothing_middle );
-   _CodeAddByte(OP_INC);
-    TraceByte( other_middle );
-  }
- }
+    /* --- calc next value --- */
+    if (dotype & DO_ASSIGN) {
+        CODEFIXUP(fix_iterate, (context->compileCompileCodeLen));
+        if (idxBY) {
+            _CodeAddByte(OP_LOAD);
+            _CodeAddPtr(cv_ptr);
+            TraceByte(nothing_middle);
+            _CodeAddByte(OP_DUP);
+            _CodeAddByte(0);
+            _CodeAddByte(OP_DUP);
+            _CodeAddByte(idx - idxBY + 2);
+            _CodeAddByte(OP_ADD);
+            TraceByte(other_middle);
+            _CodeAddByte(OP_POP);
+            _CodeAddByte(1);
+        } else {
+            _CodeAddByte(OP_LOAD);
+            _CodeAddPtr(cv_ptr);
+            TraceByte(nothing_middle);
+            _CodeAddByte(OP_INC);
+            TraceByte(other_middle);
+        }
+    }
 
- /* --- end of loop, add a jump to the beggining --- */
- _CodeAddByte(OP_JMP); _CodeAddWord( body_p );
- CODEFIXUP(fix_leave,(context->compileCompileCodeLen));
- lc = DQPop(&(context->compile_Loop)); /* delete loop control */
- FREE(lc);
+    /* --- end of loop, add a jump to the beggining --- */
+    _CodeAddByte(OP_JMP);
+    _CodeAddWord(body_p);
+    CODEFIXUP(fix_leave, (context->compileCompileCodeLen));
+    lc = DQPop(&(context->compile_Loop)); /* delete loop control */
+    FREE(lc);
 
- if (dotype & (DO_TO | DO_FOR | DO_BY)) {
-  _CodeAddByte(OP_POP); /* pop the last value from stack */
-  _CodeAddByte(idx);
- }
- (context->nextsymbsymbolstat) = old_statement;
+    if (dotype & (DO_TO | DO_FOR | DO_BY)) {
+        _CodeAddByte(OP_POP); /* pop the last value from stack */
+        _CodeAddByte(idx);
+    }
+    (context->nextsymbsymbolstat) = old_statement;
 } /* C_do */
 
 /* -------------------------------------------------------------- */
@@ -947,31 +989,30 @@ C_do(void)
 /*      in the older generation will be dropped!                  */
 /* -------------------------------------------------------------- */
 static void
-C_drop(void)
-{
- Context *context = (Context*)CMSGetPG();
- while (1) {
-  if ((context->nextsymbsymbol)==ident_sy) {
-   _CodeAddByte(OP_DROP);
-    _CodeAddPtr(SYMBOLADD2LITS);
-    TraceByte( variable_middle );
-   nextsymbol();
-  } else
-  if ((context->nextsymbsymbol)==le_parent) {
-   nextsymbol();
-   if ((context->nextsymbsymbol)!=ident_sy)
-    (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED,1,&(context->nextsymbsymbolstr));
-   _CodeAddByte(OP_LOAD);
-    _CodeAddPtr(SYMBOLADD2LITS);
-    TraceByte( variable_middle );
-   nextsymbol();
-   _CodeAddByte(OP_COPY2TMP);
-   _mustbe(ri_parent,ERR_UNMATCHED_PARAN,0);
-   _CodeAddByte(OP_DROPIND);
-    TraceByte( variable_middle );
-  } else
-   break;
- }
+C_drop(void) {
+    Context *context = (Context *) CMSGetPG();
+    while (1) {
+        if ((context->nextsymbsymbol) == ident_sy) {
+            _CodeAddByte(OP_DROP);
+            _CodeAddPtr(SYMBOLADD2LITS);
+            TraceByte(variable_middle);
+            nextsymbol();
+        } else if ((context->nextsymbsymbol) == le_parent) {
+            nextsymbol();
+            if ((context->nextsymbsymbol) != ident_sy)
+                (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED, 1,
+                                          &(context->nextsymbsymbolstr));
+            _CodeAddByte(OP_LOAD);
+            _CodeAddPtr(SYMBOLADD2LITS);
+            TraceByte(variable_middle);
+            nextsymbol();
+            _CodeAddByte(OP_COPY2TMP);
+            _mustbe(ri_parent, ERR_UNMATCHED_PARAN, 0);
+            _CodeAddByte(OP_DROPIND);
+            TraceByte(variable_middle);
+        } else
+            break;
+    }
 } /* C_drop */
 
 /* -------------------------------------------------------------- */
@@ -981,16 +1022,15 @@ C_drop(void)
 /*      are terminated                                            */
 /* -------------------------------------------------------------- */
 static void
-C_exit(void)
-{
- Context *context = (Context*)CMSGetPG();
- if ((context->nextsymbsymbol)==semicolon_sy) {
-  _CodeAddByte(OP_PUSH);
-   _CodeAddPtr(&((context->rexxzeroStr)->key));
-   TraceByte( nothing_middle );
- } else
-  C_expr(exp_normal);
- _CodeAddByte(OP_EXIT);
+C_exit(void) {
+    Context *context = (Context *) CMSGetPG();
+    if ((context->nextsymbsymbol) == semicolon_sy) {
+        _CodeAddByte(OP_PUSH);
+        _CodeAddPtr(&((context->rexxzeroStr)->key));
+        TraceByte(nothing_middle);
+    } else
+        C_expr(exp_normal);
+    _CodeAddByte(OP_EXIT);
 } /* C_exit */
 
 /* -------------------------------------------------------------- */
@@ -1002,45 +1042,46 @@ C_exit(void)
 /*      following the ELSE clause, if present.                    */
 /* -------------------------------------------------------------- */
 static void
-C_if(void)
-{
- enum stat_type old_statement;
- size_t nxt, end;
- Context *context = (Context*)CMSGetPG();
+C_if(void) {
+    enum stat_type old_statement;
+    size_t nxt, end;
+    Context *context = (Context *) CMSGetPG();
 
- old_statement = (context->nextsymbsymbolstat);
- (context->nextsymbsymbolstat) = in_if_init_st;
- C_expr(exp_normal);
+    old_statement = (context->nextsymbsymbolstat);
+    (context->nextsymbsymbolstat) = in_if_init_st;
+    C_expr(exp_normal);
 
- SKIP_SEMICOLONS;
+    SKIP_SEMICOLONS;
 
- _CodeAddByte(OP_JF); nxt=_CodeAddWord(0);
+    _CodeAddByte(OP_JF);
+    nxt = _CodeAddWord(0);
 
- CreateClause();
- _mustbe(then_sy,ERR_THEN_EXPECTED,1);
- (context->nextsymbsymbolstat) = in_if_st;
+    CreateClause();
+    _mustbe(then_sy, ERR_THEN_EXPECTED, 1);
+    (context->nextsymbsymbolstat) = in_if_st;
 
- SKIP_SEMICOLONS;
+    SKIP_SEMICOLONS;
 
- (context->nextsymbsymbolstat) = normal_st;
- C_instr(FALSE);
+    (context->nextsymbsymbolstat) = normal_st;
+    C_instr(FALSE);
 
- SKIP_SEMICOLONS;
- if (identCMP("ELSE")) {
-  (context->nextsymbsymbolstat) = in_if_st;
-  _CodeAddByte(OP_JMP); end=_CodeAddWord(0);
-  CODEFIXUP(nxt,(context->compileCompileCodeLen));
-  CreateClause();
+    SKIP_SEMICOLONS;
+    if (identCMP("ELSE")) {
+        (context->nextsymbsymbolstat) = in_if_st;
+        _CodeAddByte(OP_JMP);
+        end = _CodeAddWord(0);
+        CODEFIXUP(nxt, (context->compileCompileCodeLen));
+        CreateClause();
 
-  nextsymbol();
-  SKIP_SEMICOLONS;
+        nextsymbol();
+        SKIP_SEMICOLONS;
 
-  C_instr(FALSE);
-  nxt = end;
- }
- CODEFIXUP(nxt,(context->compileCompileCodeLen));
- (context->nextsymbsymbolstat) = old_statement;
- (context->compile_checked_semicolon) = TRUE;
+        C_instr(FALSE);
+        nxt = end;
+    }
+    CODEFIXUP(nxt, (context->compileCompileCodeLen));
+    (context->nextsymbsymbolstat) = old_statement;
+    (context->compile_checked_semicolon) = TRUE;
 } /* C_if */
 
 /* -------------------------------------------------------------- */
@@ -1049,10 +1090,9 @@ C_if(void)
 /*      if it was part of the original program.                   */
 /* -------------------------------------------------------------- */
 static void
-C_interpret(void)
-{
- C_expr(exp_normal);
- _CodeAddByte(OP_INTERPRET);
+C_interpret(void) {
+    C_expr(exp_normal);
+    _CodeAddByte(OP_INTERPRET);
 } /* C_interpret */
 
 /* -------------------------------------------------------------- */
@@ -1061,40 +1101,41 @@ C_interpret(void)
 /*      (or loop with control variable name).                     */
 /* -------------------------------------------------------------- */
 static void
-C_iterate(void)
-{
- LoopCtrl *lc=NULL;
- DQueueElem *elem;
- word  pop=0;
- Context *context = (Context*)CMSGetPG();
+C_iterate(void) {
+    LoopCtrl *lc = NULL;
+    DQueueElem *elem;
+    word pop = 0;
+    Context *context = (Context *) CMSGetPG();
 
- if (!(context->compile_Loop).items) (context->lstring_Lerror)(ERR_INVALID_LEAVE,0);
+    if (!(context->compile_Loop).items)
+        (context->lstring_Lerror)(ERR_INVALID_LEAVE, 0);
 
- if ((context->nextsymbsymbol)==ident_sy) {
-  elem = (context->compile_Loop).tail;
-  while (1) {
-   if (!elem)
-    (context->lstring_Lerror)(ERR_INVALID_LEAVE,0);
-   lc = (LoopCtrl *)elem->dat;
-   if (lc->ctrlvar) {
-    if (Lstrcmp(&(context->nextsymbsymbolstr),lc->ctrlvar)) {
-     pop += lc->noofvars;
-    } else
-     break;
-   }
-   elem = elem->prev;
-  }
-  nextsymbol();
-  if (pop) {
-   _CodeAddByte(OP_POP);
-    _CodeAddByte(pop);
-  }
- } else
- if ((context->nextsymbsymbol)==semicolon_sy)
-  lc = DQPEEK(&(context->compile_Loop));
- else
-  (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED,2,&(context->nextsymbsymbolstr));
- _CodeAddByte(OP_JMP); _CodeAddWord(lc->Citerate);
+    if ((context->nextsymbsymbol) == ident_sy) {
+        elem = (context->compile_Loop).tail;
+        while (1) {
+            if (!elem)
+                (context->lstring_Lerror)(ERR_INVALID_LEAVE, 0);
+            lc = (LoopCtrl *) elem->dat;
+            if (lc->ctrlvar) {
+                if (Lstrcmp(&(context->nextsymbsymbolstr), lc->ctrlvar)) {
+                    pop += lc->noofvars;
+                } else
+                    break;
+            }
+            elem = elem->prev;
+        }
+        nextsymbol();
+        if (pop) {
+            _CodeAddByte(OP_POP);
+            _CodeAddByte(pop);
+        }
+    } else if ((context->nextsymbsymbol) == semicolon_sy)
+        lc = DQPEEK(&(context->compile_Loop));
+    else
+        (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED, 2,
+                                  &(context->nextsymbsymbolstr));
+    _CodeAddByte(OP_JMP);
+    _CodeAddWord(lc->Citerate);
 } /* C_iterate */
 
 /* -------------------------------------------------------------- */
@@ -1103,40 +1144,41 @@ C_iterate(void)
 /*      variable name).                                           */
 /* -------------------------------------------------------------- */
 static void
-C_leave(void)
-{
- LoopCtrl *lc=NULL;
- DQueueElem *elem;
- word  pop=0;
- Context *context = (Context*)CMSGetPG();
+C_leave(void) {
+    LoopCtrl *lc = NULL;
+    DQueueElem *elem;
+    word pop = 0;
+    Context *context = (Context *) CMSGetPG();
 
- if (!(context->compile_Loop).items) (context->lstring_Lerror)(ERR_INVALID_LEAVE,0);
+    if (!(context->compile_Loop).items)
+        (context->lstring_Lerror)(ERR_INVALID_LEAVE, 0);
 
- if ((context->nextsymbsymbol)==ident_sy) {
-  elem = (context->compile_Loop).tail;
-  while (1) {
-   if (!elem)
-    (context->lstring_Lerror)(ERR_INVALID_LEAVE,0);
-   lc = (LoopCtrl *)elem->dat;
-   if (lc->ctrlvar) {
-    if (Lstrcmp(&(context->nextsymbsymbolstr),lc->ctrlvar)) {
-     pop += lc->noofvars;
-    } else
-     break;
-   }
-   elem = elem->prev;
-  }
-  nextsymbol();
-  if (pop) {
-   _CodeAddByte(OP_POP);
-    _CodeAddByte(pop);
-  }
- } else
- if ((context->nextsymbsymbol)==semicolon_sy)
-  lc = DQPEEK(&(context->compile_Loop));
- else
-  (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED,2,&(context->nextsymbsymbolstr));
- _CodeAddByte(OP_JMP); _CodeAddWord(lc->Cleave);
+    if ((context->nextsymbsymbol) == ident_sy) {
+        elem = (context->compile_Loop).tail;
+        while (1) {
+            if (!elem)
+                (context->lstring_Lerror)(ERR_INVALID_LEAVE, 0);
+            lc = (LoopCtrl *) elem->dat;
+            if (lc->ctrlvar) {
+                if (Lstrcmp(&(context->nextsymbsymbolstr), lc->ctrlvar)) {
+                    pop += lc->noofvars;
+                } else
+                    break;
+            }
+            elem = elem->prev;
+        }
+        nextsymbol();
+        if (pop) {
+            _CodeAddByte(OP_POP);
+            _CodeAddByte(pop);
+        }
+    } else if ((context->nextsymbsymbol) == semicolon_sy)
+        lc = DQPEEK(&(context->compile_Loop));
+    else
+        (context->lstring_Lerror)(ERR_SYMBOL_EXPECTED, 2,
+                                  &(context->nextsymbsymbolstr));
+    _CodeAddByte(OP_JMP);
+    _CodeAddWord(lc->Cleave);
 } /* C_leave */
 
 /* -------------------------------------------------------------- */
@@ -1145,20 +1187,20 @@ C_leave(void)
 /*      variables to uppercase.                                   */
 /* -------------------------------------------------------------- */
 static void
-C_lower(void)
-{
- void *sym;
- Context *context = (Context*)CMSGetPG();
+C_lower(void) {
+    void *sym;
+    Context *context = (Context *) CMSGetPG();
 
- while ((context->nextsymbsymbol)==ident_sy) {
-  sym = SYMBOLADD2LITS;
-  _CodeAddByte(OP_LOAD);
-   _CodeAddPtr(sym);
-   TraceByte( variable_middle );
-  _CodeAddByte(OP_LOWER);
-  _CodeAddByte(OP_POP); _CodeAddByte(1);
-  nextsymbol();
- }
+    while ((context->nextsymbsymbol) == ident_sy) {
+        sym = SYMBOLADD2LITS;
+        _CodeAddByte(OP_LOAD);
+        _CodeAddPtr(sym);
+        TraceByte(variable_middle);
+        _CodeAddByte(OP_LOWER);
+        _CodeAddByte(OP_POP);
+        _CodeAddByte(1);
+        nextsymbol();
+    }
 } /* C_lower */
 
 /* -------------------------------------------------------------- */
@@ -1166,9 +1208,8 @@ C_lower(void)
 /*      dummy instruction, has no side-effects.                   */
 /* -------------------------------------------------------------- */
 static void
-C_nop(void)
-{
- _CodeAddByte(OP_NOP);
+C_nop(void) {
+    _CodeAddByte(OP_NOP);
 } /* C_nop */
 
 /* -------------------------------------------------------------- */
@@ -1182,41 +1223,40 @@ C_nop(void)
 /*      during arithmetic comparisons.                            */
 /* -------------------------------------------------------------- */
 static void
-C_numeric(void)
-{
- Context *context = (Context*)CMSGetPG();
- if (identCMP("DIGITS")) {
-  nextsymbol();
-  C_expr(exp_normal);
-  _CodeAddByte(OP_STOREOPT);
-   _CodeAddByte(digits_opt);
- } else
- if (identCMP("FORM")) {
-  nextsymbol();
-  if ((context->nextsymbsymbol)==semicolon_sy || identCMP("SCIENTIFIC")) {
-   _CodeAddByte(OP_PUSH);
-    _CodeAddPtr(&((context->rexxzeroStr)->key));
-    TraceByte( nothing_middle );
-  } else
-  if (identCMP("ENGINEERING")) {
-   _CodeAddByte(OP_PUSH);
-    _CodeAddPtr(&((context->rexxoneStr)->key));
-    TraceByte( nothing_middle );
-  } else
-   (context->lstring_Lerror)(ERR_INV_SUBKEYWORD,11,&(context->nextsymbsymbolstr));
+C_numeric(void) {
+    Context *context = (Context *) CMSGetPG();
+    if (identCMP("DIGITS")) {
+        nextsymbol();
+        C_expr(exp_normal);
+        _CodeAddByte(OP_STOREOPT);
+        _CodeAddByte(digits_opt);
+    } else if (identCMP("FORM")) {
+        nextsymbol();
+        if ((context->nextsymbsymbol) == semicolon_sy ||
+            identCMP("SCIENTIFIC")) {
+            _CodeAddByte(OP_PUSH);
+            _CodeAddPtr(&((context->rexxzeroStr)->key));
+            TraceByte(nothing_middle);
+        } else if (identCMP("ENGINEERING")) {
+            _CodeAddByte(OP_PUSH);
+            _CodeAddPtr(&((context->rexxoneStr)->key));
+            TraceByte(nothing_middle);
+        } else
+            (context->lstring_Lerror)(ERR_INV_SUBKEYWORD, 11,
+                                      &(context->nextsymbsymbolstr));
 
-  if ((context->nextsymbsymbol)!=semicolon_sy) nextsymbol();
+        if ((context->nextsymbsymbol) != semicolon_sy) nextsymbol();
 
-  _CodeAddByte(OP_STOREOPT);
-   _CodeAddByte(form_opt);
- } else
- if (identCMP("FUZZ")) {
-  nextsymbol();
-  C_expr(exp_normal);
-  _CodeAddByte(OP_STOREOPT);
-   _CodeAddByte(fuzz_opt);
- } else
-  (context->lstring_Lerror)(ERR_INV_SUBKEYWORD,15,&(context->nextsymbsymbolstr));
+        _CodeAddByte(OP_STOREOPT);
+        _CodeAddByte(form_opt);
+    } else if (identCMP("FUZZ")) {
+        nextsymbol();
+        C_expr(exp_normal);
+        _CodeAddByte(OP_STOREOPT);
+        _CodeAddByte(fuzz_opt);
+    } else
+        (context->lstring_Lerror)(ERR_INV_SUBKEYWORD, 15,
+                                  &(context->nextsymbsymbolstr));
 } /* C_numeric */
 
 /* -------------------------------------------------------------- */
@@ -1247,126 +1287,119 @@ C_numeric(void)
 /*      and the date of the interpreter.                          */
 /* -------------------------------------------------------------- */
 static void
-C_parse(void)
-{
- int toupper=FALSE;
- enum stat_type old_statement;
- int ai;
- int with_chk=FALSE;
- Context *context = (Context*)CMSGetPG();
+C_parse(void) {
+    int toupper = FALSE;
+    enum stat_type old_statement;
+    int ai;
+    int with_chk = FALSE;
+    Context *context = (Context *) CMSGetPG();
 
- if (identCMP("UPPER")) {
-  toupper = TRUE;
-  nextsymbol();
- }
+    if (identCMP("UPPER")) {
+        toupper = TRUE;
+        nextsymbol();
+    }
 
- if (identCMP("ARG")) {
-  ai = 0;
-  do {
-   nextsymbol();
-   _CodeAddByte(OP_LOADARG);
-    _CodeAddByte(ai);
-   _CodeAddByte(OP_COPY2TMP);
-   if (toupper)
-    _CodeAddByte(OP_UPPER);
-   C_template();
-   ai++;
-  } while ((context->nextsymbsymbol)==comma_sy);
- } else { /* everything else needs only on parse */
-  if (identCMP("EXTERNAL") || identCMP("LINEIN")) {
-   nextsymbol();
-   _CodeAddByte(OP_RX_EXTERNAL);
-  } else
-  if (identCMP("NUMERIC")) {
-   nextsymbol();
-   _CodeAddByte(OP_PUSHTMP);
-   _CodeAddByte(OP_PUSHTMP);
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(digits_opt);
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(fuzz_opt);
-   _CodeAddByte(OP_BCONCAT);
-    TraceByte( nothing_middle );
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(form_opt);
-   _CodeAddByte(OP_BCONCAT);
-    TraceByte( nothing_middle );
-  } else
-  if (identCMP("PULL")) {
-   nextsymbol();
-   _CodeAddByte(OP_RX_PULL);
-  } else
-  if (identCMP("VAR")) {
-   nextsymbol();
-   if ((context->nextsymbsymbol) != ident_sy)
-    (context->lstring_Lerror)(ERR_INVALID_TEMPLATE,0);
+    if (identCMP("ARG")) {
+        ai = 0;
+        do {
+            nextsymbol();
+            _CodeAddByte(OP_LOADARG);
+            _CodeAddByte(ai);
+            _CodeAddByte(OP_COPY2TMP);
+            if (toupper)
+                _CodeAddByte(OP_UPPER);
+            C_template();
+            ai++;
+        } while ((context->nextsymbsymbol) == comma_sy);
+    } else { /* everything else needs only on parse */
+        if (identCMP("EXTERNAL") || identCMP("LINEIN")) {
+            nextsymbol();
+            _CodeAddByte(OP_RX_EXTERNAL);
+        } else if (identCMP("NUMERIC")) {
+            nextsymbol();
+            _CodeAddByte(OP_PUSHTMP);
+            _CodeAddByte(OP_PUSHTMP);
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(digits_opt);
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(fuzz_opt);
+            _CodeAddByte(OP_BCONCAT);
+            TraceByte(nothing_middle);
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(form_opt);
+            _CodeAddByte(OP_BCONCAT);
+            TraceByte(nothing_middle);
+        } else if (identCMP("PULL")) {
+            nextsymbol();
+            _CodeAddByte(OP_RX_PULL);
+        } else if (identCMP("VAR")) {
+            nextsymbol();
+            if ((context->nextsymbsymbol) != ident_sy)
+                (context->lstring_Lerror)(ERR_INVALID_TEMPLATE, 0);
 
-   _CodeAddByte(OP_LOAD);
-    _CodeAddPtr(SYMBOLADD2LITS);
-    TraceByte( variable_middle );
-   nextsymbol();
-   _CodeAddByte(OP_COPY2TMP);
-  } else
-  if (identCMP("SOURCE")) {
-   nextsymbol();
-   _CodeAddByte(OP_PUSHTMP);
-   _CodeAddByte(OP_PUSHTMP);
-   _CodeAddByte(OP_PUSHTMP);
-   _CodeAddByte(OP_PUSHTMP);
+            _CodeAddByte(OP_LOAD);
+            _CodeAddPtr(SYMBOLADD2LITS);
+            TraceByte(variable_middle);
+            nextsymbol();
+            _CodeAddByte(OP_COPY2TMP);
+        } else if (identCMP("SOURCE")) {
+            nextsymbol();
+            _CodeAddByte(OP_PUSHTMP);
+            _CodeAddByte(OP_PUSHTMP);
+            _CodeAddByte(OP_PUSHTMP);
+            _CodeAddByte(OP_PUSHTMP);
 
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(os_opt);
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(os_opt);
 
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(calltype_opt);
-   _CodeAddByte(OP_BCONCAT);
-    TraceByte( nothing_middle );
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(calltype_opt);
+            _CodeAddByte(OP_BCONCAT);
+            TraceByte(nothing_middle);
 
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(filename_opt);
-   _CodeAddByte(OP_BCONCAT);
-    TraceByte( nothing_middle );
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(filename_opt);
+            _CodeAddByte(OP_BCONCAT);
+            TraceByte(nothing_middle);
 
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(prgname_opt);
-   _CodeAddByte(OP_BCONCAT);
-    TraceByte( nothing_middle );
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(prgname_opt);
+            _CodeAddByte(OP_BCONCAT);
+            TraceByte(nothing_middle);
 
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(shell_opt);
-   _CodeAddByte(OP_BCONCAT);
-    TraceByte( nothing_middle );
-  } else
-  if (identCMP("VALUE")) {
-   old_statement = (context->nextsymbsymbolstat);
-   (context->nextsymbsymbolstat) = in_parse_value_st;
-   nextsymbol();
-   C_expr(exp_tmp);
-   (context->nextsymbsymbolstat) = old_statement;
-   _mustbe( with_sy, ERR_INVALID_TEMPLATE,3 );
-   with_chk = TRUE;
-  }  else
-  if (identCMP("AUTHOR")) {
-   nextsymbol();
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(author_opt);
-  }  else
-  if (identCMP("VERSION")) {
-   nextsymbol();
-   _CodeAddByte(OP_LOADOPT);
-    _CodeAddByte(version_opt);
-  } else
-   (context->lstring_Lerror)(ERR_INV_SUBKEYWORD,12+toupper,&(context->nextsymbsymbolstr));
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(shell_opt);
+            _CodeAddByte(OP_BCONCAT);
+            TraceByte(nothing_middle);
+        } else if (identCMP("VALUE")) {
+            old_statement = (context->nextsymbsymbolstat);
+            (context->nextsymbsymbolstat) = in_parse_value_st;
+            nextsymbol();
+            C_expr(exp_tmp);
+            (context->nextsymbsymbolstat) = old_statement;
+            _mustbe(with_sy, ERR_INVALID_TEMPLATE, 3);
+            with_chk = TRUE;
+        } else if (identCMP("AUTHOR")) {
+            nextsymbol();
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(author_opt);
+        } else if (identCMP("VERSION")) {
+            nextsymbol();
+            _CodeAddByte(OP_LOADOPT);
+            _CodeAddByte(version_opt);
+        } else
+            (context->lstring_Lerror)(ERR_INV_SUBKEYWORD, 12 + toupper,
+                                      &(context->nextsymbsymbolstr));
 
-  /* --- Common Code --- */
-  if (toupper)
-   _CodeAddByte(OP_UPPER);
+        /* --- Common Code --- */
+        if (toupper)
+            _CodeAddByte(OP_UPPER);
 
-  /* skip WITH if exist */
-  if (identCMP("WITH") && !with_chk)
-   nextsymbol();
-  C_template();
- }
+        /* skip WITH if exist */
+        if (identCMP("WITH") && !with_chk)
+            nextsymbol();
+        C_template();
+    }
 } /* C_parse */
 
 /* -------------------------------------------------------------- */
@@ -1376,38 +1409,37 @@ C_parse(void)
 /*      variables from an earlier generation may be exposed       */
 /* -------------------------------------------------------------- */
 static void
-C_procedure(void)
-{
- byte exposed=0;
- size_t pos;
- Context *context = (Context*)CMSGetPG();
+C_procedure(void) {
+    byte exposed = 0;
+    size_t pos;
+    Context *context = (Context *) CMSGetPG();
 
- _CodeAddByte(OP_PROC);
- pos = _CodeAddByte(0);
- if (identCMP("EXPOSE")) {
-  nextsymbol();
-  while (1) {
-   if ((context->nextsymbsymbol)==ident_sy) {
-    _CodeAddPtr(SYMBOLADD2LITS);
-    exposed++;
-    nextsymbol();
-   } else
-   if ((context->nextsymbsymbol)==le_parent) {
-    nextsymbol();
-    if ((context->nextsymbsymbol) != ident_sy)
-     (context->lstring_Lerror)(ERR_STRING_EXPECTED,7,&(context->nextsymbsymbolstr));
-    /* mark an indirect call */
-    _CodeAddPtr(NULL);
-    _CodeAddPtr(SYMBOLADD2LITS);
-    exposed++;
-    nextsymbol();
-    _mustbe(ri_parent,ERR_UNMATCHED_PARAN,0);
-   } else
-    break;
-  }
-  CODEFIXUPB(pos,exposed); /* Patch reference */
- }
- MUSTBE_SEMICOLON;
+    _CodeAddByte(OP_PROC);
+    pos = _CodeAddByte(0);
+    if (identCMP("EXPOSE")) {
+        nextsymbol();
+        while (1) {
+            if ((context->nextsymbsymbol) == ident_sy) {
+                _CodeAddPtr(SYMBOLADD2LITS);
+                exposed++;
+                nextsymbol();
+            } else if ((context->nextsymbsymbol) == le_parent) {
+                nextsymbol();
+                if ((context->nextsymbsymbol) != ident_sy)
+                    (context->lstring_Lerror)(ERR_STRING_EXPECTED, 7,
+                                              &(context->nextsymbsymbolstr));
+                /* mark an indirect call */
+                _CodeAddPtr(NULL);
+                _CodeAddPtr(SYMBOLADD2LITS);
+                exposed++;
+                nextsymbol();
+                _mustbe(ri_parent, ERR_UNMATCHED_PARAN, 0);
+            } else
+                break;
+        }
+        CODEFIXUPB(pos, exposed); /* Patch reference */
+    }
+    MUSTBE_SEMICOLON;
 } /* C_procedure */
 
 /* -------------------------------------------------------------- */
@@ -1418,11 +1450,10 @@ C_procedure(void)
 /*      terminal input buffer. Short for PARSE UPPER PULL.        */
 /* -------------------------------------------------------------- */
 static void
-C_pull(void)
-{
- _CodeAddByte(OP_RX_PULL);
- _CodeAddByte(OP_UPPER);
- C_template();
+C_pull(void) {
+    _CodeAddByte(OP_RX_PULL);
+    _CodeAddByte(OP_UPPER);
+    C_template();
 } /* C_pull */
 
 /* -------------------------------------------------------------- */
@@ -1430,16 +1461,15 @@ C_pull(void)
 /*      push EXPR onto head of the system queue (stack LIFO)      */
 /* -------------------------------------------------------------- */
 static void
-C_push(void)
-{
- Context *context = (Context*)CMSGetPG();
- if ((context->nextsymbsymbol)==semicolon_sy) {
-  _CodeAddByte(OP_PUSH);
-   _CodeAddPtr(&((context->rexxnullStr)->key));
-   TraceByte( nothing_middle );
- } else
-  C_expr(exp_normal);
- _CodeAddByte(OP_RX_PUSH);
+C_push(void) {
+    Context *context = (Context *) CMSGetPG();
+    if ((context->nextsymbsymbol) == semicolon_sy) {
+        _CodeAddByte(OP_PUSH);
+        _CodeAddPtr(&((context->rexxnullStr)->key));
+        TraceByte(nothing_middle);
+    } else
+        C_expr(exp_normal);
+    _CodeAddByte(OP_RX_PUSH);
 } /* C_push */
 
 /* -------------------------------------------------------------- */
@@ -1447,16 +1477,15 @@ C_push(void)
 /*      add EXPR to the tail of the system queue (stack FIFO)     */
 /* -------------------------------------------------------------- */
 static void
-C_queue(void)
-{
- Context *context = (Context*)CMSGetPG();
- if ((context->nextsymbsymbol)==semicolon_sy) {
-  _CodeAddByte(OP_PUSH);
-   _CodeAddPtr(&((context->rexxnullStr)->key));
-   TraceByte( nothing_middle );
- } else
-  C_expr(exp_normal);
- _CodeAddByte(OP_RX_QUEUE);
+C_queue(void) {
+    Context *context = (Context *) CMSGetPG();
+    if ((context->nextsymbsymbol) == semicolon_sy) {
+        _CodeAddByte(OP_PUSH);
+        _CodeAddPtr(&((context->rexxnullStr)->key));
+        TraceByte(nothing_middle);
+    } else
+        C_expr(exp_normal);
+    _CodeAddByte(OP_RX_QUEUE);
 } /* C_queue */
 
 /* -------------------------------------------------------------- */
@@ -1466,15 +1495,14 @@ C_queue(void)
 /*      internal routine.)                                        */
 /* -------------------------------------------------------------- */
 static void
-C_return( void )
-{
- Context *context = (Context*)CMSGetPG();
- if ((context->nextsymbsymbol)==semicolon_sy)
-  _CodeAddByte(OP_RETURN);
- else {
-  C_expr(exp_normal);
-  _CodeAddByte(OP_RETURNF);
- }
+C_return(void) {
+    Context *context = (Context *) CMSGetPG();
+    if ((context->nextsymbsymbol) == semicolon_sy)
+        _CodeAddByte(OP_RETURN);
+    else {
+        C_expr(exp_normal);
+        _CodeAddByte(OP_RETURNF);
+    }
 } /* C_return */
 
 /* -------------------------------------------------------------- */
@@ -1483,10 +1511,9 @@ C_return( void )
 /*      console.                                                  */
 /* -------------------------------------------------------------- */
 static void
-C_say(void)
-{
- C_expr(exp_normal);
- _CodeAddByte(OP_SAY);
+C_say(void) {
+    C_expr(exp_normal);
+    _CodeAddByte(OP_SAY);
 } /* C_say */
 
 /* -------------------------------------------------------------- */
@@ -1503,78 +1530,84 @@ C_say(void)
 /*      that must then be present.                                */
 /* -------------------------------------------------------------- */
 static void
-C_select(void)
-{
- enum stat_type old_statement;
- size_t nxt, jmp2end, end;
- int otherwise=FALSE,when=FALSE;
- Context *context = (Context*)CMSGetPG();
+C_select(void) {
+    enum stat_type old_statement;
+    size_t nxt, jmp2end, end;
+    int otherwise = FALSE, when = FALSE;
+    Context *context = (Context *) CMSGetPG();
 
- MUSTBE_SEMICOLON;
+    MUSTBE_SEMICOLON;
 
- old_statement = (context->nextsymbsymbolstat);
+    old_statement = (context->nextsymbsymbolstat);
 
- /* Skip jump to the end */
- _CodeAddByte(OP_JMP); nxt=_CodeAddWord(0);
+    /* Skip jump to the end */
+    _CodeAddByte(OP_JMP);
+    nxt = _CodeAddWord(0);
 
- /* add a jump to the end of the structure */
- jmp2end = _CodeAddByte(OP_JMP); end=_CodeAddWord(0);
+    /* add a jump to the end of the structure */
+    jmp2end = _CodeAddByte(OP_JMP);
+    end = _CodeAddWord(0);
 
- (context->compileCompileNesting)++;
- for (;;) {
-  SKIP_SEMICOLONS;
-  if ((context->nextsymbsymbol)==ident_sy) {
-   if (!CMP("WHEN")) {
-    when = TRUE;
-    if (otherwise)
-     (context->lstring_Lerror)(ERR_WHEN_UNCEPTED,0);
-    CODEFIXUP(nxt,(context->compileCompileCodeLen));
-    (context->nextsymbsymbolstat) = in_if_init_st;
-    CreateClause();
-    nextsymbol();
-    C_expr(exp_normal);
-
-    SKIP_SEMICOLONS;
-    _CodeAddByte(OP_JF); nxt=_CodeAddWord(0);
-    CreateClause();
-    _mustbe(then_sy,ERR_THEN_EXPECTED,0);
-    (context->nextsymbsymbolstat) = in_if_st;
-
-    SKIP_SEMICOLONS;
-    C_instr(FALSE);
-    _CodeAddByte(OP_JMP); _CodeAddWord(jmp2end);
-   } else
-   if (!CMP("OTHERWISE")) {
-    if (!when)
-     (context->lstring_Lerror)(ERR_WHEN_EXCEPTED,1,&(context->nextsymbsymbolstr));
-    otherwise = TRUE;
-    CODEFIXUP(nxt,(context->compileCompileCodeLen));
-    CreateClause();
-    nextsymbol();
-    (context->nextsymbsymbolstat) = in_do_st;
+    (context->compileCompileNesting)++;
     for (;;) {
-     SKIP_SEMICOLONS;
-     if (C_instr(TRUE)) /* find END */
-      break;
+        SKIP_SEMICOLONS;
+        if ((context->nextsymbsymbol) == ident_sy) {
+            if (!CMP("WHEN")) {
+                when = TRUE;
+                if (otherwise)
+                    (context->lstring_Lerror)(ERR_WHEN_UNCEPTED, 0);
+                CODEFIXUP(nxt, (context->compileCompileCodeLen));
+                (context->nextsymbsymbolstat) = in_if_init_st;
+                CreateClause();
+                nextsymbol();
+                C_expr(exp_normal);
+
+                SKIP_SEMICOLONS;
+                _CodeAddByte(OP_JF);
+                nxt = _CodeAddWord(0);
+                CreateClause();
+                _mustbe(then_sy, ERR_THEN_EXPECTED, 0);
+                (context->nextsymbsymbolstat) = in_if_st;
+
+                SKIP_SEMICOLONS;
+                C_instr(FALSE);
+                _CodeAddByte(OP_JMP);
+                _CodeAddWord(jmp2end);
+            } else if (!CMP("OTHERWISE")) {
+                if (!when)
+                    (context->lstring_Lerror)(ERR_WHEN_EXCEPTED, 1,
+                                              &(context->nextsymbsymbolstr));
+                otherwise = TRUE;
+                CODEFIXUP(nxt, (context->compileCompileCodeLen));
+                CreateClause();
+                nextsymbol();
+                (context->nextsymbsymbolstat) = in_do_st;
+                for (;;) {
+                    SKIP_SEMICOLONS;
+                    if (C_instr(TRUE)) /* find END */
+                        break;
+                }
+            } else if (!CMP("END")) {
+                if (!when)
+                    (context->lstring_Lerror)(ERR_WHEN_EXCEPTED, 1,
+                                              &(context->nextsymbsymbolstr));
+                if (!otherwise)
+                    CODEFIXUP(nxt, (context->compileCompileCodeLen));
+                break;
+            } else
+                (context->lstring_Lerror)(ERR_WHEN_EXCEPTED, ((when) ? 2 : 1),
+                                          &(context->nextsymbsymbolstr));
+        } else
+            (context->lstring_Lerror)(ERR_WHEN_EXCEPTED, 1,
+                                      &(context->nextsymbsymbolstr));
     }
-   } else
-   if (!CMP("END")) {
-    if (!when)
-     (context->lstring_Lerror)(ERR_WHEN_EXCEPTED,1,&(context->nextsymbsymbolstr));
-    if (!otherwise)
-     CODEFIXUP(nxt,(context->compileCompileCodeLen));
-    break;
-   } else
-    (context->lstring_Lerror)(ERR_WHEN_EXCEPTED,((when)?2:1),&(context->nextsymbsymbolstr));
-  } else
-   (context->lstring_Lerror)(ERR_WHEN_EXCEPTED,1,&(context->nextsymbsymbolstr));
- }
- (context->compileCompileNesting)--;
- nextsymbol();
- if ((context->nextsymbsymbol) == ident_sy)
-  (context->lstring_Lerror)(ERR_UNMATCHED_END,4,&(context->nextsymbsymbolstr));
- CODEFIXUP(end,(context->compileCompileCodeLen));
- (context->nextsymbsymbolstat) = old_statement;
+    (context->compileCompileNesting)--;
+    nextsymbol();
+    if ((context->nextsymbsymbol) == ident_sy)
+        (context->lstring_Lerror)(ERR_UNMATCHED_END, 4,
+                                  &(context->nextsymbsymbolstr));
+    CODEFIXUP(end, (context->compileCompileCodeLen));
+    (context->nextsymbsymbolstat) = old_statement;
 } /* C_select */
 
 /* -------------------------------------------------------------- */
@@ -1595,64 +1628,64 @@ C_select(void)
 /*      if the event occurs while ON                              */
 /* -------------------------------------------------------------- */
 static void
-C_signal( void)
-{
- int value;
- int cnd=0;
- void *ptr=NULL;
- Context *context = (Context*)CMSGetPG();
+C_signal(void) {
+    int value;
+    int cnd = 0;
+    void *ptr = NULL;
+    Context *context = (Context *) CMSGetPG();
 
- if ((context->nextsymbsymbol)==ident_sy) {
-  if (!CMP("OFF") || (!CMP("ON"))) {
-   value = 0;
-   if (!CMP("ON")) value = 1;
-   nextsymbol();
-   if ( identCMP("ERROR") ||
-    identCMP("HALT")  ||
-    identCMP("NOVALUE") ||
-    identCMP("NOTREADY") ||
-    identCMP("SYNTAX")) {
-     _AddLabel( FT_LABEL, UNKNOWN_LABEL );
-     ptr = SYMBOLADD2LITS_KEY;
-     nextsymbol();
-     cnd = (value)?set_signal_opt:unset_signal_opt;
-   } else
-    (context->lstring_Lerror)(ERR_INV_SUBKEYWORD,4-value,&(context->nextsymbsymbolstr));
+    if ((context->nextsymbsymbol) == ident_sy) {
+        if (!CMP("OFF") || (!CMP("ON"))) {
+            value = 0;
+            if (!CMP("ON")) value = 1;
+            nextsymbol();
+            if (identCMP("ERROR") ||
+                identCMP("HALT") ||
+                identCMP("NOVALUE") ||
+                identCMP("NOTREADY") ||
+                identCMP("SYNTAX")) {
+                _AddLabel(FT_LABEL, UNKNOWN_LABEL);
+                ptr = SYMBOLADD2LITS_KEY;
+                nextsymbol();
+                cnd = (value) ? set_signal_opt : unset_signal_opt;
+            } else
+                (context->lstring_Lerror)(ERR_INV_SUBKEYWORD, 4 - value,
+                                          &(context->nextsymbsymbolstr));
 
-   /* must handle correct the name */
-   if (identCMP("NAME")) {
-    nextsymbol(); /* skip name */
-    if (value) {
-     _CodeAddByte(OP_PUSH);
-      _CodeAddPtr(SYMBOLADD2LITS_KEY);
-      TraceByte( nothing_middle );
-     cnd = set_signal_name_opt;
-    }
-    nextsymbol();
-   }
-   _CodeAddByte(OP_PUSH);
-    _CodeAddPtr(ptr);
-    TraceByte( nothing_middle );
+            /* must handle correct the name */
+            if (identCMP("NAME")) {
+                nextsymbol(); /* skip name */
+                if (value) {
+                    _CodeAddByte(OP_PUSH);
+                    _CodeAddPtr(SYMBOLADD2LITS_KEY);
+                    TraceByte(nothing_middle);
+                    cnd = set_signal_name_opt;
+                }
+                nextsymbol();
+            }
+            _CodeAddByte(OP_PUSH);
+            _CodeAddPtr(ptr);
+            TraceByte(nothing_middle);
 
-   _CodeAddByte(OP_STOREOPT);
-    _CodeAddByte(cnd);
+            _CodeAddByte(OP_STOREOPT);
+            _CodeAddByte(cnd);
 
-   if (cnd==set_signal_name_opt) {
-    _CodeAddByte(OP_POP);
-     _CodeAddByte(1);
-   }
-  } else
-  if (!CMP("VALUE")) {
-   nextsymbol();
-   C_expr(exp_normal);
-   _CodeAddByte(OP_SIGNALVAL);
-  } else {
-   _CodeAddByte(OP_SIGNAL);
-    _CodeAddPtr(_AddLabel( FT_LABEL, UNKNOWN_LABEL ));
-   nextsymbol();
-  }
- } else
-  (context->lstring_Lerror)(ERR_STRING_EXPECTED,4,&(context->nextsymbsymbolstr));
+            if (cnd == set_signal_name_opt) {
+                _CodeAddByte(OP_POP);
+                _CodeAddByte(1);
+            }
+        } else if (!CMP("VALUE")) {
+            nextsymbol();
+            C_expr(exp_normal);
+            _CodeAddByte(OP_SIGNALVAL);
+        } else {
+            _CodeAddByte(OP_SIGNAL);
+            _CodeAddPtr(_AddLabel(FT_LABEL, UNKNOWN_LABEL));
+            nextsymbol();
+        }
+    } else
+        (context->lstring_Lerror)(ERR_STRING_EXPECTED, 4,
+                                  &(context->nextsymbsymbolstr));
 } /* C_signal */
 
 /* -------------------------------------------------------------- */
@@ -1703,23 +1736,23 @@ C_signal( void)
 /*     trace setting.                                             */
 /* -------------------------------------------------------------- */
 static void
-C_trace(void)
-{
- Context *context = (Context*)CMSGetPG();
- if (identCMP("VALUE")) {
-  nextsymbol();
-  C_expr(exp_tmp);
- } else
- if ((context->nextsymbsymbol)==ident_sy || (context->nextsymbsymbol)==literal_sy) {
-  _CodeAddByte(OP_PUSH);
-   _CodeAddPtr(SYMBOLADD2LITS_KEY);
-   TraceByte( nothing_middle );
-  nextsymbol();
- } else
-  (context->lstring_Lerror)(ERR_STRING_EXPECTED,6,&(context->nextsymbsymbolstr));
+C_trace(void) {
+    Context *context = (Context *) CMSGetPG();
+    if (identCMP("VALUE")) {
+        nextsymbol();
+        C_expr(exp_tmp);
+    } else if ((context->nextsymbsymbol) == ident_sy ||
+               (context->nextsymbsymbol) == literal_sy) {
+        _CodeAddByte(OP_PUSH);
+        _CodeAddPtr(SYMBOLADD2LITS_KEY);
+        TraceByte(nothing_middle);
+        nextsymbol();
+    } else
+        (context->lstring_Lerror)(ERR_STRING_EXPECTED, 6,
+                                  &(context->nextsymbsymbolstr));
 
- _CodeAddByte(OP_STOREOPT);
-  _CodeAddByte(trace_opt);
+    _CodeAddByte(OP_STOREOPT);
+    _CodeAddByte(trace_opt);
 } /* C_trace */
 
 /* -------------------------------------------------------------- */
@@ -1728,20 +1761,20 @@ C_trace(void)
 /*      variables to uppercase.                                   */
 /* -------------------------------------------------------------- */
 static void
-C_upper(void)
-{
- void *sym;
- Context *context = (Context*)CMSGetPG();
+C_upper(void) {
+    void *sym;
+    Context *context = (Context *) CMSGetPG();
 
- while ((context->nextsymbsymbol)==ident_sy) {
-  sym = SYMBOLADD2LITS;
-  _CodeAddByte(OP_LOAD);
-   _CodeAddPtr(sym);
-   TraceByte( variable_middle );
-  _CodeAddByte(OP_UPPER);
-  _CodeAddByte(OP_POP); _CodeAddByte(1);
-  nextsymbol();
- }
+    while ((context->nextsymbsymbol) == ident_sy) {
+        sym = SYMBOLADD2LITS;
+        _CodeAddByte(OP_LOAD);
+        _CodeAddPtr(sym);
+        TraceByte(variable_middle);
+        _CodeAddByte(OP_UPPER);
+        _CodeAddByte(OP_POP);
+        _CodeAddByte(1);
+        nextsymbol();
+    }
 } /* C_upper */
 
 /* -------------------------------------------------------------- */
@@ -1749,12 +1782,11 @@ C_upper(void)
 /* Execute a host command according to environment                */
 /* -------------------------------------------------------------- */
 static void
-C_HostCmd( void )
-{
- _CodeAddByte(OP_LOADOPT);
-  _CodeAddByte(environment_opt);
- C_expr(exp_normal);
- _CodeAddByte(OP_SYSTEM);
+C_HostCmd(void) {
+    _CodeAddByte(OP_LOADOPT);
+    _CodeAddByte(environment_opt);
+    C_expr(exp_normal);
+    _CodeAddByte(OP_SYSTEM);
 } /* C_HostCmd */
 
 /* -------------------------------------------------------------- */
@@ -1763,211 +1795,213 @@ C_HostCmd( void )
 /*       of expr.                                                 */
 /* -------------------------------------------------------------- */
 static int
-C_chk4assign(void)
-{
- Context *context = (Context*)CMSGetPG();
- if (*(context->nextsymbsymbolptr)=='=') {
-  if ((context->nextsymbsymbol)==literal_sy) {
-   /* produce an error */
-   if (IN_RANGE('0',LSTR((context->nextsymbsymbolstr))[0],'9'))
-    (context->lstring_Lerror)(ERR_INVALID_START,
-     (_Lisnum(&(context->nextsymbsymbolstr))!=LSTRING_TY)?1:2,
-     &(context->nextsymbsymbolstr));
-   else
-   if (LSTR((context->nextsymbsymbolstr))[0]=='.')
-    (context->lstring_Lerror)(ERR_INVALID_START,3,&(context->nextsymbsymbolstr));
-  }
-  return TRUE;
- } else
-  return FALSE;
+C_chk4assign(void) {
+    Context *context = (Context *) CMSGetPG();
+    if (*(context->nextsymbsymbolptr) == '=') {
+        if ((context->nextsymbsymbol) == literal_sy) {
+            /* produce an error */
+            if (IN_RANGE('0', LSTR((context->nextsymbsymbolstr))[0], '9'))
+                (context->lstring_Lerror)(ERR_INVALID_START,
+                                          (_Lisnum(
+                                                  &(context->nextsymbsymbolstr)) !=
+                                           LSTRING_TY) ? 1 : 2,
+                                          &(context->nextsymbsymbolstr));
+            else if (LSTR((context->nextsymbsymbolstr))[0] == '.')
+                (context->lstring_Lerror)(ERR_INVALID_START, 3,
+                                          &(context->nextsymbsymbolstr));
+        }
+        return TRUE;
+    } else
+        return FALSE;
 } /* C_chk4assign */
 
 /* ------ assigment ------- */
 static void
-C_assign(void)
-{
- void *var;
- bool stem;
- Context *context = (Context*)CMSGetPG();
+C_assign(void) {
+    void *var;
+    bool stem;
+    Context *context = (Context *) CMSGetPG();
 
- var = SYMBOLADD2LITS;
- stem = !(context->nextsymbsymbolhasdot) && (LSTR((context->nextsymbsymbolstr))[LLEN((context->nextsymbsymbolstr))-1]=='.');
- nextsymbol();
- _CodeAddByte(OP_CREATE); /* CREATE  */
-  _CodeAddPtr(var); /* the variable */
- _mustbe(eq_sy,ERR_INVALID_EXPRESSION,0);
- if (C_expr(exp_assign)) {
-  _CodeAddByte(OP_POP);
-   _CodeAddByte(1);
- }
- if (stem) {
-  _CodeAddByte(OP_ASSIGNSTEM);
-   _CodeAddPtr(var);
- }
+    var = SYMBOLADD2LITS;
+    stem = !(context->nextsymbsymbolhasdot) &&
+           (LSTR((context->nextsymbsymbolstr))[
+                    LLEN((context->nextsymbsymbolstr)) - 1] == '.');
+    nextsymbol();
+    _CodeAddByte(OP_CREATE); /* CREATE  */
+    _CodeAddPtr(var); /* the variable */
+    _mustbe(eq_sy, ERR_INVALID_EXPRESSION, 0);
+    if (C_expr(exp_assign)) {
+        _CodeAddByte(OP_POP);
+        _CodeAddByte(1);
+    }
+    if (stem) {
+        _CodeAddByte(OP_ASSIGNSTEM);
+        _CodeAddPtr(var);
+    }
 } /* C_assign */
 
 /* --------------- C_instr --------------- */
 static bool
-C_instr(bool until_end)
-{
- int first, middle, last, cmp, found;
- Context *context = (Context*)CMSGetPG();
+C_instr(bool until_end) {
+    int first, middle, last, cmp, found;
+    Context *context = (Context *) CMSGetPG();
 
- /* -- create a new clause ptr -- */
- (context->compileCompileNesting)++;
- (context->compile_checked_semicolon) = FALSE;
- if ((context->nextsymbsymbol)==exit_sy) {
-  if ((context->compile_str_interpreted))
-   _CodeAddByte(OP_INTER_END);
-  else {
-    CreateClause();
-   _CodeAddByte(OP_IEXIT);
-  }
-  (context->compileCompileNesting)--;
-  longjmp((context->rexx_error_trap),1); /* Everything is Ok */
- }
+    /* -- create a new clause ptr -- */
+    (context->compileCompileNesting)++;
+    (context->compile_checked_semicolon) = FALSE;
+    if ((context->nextsymbsymbol) == exit_sy) {
+        if ((context->compile_str_interpreted))
+            _CodeAddByte(OP_INTER_END);
+        else {
+            CreateClause();
+            _CodeAddByte(OP_IEXIT);
+        }
+        (context->compileCompileNesting)--;
+        longjmp((context->rexx_error_trap), 1); /* Everything is Ok */
+    }
 
- if (!identCMP("END")) CreateClause();
+    if (!identCMP("END")) CreateClause();
 
- if ((context->nextsymbsymbol)==label_sy)
-  (context->lstring_Lerror)(ERR_UNEXPECTED_LABEL,0);
+    if ((context->nextsymbsymbol) == label_sy)
+        (context->lstring_Lerror)(ERR_UNEXPECTED_LABEL, 0);
 
- if (C_chk4assign())
-  C_assign();
- else
- if ((context->nextsymbsymbol)==ident_sy) {
-  if (!CMP("END")) {
-   (context->compileCompileNesting)--;
-   if (until_end)  /* Semicolon is NOT deleted */
-    return TRUE;
-   else
-    (context->lstring_Lerror)(ERR_UNMATCHED_END,0);
-  }
+    if (C_chk4assign())
+        C_assign();
+    else if ((context->nextsymbsymbol) == ident_sy) {
+        if (!CMP("END")) {
+            (context->compileCompileNesting)--;
+            if (until_end)  /* Semicolon is NOT deleted */
+                return TRUE;
+            else
+                (context->lstring_Lerror)(ERR_UNMATCHED_END, 0);
+        }
 
-  /* Binary search for the instruction */
-  first = found = 0;
-  last  = DIMENSION(statements_list)-1;
-  while (first<=last)   {
-   middle = (first+last)/2;
-   if ((cmp=CMP(statements_list[middle].name))==0) {
-    found=1;
-    break;
-   } else
-   if (cmp<0)
-    last = middle-1;
-   else
-    first = middle+1;
-  }
+        /* Binary search for the instruction */
+        first = found = 0;
+        last = DIMENSION(statements_list) - 1;
+        while (first <= last) {
+            middle = (first + last) / 2;
+            if ((cmp = CMP(statements_list[middle].name)) == 0) {
+                found = 1;
+                break;
+            } else if (cmp < 0)
+                last = middle - 1;
+            else
+                first = middle + 1;
+        }
 
-  if (found) {
-   if (statements_list[middle].func != C_error)
-    nextsymbol();
-   (*statements_list[middle].func)();
-  } else
-   C_HostCmd();
- } else
-  C_HostCmd();
+        if (found) {
+            if (statements_list[middle].func != C_error)
+                nextsymbol();
+            (*statements_list[middle].func)();
+        } else
+            C_HostCmd();
+    } else
+        C_HostCmd();
 
- if (!(context->compile_checked_semicolon))  /* if noone has checked for a */
-  MUSTBE_SEMICOLON; /* semicolon then check it now */
+    if (!(context->compile_checked_semicolon))  /* if noone has checked for a */
+        MUSTBE_SEMICOLON; /* semicolon then check it now */
 
- (context->compileCompileNesting)--;
- return FALSE;
+    (context->compileCompileNesting)--;
+    return FALSE;
 } /* C_instr */
 
 /* ------------- RxInitCompile -------------- */
 void __CDECL
-RxInitCompile( RxFile *rxf, PLstr src )
-{
- int i;
- Context *context = (Context*)CMSGetPG();
+RxInitCompile(RxFile *rxf, PLstr src) {
+    int i;
+    Context *context = (Context *) CMSGetPG();
 
- (context->compile_str_interpreted) = (src!=NULL);
+    (context->compile_str_interpreted) = (src != NULL);
 
- /* copy to our static variables */
- (context->compileCompileCode) = (context->rexx_code);
- (context->compileCompileRxFile) = rxf;
+    /* copy to our static variables */
+    (context->compileCompileCode) = (context->rexx_code);
+    (context->compileCompileRxFile) = rxf;
 
- /* Initialise (context->compile_Loop) Queue for LEAVE & ITERATE jmp points */
- DQINIT((context->compile_Loop));
+    /* Initialise (context->compile_Loop) Queue for LEAVE & ITERATE jmp points */
+    DQINIT((context->compile_Loop));
 
- /* Initialize code string */
- Lfx((context->compileCompileCode),CODE_INC);
- (context->compileCompileCodeLen) = LLEN(*(context->compileCompileCode));
- (context->compileCompileCodePtr) = (byte *)LSTR(*(context->compileCompileCode)) + (context->compileCompileCodeLen);
+    /* Initialize code string */
+    Lfx((context->compileCompileCode), CODE_INC);
+    (context->compileCompileCodeLen) = LLEN(*(context->compileCompileCode));
+    (context->compileCompileCodePtr) =
+            (byte *) LSTR(*(context->compileCompileCode)) +
+            (context->compileCompileCodeLen);
 
- if ((context->compileCompileClause) == NULL) {
-  (context->compileCompileCurClause) = 0;
-  (context->compileCompileClauseItems) = CLAUSE_INC;
-  (context->compileCompileClause) = (Clause*)MALLOC(CLAUSE_INC*sizeof(Clause),"Clause");
- }
+    if ((context->compileCompileClause) == NULL) {
+        (context->compileCompileCurClause) = 0;
+        (context->compileCompileClauseItems) = CLAUSE_INC;
+        (context->compileCompileClause) = (Clause *) MALLOC(
+                CLAUSE_INC * sizeof(Clause), "Clause");
+    }
 
- /* initialise nesting */
- (context->compileCompileNesting) = 0;
+    /* initialise nesting */
+    (context->compileCompileNesting) = 0;
 
- /* Initialise next (context->nextsymbsymbol) */
- if ((context->compile_str_interpreted)) InitNextsymbol(src);
- else InitNextsymbol(&(rxf->file));
+    /* Initialise next (context->nextsymbsymbol) */
+    if ((context->compile_str_interpreted)) InitNextsymbol(src);
+    else InitNextsymbol(&(rxf->file));
 
 } /* RxInitCompile */
 
 /* -------------- RxCompile ----------------- */
 int __CDECL
-RxCompile( void )
-{
- int jc;
- Context *context = (Context*)CMSGetPG();
+RxCompile(void) {
+    int jc;
+    Context *context = (Context *) CMSGetPG();
 
- /* --- trap eof --- */
- if ((jc=setjmp((context->rexx_error_trap)))!=0) {
-   /* Set the length of the Code and exit */
-  LLEN(*(context->compileCompileCode)) = (context->compileCompileCodeLen);
-  goto CompEnd;
- }
+    /* --- trap eof --- */
+    if ((jc = setjmp((context->rexx_error_trap))) != 0) {
+        /* Set the length of the Code and exit */
+        LLEN(*(context->compileCompileCode)) = (context->compileCompileCodeLen);
+        goto CompEnd;
+    }
 
- /* ---- main loop ---- */
- /* will exit only with a longjmp */
- while (1) {
-  SKIP_SEMICOLONS;
-  /* labels are accepted only in main loop */
+    /* ---- main loop ---- */
+    /* will exit only with a longjmp */
+    while (1) {
+        SKIP_SEMICOLONS;
+        /* labels are accepted only in main loop */
 /*** WARNING labels can be also with DOT .   test.label ******/
-  if ((context->nextsymbsymbol)==label_sy) {
-   (context->compileCompileNesting)++;
-   /* --- if prev was NEWCLAUSE */
-   if ((context->compileCompileCurClause) &&
-       (context->compileCompileClause)[(context->compileCompileCurClause)-1].code ==
-       (context->compileCompileCodeLen)-CLAUSESTEP)
-    _AddLabel(FT_LABEL, (context->compileCompileCodeLen)-CLAUSESTEP);
-   else
-    _AddLabel(FT_LABEL, (context->compileCompileCodeLen));
-   CreateClause();
-   nextsymbol();
-   SKIP_SEMICOLONS;
-   if (identCMP("PROCEDURE")) {
-    nextsymbol();
-    C_procedure();
-   }
-   (context->compileCompileNesting)--;
-  } else
-   C_instr(FALSE);
- }
+        if ((context->nextsymbsymbol) == label_sy) {
+            (context->compileCompileNesting)++;
+            /* --- if prev was NEWCLAUSE */
+            if ((context->compileCompileCurClause) &&
+                (context->compileCompileClause)[
+                        (context->compileCompileCurClause) - 1].code ==
+                (context->compileCompileCodeLen) - CLAUSESTEP)
+                _AddLabel(FT_LABEL,
+                          (context->compileCompileCodeLen) - CLAUSESTEP);
+            else
+                _AddLabel(FT_LABEL, (context->compileCompileCodeLen));
+            CreateClause();
+            nextsymbol();
+            SKIP_SEMICOLONS;
+            if (identCMP("PROCEDURE")) {
+                nextsymbol();
+                C_procedure();
+            }
+            (context->compileCompileNesting)--;
+        } else
+            C_instr(FALSE);
+    }
 
-CompEnd:
- /* Check here for various errors */
- if ((context->compile_Loop).items>0)
-  DQFlush(&(context->compile_Loop),FREE);
+    CompEnd:
+    /* Check here for various errors */
+    if ((context->compile_Loop).items > 0)
+        DQFlush(&(context->compile_Loop), FREE);
 
- /* mark the end of clauses */
- (context->compileCompileClause)[(context->compileCompileCurClause)].ptr  = 0;
- (context->compileCompileClause)[(context->compileCompileCurClause)].line = 0;
- (context->compileCompileClause)[(context->compileCompileCurClause)].code = 0;
- (context->compileCompileClause)[(context->compileCompileCurClause)].fptr = 0;
+    /* mark the end of clauses */
+    (context->compileCompileClause)[(context->compileCompileCurClause)].ptr = 0;
+    (context->compileCompileClause)[(context->compileCompileCurClause)].line = 0;
+    (context->compileCompileClause)[(context->compileCompileCurClause)].code = 0;
+    (context->compileCompileClause)[(context->compileCompileCurClause)].fptr = 0;
 
- /* ---- Mark the End of compilation ----- */
- (context->nextsymbsymbolptr) = NULL;  /* mark end of compilation */
- (context->compileCompileCodePtr) = NULL;
+    /* ---- Mark the End of compilation ----- */
+    (context->nextsymbsymbolptr) = NULL;  /* mark end of compilation */
+    (context->compileCompileCodePtr) = NULL;
 
- if (jc==1) (context->rexxrxReturnCode) = 0;
+    if (jc == 1) (context->rexxrxReturnCode) = 0;
 
- return (context->rexxrxReturnCode);
+    return (context->rexxrxReturnCode);
 } /* RxCompile */

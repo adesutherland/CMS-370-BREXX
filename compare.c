@@ -23,25 +23,24 @@
  * returns 0 if strings are equal                     *
  * -------------------------------------------------- */
 long __CDECL
-Lcompare( const PLstr A, const PLstr B, const char pad )
-{
- long i;
- PLstr a,b;
+Lcompare(const PLstr A, const PLstr B, const char pad) {
+    long i;
+    PLstr a, b;
 
- L2STR(A);
- L2STR(B);
+    L2STR(A);
+    L2STR(B);
 
- if (LLEN(*A) < LLEN(*B)) {
-  a = A;
-  b = B;
- } else {
-  a = B;
-  b = A;
- }
- for (i=0; i<LLEN(*a); i++)
-  if (LSTR(*a)[i] != LSTR(*b)[i]) return i+1;
- for (; i<LLEN(*b); i++)
-  if (pad != LSTR(*b)[i]) return i+1;
+    if (LLEN(*A) < LLEN(*B)) {
+        a = A;
+        b = B;
+    } else {
+        a = B;
+        b = A;
+    }
+    for (i = 0; i < LLEN(*a); i++)
+        if (LSTR(*a)[i] != LSTR(*b)[i]) return i + 1;
+    for (; i < LLEN(*b); i++)
+        if (pad != LSTR(*b)[i]) return i + 1;
 
- return 0;
+    return 0;
 } /* Lcompare */

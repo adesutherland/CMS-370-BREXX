@@ -19,39 +19,38 @@
 
 /* ------------------ Lx2d ------------------- */
 void __CDECL
-Lx2d( const PLstr to, const PLstr from, long n )
-{
- Lstr tmp;
- int sign;
+Lx2d(const PLstr to, const PLstr from, long n) {
+    Lstr tmp;
+    int sign;
 
- LINITSTR(tmp);
+    LINITSTR(tmp);
 
- if (n<=0) {
-  Lx2c(&tmp,from);
-  Lc2d(to,&tmp,-1);
- } else {
-  if (n>8) n=8;
-  Lspace(&tmp,from,0,' ');
-  Lright(to,&tmp,n,'0');
-  sign = HEXVAL(LSTR(*to)[0]) & 0x8;
-  Lx2c(&tmp,to);
-  Lc2d(to,&tmp,-1);
-  if (sign) {
-   if (n==sizeof(long)*2)
-    LINT(*to) = -(~LINT(*to) + 1);
-   else
-    LINT(*to) = LINT(*to) - (1L << (n*4));
-  }
+    if (n <= 0) {
+        Lx2c(&tmp, from);
+        Lc2d(to, &tmp, -1);
+    } else {
+        if (n > 8) n = 8;
+        Lspace(&tmp, from, 0, ' ');
+        Lright(to, &tmp, n, '0');
+        sign = HEXVAL(LSTR(*to)[0]) & 0x8;
+        Lx2c(&tmp, to);
+        Lc2d(to, &tmp, -1);
+        if (sign) {
+            if (n == sizeof(long) * 2)
+                LINT(*to) = -(~LINT(*to) + 1);
+            else
+                LINT(*to) = LINT(*to) - (1L << (n * 4));
+        }
 
 
-  /****
-  if ((LLEN(*to)&1) && LSTR(*to)[0]>'7') {
-   Lright(&tmp,to,LLEN(*to)+1,'f');
-   Lstrcpy(to,&tmp);
-  }
-  Lx2c(&tmp,to);
-  Lc2d(to,&tmp,n/2);
-  ****/
- }
- LFREESTR(tmp);
+        /****
+        if ((LLEN(*to)&1) && LSTR(*to)[0]>'7') {
+         Lright(&tmp,to,LLEN(*to)+1,'f');
+         Lstrcpy(to,&tmp);
+        }
+        Lx2c(&tmp,to);
+        Lc2d(to,&tmp,n/2);
+        ****/
+    }
+    LFREESTR(tmp);
 } /* Lx2d */

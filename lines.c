@@ -4,13 +4,12 @@
 #include "lstring.h"
 
 /* ---------------- Llines ------------------- */
-long Llines( FILEP f )
-{
-  long l;
-  l = fgetrec(f);  /* read current record */
-  if (l==-1) {
-    /* Stream does not support record counting */
-    return !fateof(f);
-  }
-  return fgetrecs(f) - l;
+long Llines(FILEP f) {
+    long l;
+    l = fgetrec(f);  /* read current record */
+    if (l == -1) {
+        /* Stream does not support record counting */
+        return !fateof(f);
+    }
+    return fgetrecs(f) - l;
 } /* Llines */

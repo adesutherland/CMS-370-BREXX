@@ -31,22 +31,21 @@
 /* SPACE(string(,(n)(,pad)))                                       */
 /* --------------------------------------------------------------- */
 void __CDECL
-R_space( )
-{
- long n;
- char pad;
- Context *context = (Context*)CMSGetPG();
+R_space() {
+    long n;
+    char pad;
+    Context *context = (Context *) CMSGetPG();
 
- if (!IN_RANGE(1,ARGN,3)) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
- must_exist(1);
- if (exist(2)) {
-  n = Lrdint(ARG2);
-  if (n<0) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
- } else
-  n = 1;
- get_pad(3,pad);
+    if (!IN_RANGE(1, ARGN, 3)) (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+    must_exist(1);
+    if (exist(2)) {
+        n = Lrdint(ARG2);
+        if (n < 0) (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+    } else
+        n = 1;
+    get_pad(3, pad);
 
- Lspace(ARGR, ARG1, n, pad);
+    Lspace(ARGR, ARG1, n, pad);
 } /* R_space */
 
 /* --------------------------------------------------------------- */
@@ -57,29 +56,28 @@ R_space( )
 /*  WORDLENGTH(string,i)                                           */
 /* --------------------------------------------------------------- */
 void __CDECL
-R_SI( const int func )
-{
- long     n;
- Context *context = (Context*)CMSGetPG();
+R_SI(const int func) {
+    long n;
+    Context *context = (Context *) CMSGetPG();
 
- if (ARGN!=2) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
- must_exist(1);
- get_i(2,n);
+    if (ARGN != 2) (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+    must_exist(1);
+    get_i(2, n);
 
- switch (func) {
-  case f_word:
-   Lword(ARGR,ARG1,n);
-   break;
+    switch (func) {
+        case f_word:
+            Lword(ARGR, ARG1, n);
+            break;
 
-  case f_wordlength:
-   Licpy(ARGR,Lwordlength(ARG1,n));
-   break;
+        case f_wordlength:
+            Licpy(ARGR, Lwordlength(ARG1, n));
+            break;
 
-  case f_wordindex:
-   Licpy(ARGR,Lwordindex(ARG1,n));
-   break;
+        case f_wordindex:
+            Licpy(ARGR, Lwordindex(ARG1, n));
+            break;
 
-  default:
-   (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE,0);
- } /* switch */
+        default:
+            (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE, 0);
+    } /* switch */
 } /* R_SI */
