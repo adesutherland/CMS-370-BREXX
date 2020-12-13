@@ -168,34 +168,34 @@ struct sort_list_st {
 }
 /*  WARNING THE LIST MUST BE SORTED!!!!!!!!!!!! */
 statements_list[] = {
-        {"ADDRESS", C_address},
-        {"ARG", C_arg},
-        {"CALL", C_call},
-        {"DO", C_do},
-        {"DROP", C_drop},
-        {"ELSE", C_error},
-        {"EXIT", C_exit},
-        {"IF", C_if},
+        {"ADDRESS",   C_address},
+        {"ARG",       C_arg},
+        {"CALL",      C_call},
+        {"DO",        C_do},
+        {"DROP",      C_drop},
+        {"ELSE",      C_error},
+        {"EXIT",      C_exit},
+        {"IF",        C_if},
         {"INTERPRET", C_interpret},
-        {"ITERATE", C_iterate},
-        {"LEAVE", C_leave},
-        {"LOWER", C_lower},
-        {"NOP", C_nop},
-        {"NUMERIC", C_numeric},
+        {"ITERATE",   C_iterate},
+        {"LEAVE",     C_leave},
+        {"LOWER",     C_lower},
+        {"NOP",       C_nop},
+        {"NUMERIC",   C_numeric},
         {"OTHERWISE", C_error},
-        {"PARSE", C_parse},
+        {"PARSE",     C_parse},
         {"PROCEDURE", C_error},
-        {"PULL", C_pull},
-        {"PUSH", C_push},
-        {"QUEUE", C_queue},
-        {"RETURN", C_return},
-        {"SAY", C_say},
-        {"SELECT", C_select},
-        {"SIGNAL", C_signal},
-        {"THEN", C_error},
-        {"TRACE", C_trace},
-        {"UPPER", C_upper},
-        {"WHEN", C_error}
+        {"PULL",      C_pull},
+        {"PUSH",      C_push},
+        {"QUEUE",     C_queue},
+        {"RETURN",    C_return},
+        {"SAY",       C_say},
+        {"SELECT",    C_select},
+        {"SIGNAL",    C_signal},
+        {"THEN",      C_error},
+        {"TRACE",     C_trace},
+        {"UPPER",     C_upper},
+        {"WHEN",      C_error}
 };
 
 /* ---------------- crloopctrl ------------------- */
@@ -226,11 +226,16 @@ CreateClause(void) {
         return;
 
     /* --- create a clause --- */
-    (context->compileCompileClause)[(context->compileCompileCurClause)].ptr = (context->nextsymbsymbolprevptr);
-    (context->compileCompileClause)[(context->compileCompileCurClause)].line = (context->nextsymbsymboline);
-    (context->compileCompileClause)[(context->compileCompileCurClause)].code = (context->compileCompileCodeLen);
-    (context->compileCompileClause)[(context->compileCompileCurClause)].nesting = (context->compileCompileNesting);
-    (context->compileCompileClause)[(context->compileCompileCurClause)].fptr = (context->compileCompileRxFile);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].ptr =
+            (context->nextsymbsymbolprevptr);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].line =
+            (context->nextsymbsymboline);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].code =
+            (context->compileCompileCodeLen);
+    (context->compileCompileClause)[(context->compileCompileCurClause)]
+            .nesting = (context->compileCompileNesting);
+    (context->compileCompileClause)[(context->compileCompileCurClause)].fptr =
+            (context->compileCompileRxFile);
 
     (context->compileCompileCurClause)++;
     if ((context->compileCompileCurClause) ==
@@ -1803,7 +1808,8 @@ C_chk4assign(void) {
             if (IN_RANGE('0', LSTR((context->nextsymbsymbolstr))[0], '9'))
                 (context->lstring_Lerror)(ERR_INVALID_START,
                                           (_Lisnum(
-                                                  &(context->nextsymbsymbolstr)) !=
+                                                  &(context
+                                                          ->nextsymbsymbolstr)) !=
                                            LSTRING_TY) ? 1 : 2,
                                           &(context->nextsymbsymbolstr));
             else if (LSTR((context->nextsymbsymbolstr))[0] == '.')
@@ -1993,9 +1999,12 @@ RxCompile(void) {
 
     /* mark the end of clauses */
     (context->compileCompileClause)[(context->compileCompileCurClause)].ptr = 0;
-    (context->compileCompileClause)[(context->compileCompileCurClause)].line = 0;
-    (context->compileCompileClause)[(context->compileCompileCurClause)].code = 0;
-    (context->compileCompileClause)[(context->compileCompileCurClause)].fptr = 0;
+    (context->compileCompileClause)[(context->compileCompileCurClause)].line =
+            0;
+    (context->compileCompileClause)[(context->compileCompileCurClause)].code =
+            0;
+    (context->compileCompileClause)[(context->compileCompileCurClause)].fptr =
+            0;
 
     /* ---- Mark the End of compilation ----- */
     (context->nextsymbsymbolptr) = NULL;  /* mark end of compilation */

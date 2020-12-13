@@ -114,13 +114,13 @@ R_math(const int func) {
             break;
 #ifndef __CMS__
 
-        case f_tan :
-            LREAL(*ARGR) = tan(LREAL(*ARGR));
-            break;
+            case f_tan :
+                LREAL(*ARGR) = tan(LREAL(*ARGR));
+                break;
 
-        case f_tanh:
-            LREAL(*ARGR) = tanh(LREAL(*ARGR));
-            break;
+            case f_tanh:
+                LREAL(*ARGR) = tanh(LREAL(*ARGR));
+                break;
 #endif
 
         default:

@@ -66,7 +66,9 @@
 #endif
 
 #ifdef __CMS__
+
 #include <cmssys.h>               // rpo
+
 #endif
 
 /* ----------- Function prototypes ------------ */
@@ -100,7 +102,7 @@ RxInitialize(char *prorgram_name) {
     // loaded as a resident program in CMS the static initializatino is not refreshed at each
     // invocation.
     (context->lstring_lLastScannedNumber) = 0.0;
-     (context->lstring_lNumericDigits) = 9;
+    (context->lstring_lNumericDigits) = 9;
 #endif
 
     /* do the basic initialisation */
@@ -159,7 +161,9 @@ RxInitialize(char *prorgram_name) {
     Lscpy(&str, "SYNTAX");
     (context->rexxsyntaxStr) = _Add2Lits(&str, FALSE);
 #ifdef __CMS__
-    Lscpy(&str,"CMS"); (context->rexxsystemStr) = _Add2Lits( &str, FALSE );         // CMS is the default environment
+    Lscpy(&str, "CMS");
+    (context->rexxsystemStr) = _Add2Lits(&str,
+                                         FALSE);         // CMS is the default environment
 #else
     Lscpy(&str, "SYSTEM");
     (context->rexxsystemStr) = _Add2Lits(&str, FALSE);

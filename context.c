@@ -33,7 +33,7 @@ void InitContext() {
     context->interpre_no_loc_fp = 0;
     context->interpre_no_sys_fp = 0;
 
-    context->rawstdin = fopen("CONSOLE","rb");
+    context->rawstdin = fopen("CONSOLE", "rb");
 }
 
 #undef __CONTEXT_C__

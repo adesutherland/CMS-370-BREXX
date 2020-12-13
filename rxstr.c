@@ -199,15 +199,15 @@ R_S(const int func) {
             break;
 
 #if !defined(WCE) && !defined(__CMS__)
-        case f_getenv: {
-            char *env;
-            LASCIIZ(*ARG1);
-            env = getenv(LSTR(*ARG1));
-            if (env)
-                Lscpy(ARGR, env);
-            else LZEROSTR(*ARGR);
-        }
-            break;
+            case f_getenv: {
+                char *env;
+                LASCIIZ(*ARG1);
+                env = getenv(LSTR(*ARG1));
+                if (env)
+                    Lscpy(ARGR, env);
+                else LZEROSTR(*ARGR);
+            }
+                break;
 #endif
 
         case f_length:

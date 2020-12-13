@@ -263,7 +263,8 @@ mem_chk(void) {
     int i = 0;
     Context *context = (Context *) CMSGetPG();
 
-    for (mem = ((Memory *) (context->bmem_mem_head)); mem; mem = mem->prev, i++) {
+    for (mem = ((Memory *) (context->bmem_mem_head)); mem;
+            mem = mem->prev, i++) {
         if (mem->magic != MAGIC) {
             fprintf(STDERR, "PREFIX Magic number doesn't match! ID=%d\n", i);
             mem_print(i, mem);

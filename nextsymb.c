@@ -528,7 +528,8 @@ identifier(int isnumber) {
             case '_':
             case '?':
             case '!':
-                *s = (context->lstring_l2u)[(byte) *(context->nextsymbsymbolptr)];
+                *s = (context->lstring_l2u)[(byte) *(context
+                        ->nextsymbsymbolptr)];
                 if (isnumber) {
                     if (*s == 'E') {
                         if (hasExp)
@@ -669,7 +670,8 @@ literal(void) {
                 (context->nextsymbsymbol) = function_sy;
                 nextchar(FALSE);
                 return;
-            } else if ((context->nextsymb_commentfound)) { /* a comment was inside */
+            } else if ((context
+                    ->nextsymb_commentfound)) { /* a comment was inside */
                 (context->nextsymb_commentfound) = FALSE;
                 *s = '\0';
                 LLEN((context->nextsymbsymbolstr)) = l;
@@ -691,7 +693,8 @@ literal(void) {
 
                 LINITSTR(A);
 
-                switch ((context->lstring_l2u)[(byte) *(context->nextsymbsymbolptr)]) {
+                switch ((context->lstring_l2u)[(byte) *(context
+                        ->nextsymbsymbolptr)]) {
                     case 'B':
                         if (!Ldatatype(&(context->nextsymbsymbolstr), 'B'))
                             (context->lstring_Lerror)(ERR_INVALID_HEX_CONST, 0);

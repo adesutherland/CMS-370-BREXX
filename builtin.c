@@ -112,19 +112,19 @@ R_O(const int func) {
             break;
 
 #ifndef __CMS__
-        case f_desbuf:
-            items = 0;
-            while (1) {
-                items += StackQueued();
-                if ((context->rexxrxStackList).items > 1)
-                    DeleteStack();
-                else {
-                    DQFlush(DQPEEK(&(context->rexxrxStackList)), _Lfree);
-                    break;
+            case f_desbuf:
+                items = 0;
+                while (1) {
+                    items += StackQueued();
+                    if ((context->rexxrxStackList).items > 1)
+                        DeleteStack();
+                    else {
+                        DQFlush(DQPEEK(&(context->rexxrxStackList)), _Lfree);
+                        break;
+                    }
                 }
-            }
-            Licpy(ARGR, items);
-            break;
+                Licpy(ARGR, items);
+                break;
 #endif
 
         case f_digits:
@@ -144,10 +144,10 @@ R_O(const int func) {
             break;
 
 #ifndef __CMS__
-        case f_makebuf:
-            CreateStack();
-            Licpy(ARGR, (context->rexxrxStackList).items);
-            break;
+            case f_makebuf:
+                CreateStack();
+                Licpy(ARGR, (context->rexxrxStackList).items);
+                break;
 #endif
 
 #ifdef WIN
@@ -235,7 +235,7 @@ R_C(const int func) {
 
         case f_queued:
 #if defined(__CMS__) || defined(__MVS)  /* dw start */
-            Licpy(ARGR,StackQueued());
+            Licpy(ARGR, StackQueued());
             break;
 #else
             if (exist(1)) {
@@ -915,24 +915,24 @@ R_sourceline() {
 } /* R_sourceline */
 
 #ifdef __CMS__
+
 void __CDECL
-VM_O(int func)
-{
- Context *context = (Context*)CMSGetPG();
- switch (func){
-  case f_cmsflag:
-   if (ARGN!=1) (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
-   L2STR(ARG1);
-   CMSFLAG(ARGR,ARG1);
-   break;
-  case f_cmsline:
-   CMSLINE(ARGR);
-   break;
-  case f_cmsuser:
-   CMSUSER(ARGR);
-   break;
-  default:
-   fprintf(stderr, "unknown function %d in VM_O" , func);
- }
+VM_O(int func) {
+    Context *context = (Context *) CMSGetPG();
+    switch (func) {
+        case f_cmsflag:
+            if (ARGN != 1) (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+            L2STR(ARG1);
+            CMSFLAG(ARGR, ARG1);
+            break;
+        case f_cmsline:
+            CMSLINE(ARGR);
+            break;
+        case f_cmsuser:
+            CMSUSER(ARGR);
+            break;
+        default:
+            fprintf(stderr, "unknown function %d in VM_O", func);
+    }
 } /* VM_O */
 #endif

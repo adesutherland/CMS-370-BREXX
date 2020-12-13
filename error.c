@@ -85,7 +85,8 @@ RxSignalCondition(int cnd) {
     leaf = BinFind(&(context->rexx_labels), cndstr);
     if (leaf == NULL || ((RxFunc *) (leaf->value))->label == UNKNOWN_LABEL) {
         if (cnd == SC_SYNTAX) /* disable the error handling */
-            (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_SYNTAX;
+            (context->rexx_proc)[(context->rexx_rx_proc)].condition &=
+                    ~SC_SYNTAX;
         (context->lstring_Lerror)(ERR_UNEXISTENT_LABEL, 1, cndstr);
     }
     func = (RxFunc *) (leaf->value);
@@ -174,9 +175,12 @@ Rerror(const int errno, const int subno, ...) {
                     (context->rexx_proc)[(context->rexx_rx_proc)].env);
 
             (context->rexx_rx_proc)--;
-            (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
-            (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
-            (context->lstring_lNumericDigits) = (context->rexx_proc)[(context->rexx_rx_proc)].digits;
+            (context->interpreRx_id) =
+                    (context->rexx_proc)[(context->rexx_rx_proc)].id;
+            (context->interpre_VarScope) =
+                    (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+            (context->lstring_lNumericDigits) =
+                    (context->rexx_proc)[(context->rexx_rx_proc)].digits;
             if ((context->rexx_proc)[(context->rexx_rx_proc)].trace &
                 (normal_trace | off_trace | error_trace))
                 (context->interpre__trace) = FALSE;

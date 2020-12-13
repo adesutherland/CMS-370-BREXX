@@ -45,7 +45,7 @@ Lx2c(const PLstr to, const PLstr from) {
     for (i = r = 0; i < LLEN(*from);) {
         for (; ISSPACE(f[i]) && (i < LLEN(*from)); i++);; /*skip spaces*/
         for (j = i;
-             ISXDIGIT(f[j]) && (j < LLEN(*from)); j++);; /* find hexdigits */
+                ISXDIGIT(f[j]) && (j < LLEN(*from)); j++);; /* find hexdigits */
 
         if ((i < LLEN(*from)) && (j == i)) { /* Ooops wrong character */
             LZEROSTR(*to);  /* Free memory */

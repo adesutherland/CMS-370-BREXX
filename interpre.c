@@ -317,7 +317,8 @@ I_StoreOption(const PLstr value, const int opt) {
 
         case digits_opt:
             if (LLEN(*value) == 0)
-                (context->rexx_proc)[(context->rexx_rx_proc)].digits = LMAXNUMERICDIGITS;
+                (context->rexx_proc)[(context->rexx_rx_proc)].digits =
+                        LMAXNUMERICDIGITS;
             else {
                 l = Lrdint(value);
                 if (l <= 0)
@@ -355,45 +356,62 @@ I_StoreOption(const PLstr value, const int opt) {
         case set_signal_name_opt:
             switch (LSTR(*value)[0]) {
                 case 'E':
-                    (context->rexx_proc)[(context->rexx_rx_proc)].condition |= SC_ERROR;
+                    (context->rexx_proc)[(context->rexx_rx_proc)].condition |=
+                            SC_ERROR;
                     if (opt == set_signal_name_opt)
-                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_error = STACKP(
+                        (context->rexx_proc)[(context->rexx_rx_proc)]
+                                .lbl_error = STACKP(
                                 1);
                     else
-                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_error = &((context->rexxerrorStr)->key);
+                        (context->rexx_proc)[(context->rexx_rx_proc)]
+                                .lbl_error = &((context->rexxerrorStr)->key);
                     break;
                 case 'H':
-                    (context->rexx_proc)[(context->rexx_rx_proc)].condition |= SC_HALT;
+                    (context->rexx_proc)[(context->rexx_rx_proc)].condition |=
+                            SC_HALT;
                     if (opt == set_signal_name_opt)
-                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_halt = STACKP(
-                                1);
+                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_halt =
+                                STACKP(
+                                        1);
                     else
-                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_halt = &((context->rexxhaltStr)->key);
+                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_halt =
+                                &((context->rexxhaltStr)->key);
                     break;
                 case 'N':
                     if (LSTR(*value)[2] == 'V') {
-                        (context->rexx_proc)[(context->rexx_rx_proc)].condition |= SC_NOVALUE;
+                        (context->rexx_proc)[(context->rexx_rx_proc)].condition
+                                |= SC_NOVALUE;
                         if (opt == set_signal_name_opt)
-                            (context->rexx_proc)[(context->rexx_rx_proc)].lbl_novalue = STACKP(
+                            (context->rexx_proc)[(context->rexx_rx_proc)]
+                                    .lbl_novalue = STACKP(
                                     1);
                         else
-                            (context->rexx_proc)[(context->rexx_rx_proc)].lbl_novalue = &((context->rexxnoValueStr)->key);
+                            (context->rexx_proc)[(context->rexx_rx_proc)]
+                                    .lbl_novalue =
+                                    &((context->rexxnoValueStr)->key);
                     } else {
-                        (context->rexx_proc)[(context->rexx_rx_proc)].condition |= SC_NOTREADY;
+                        (context->rexx_proc)[(context->rexx_rx_proc)].condition
+                                |= SC_NOTREADY;
                         if (opt == set_signal_name_opt)
-                            (context->rexx_proc)[(context->rexx_rx_proc)].lbl_notready = STACKP(
+                            (context->rexx_proc)[(context->rexx_rx_proc)]
+                                    .lbl_notready = STACKP(
                                     1);
                         else
-                            (context->rexx_proc)[(context->rexx_rx_proc)].lbl_notready = &((context->rexxnotReadyStr)->key);
+                            (context->rexx_proc)[(context->rexx_rx_proc)]
+                                    .lbl_notready =
+                                    &((context->rexxnotReadyStr)->key);
                     }
                     break;
                 case 'S':
-                    (context->rexx_proc)[(context->rexx_rx_proc)].condition |= SC_SYNTAX;
+                    (context->rexx_proc)[(context->rexx_rx_proc)].condition |=
+                            SC_SYNTAX;
                     if (opt == set_signal_name_opt)
-                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_syntax = STACKP(
+                        (context->rexx_proc)[(context->rexx_rx_proc)]
+                                .lbl_syntax = STACKP(
                                 1);
                     else
-                        (context->rexx_proc)[(context->rexx_rx_proc)].lbl_syntax = &((context->rexxsyntaxStr)->key);
+                        (context->rexx_proc)[(context->rexx_rx_proc)]
+                                .lbl_syntax = &((context->rexxsyntaxStr)->key);
                     break;
                 default:
                     (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE, 0);
@@ -403,19 +421,24 @@ I_StoreOption(const PLstr value, const int opt) {
         case unset_signal_opt:
             switch (LSTR(*value)[0]) {
                 case 'E':
-                    (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_ERROR;
+                    (context->rexx_proc)[(context->rexx_rx_proc)].condition &=
+                            ~SC_ERROR;
                     break;
                 case 'H':
-                    (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_HALT;
+                    (context->rexx_proc)[(context->rexx_rx_proc)].condition &=
+                            ~SC_HALT;
                     break;
                 case 'N':
                     if (LSTR(*value)[2] == 'V')
-                        (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_NOVALUE;
+                        (context->rexx_proc)[(context->rexx_rx_proc)].condition
+                                &= ~SC_NOVALUE;
                     else
-                        (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_NOTREADY;
+                        (context->rexx_proc)[(context->rexx_rx_proc)].condition
+                                &= ~SC_NOTREADY;
                     break;
                 case 'S':
-                    (context->rexx_proc)[(context->rexx_rx_proc)].condition &= ~SC_SYNTAX;
+                    (context->rexx_proc)[(context->rexx_rx_proc)].condition &=
+                            ~SC_SYNTAX;
                     break;
                 default:
                     (context->lstring_Lerror)(ERR_INTERPRETER_FAILURE, 0);
@@ -632,8 +655,7 @@ I_CallFunction(void) {
                                                      realarg,
                                                      argv, lenv);
                             if (!(i < 0)) func->systype = SYST_RX;
-                        }
-                        else i = -3; /* Function is not in this package */
+                        } else i = -3; /* Function is not in this package */
                     }
 
                     if (i < 0 &&
@@ -650,8 +672,7 @@ I_CallFunction(void) {
                                                      realarg,
                                                      argv, lenv);
                             if (!(i < 0)) func->systype = SYST_RX;
-                        }
-                        else i = -3; /* Function is not in this package */
+                        } else i = -3; /* Function is not in this package */
                     }
 
                     if (i < 0 &&
@@ -668,8 +689,7 @@ I_CallFunction(void) {
                                                      realarg,
                                                      argv, lenv);
                             if (!(i < 0)) func->systype = SYST_RX;
-                        }
-                        else i = -3; /* Function is not in this package */
+                        } else i = -3; /* Function is not in this package */
                     }
 
                     /* 4. RX is removed and the REXX function (i.e. an EXEC) searched for */
@@ -788,7 +808,8 @@ I_CallFunction(void) {
                 /* give a unique program id */
                 /* we might have a problem after 2*32 routine calls!! */
                 (context->rexx_procidcnt)++;
-                (context->rexx_proc)[(context->rexx_rx_proc)].id = (context->rexx_procidcnt);
+                (context->rexx_proc)[(context->rexx_rx_proc)].id =
+                        (context->rexx_procidcnt);
                 (context->interpreRx_id) = (context->rexx_procidcnt);
 #ifdef __DEBUG__
                 if ((context->rexx__debug__))
@@ -796,8 +817,10 @@ I_CallFunction(void) {
 #endif
                 DEBUGDISPLAY0nl("PROC ");
                 (context->interpreRxcip)++;
-                (context->rexx_proc)[(context->rexx_rx_proc)].scope = RxScopeMalloc();
-                (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+                (context->rexx_proc)[(context->rexx_rx_proc)].scope =
+                        RxScopeMalloc();
+                (context->interpre_VarScope) =
+                        (context->rexx_proc)[(context->rexx_rx_proc)].scope;
 
                 /* handle exposed variables */
                 exposed = *((context->interpreRxcip)++);
@@ -865,7 +888,8 @@ I_ReturnProc(void) {
     (context->interpreRxcip) = (CIPTYPE *) (
             (byte huge *) (context->interpreRxcodestart) +
             (context->rexx_proc)[(context->rexx_rx_proc)].ip);
-    (context->interpre_RxStckTop) = (context->rexx_proc)[(context->rexx_rx_proc)].stack;
+    (context->interpre_RxStckTop) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].stack;
 
     if ((context->rexx_rx_proc) > 0) {
         /* free everything that it is new */
@@ -883,8 +907,10 @@ I_ReturnProc(void) {
     /* load previous data and exit */
     (context->rexx_rx_proc)--;
     (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
-    (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
-    (context->lstring_lNumericDigits) = (context->rexx_proc)[(context->rexx_rx_proc)].digits;
+    (context->interpre_VarScope) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+    (context->lstring_lNumericDigits) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].digits;
     if ((context->rexx_proc)[(context->rexx_rx_proc)].trace &
         (normal_trace | off_trace | error_trace))
         (context->interpre__trace) = FALSE;
@@ -942,8 +968,10 @@ RxInitInterStr() {
         (context->interpreRxcip) = (CIPTYPE *) (
                 (byte huge *) (context->interpreRxcodestart) + pr->ip);
         (context->rexx_rx_proc)--;
-        (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
-        (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+        (context->interpreRx_id) =
+                (context->rexx_proc)[(context->rexx_rx_proc)].id;
+        (context->interpre_VarScope) =
+                (context->rexx_proc)[(context->rexx_rx_proc)].scope;
 
         RxSetSpecialVar(RCVAR, (context->rexxrxReturnCode));
         RxSignalCondition(SC_SYNTAX);
@@ -967,11 +995,14 @@ RxDoneInterStr(void) {
     (context->interpreRxcip) = (CIPTYPE *) (
             (byte huge *) (context->interpreRxcodestart) +
             (context->rexx_proc)[(context->rexx_rx_proc)].ip);
-    (context->interpre_RxStckTop) = (context->rexx_proc)[(context->rexx_rx_proc)].stack;
+    (context->interpre_RxStckTop) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].stack;
 
     /* fixup code length, cut the interpretation code */
-    LLEN(*(context->rexx_code)) = (context->rexx_proc)[(context->rexx_rx_proc)].codelen;
-    (context->compileCompileCurClause) = (context->rexx_proc)[(context->rexx_rx_proc)].clauselen;
+    LLEN(*(context->rexx_code)) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].codelen;
+    (context->compileCompileCurClause) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].clauselen;
     if ((context->rexx_proc)[(context->rexx_rx_proc)].env !=
         (context->rexx_proc)[(context->rexx_rx_proc) - 1].env) {
         Lstrcpy((context->rexx_proc)[(context->rexx_rx_proc) - 1].env,
@@ -985,9 +1016,11 @@ RxDoneInterStr(void) {
 
     (context->rexx_proc)[(context->rexx_rx_proc)].trace = (context->rexx_proc)[
             (context->rexx_rx_proc) + 1].trace;
-    (context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace = (context->rexx_proc)[
-            (context->rexx_rx_proc) + 1].interactive_trace;
-    (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+    (context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace =
+            (context->rexx_proc)[
+                    (context->rexx_rx_proc) + 1].interactive_trace;
+    (context->interpre_VarScope) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].scope;
 } /* RxDoneInterStr */
 
 /* ---------------- RxInitInterpret --------------- */
@@ -1068,11 +1101,13 @@ RxInterpret(void) {
     (context->rexxrxReturnCode) = 0;
     (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
     (context->interpreRxcodestart) = (CIPTYPE *) LSTR(*(context->rexx_code));
-    (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+    (context->interpre_VarScope) =
+            (context->rexx_proc)[(context->rexx_rx_proc)].scope;
     (context->interpreRxcip) = (CIPTYPE *) (
             (byte huge *) (context->interpreRxcodestart) +
             (context->rexx_proc)[(context->rexx_rx_proc)].ip);
-    (context->rexx_proc)[(context->rexx_rx_proc)].stack = (context->interpre_RxStckTop);
+    (context->rexx_proc)[(context->rexx_rx_proc)].stack =
+            (context->interpre_RxStckTop);
 
     if ((context->rexx_proc)[(context->rexx_rx_proc)].trace &
         (normal_trace | off_trace | error_trace))
@@ -1098,7 +1133,8 @@ RxInterpret(void) {
         (context->interpreRxcip) = tmp_Rxcip;
 
         /* clear stack */
-        (context->interpre_RxStckTop) = (context->rexx_proc)[(context->rexx_rx_proc)].stacktop;
+        (context->interpre_RxStckTop) =
+                (context->rexx_proc)[(context->rexx_rx_proc)].stacktop;
     }
 
     while (1) {
@@ -1182,7 +1218,8 @@ RxInterpret(void) {
                 /* PUSHTMP */
             case OP_PUSHTMP:
                 (context->interpre_RxStckTop)++;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 CHKERROR;
                 DEBUGDISPLAY0("PUSHTMP");
                 goto main_loop;
@@ -1221,10 +1258,13 @@ RxInterpret(void) {
             case OP_COPY2TMP:
                 /* copy to temporary only if different */
                 if (STACKTOP !=
-                    &((context->interpre__tmpstr)[(context->interpre_RxStckTop)])) {
-                    Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                    &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)])) {
+                    Lstrcpy(&((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]),
                             STACKTOP);
-                    STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                    STACKTOP = &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)]);
                 }
                 DEBUGDISPLAY("COPY2TMP");
                 goto main_loop;
@@ -1251,13 +1291,17 @@ RxInterpret(void) {
                 /* LOADARG b[arg]  */
                 /* push an ARGument to stck */
             case OP_LOADARG: INCSTACK;
-                na = (unsigned) *((context->interpreRxcip)++); /* argument to push */
+                na = (unsigned) *((context
+                        ->interpreRxcip)++); /* argument to push */
                 if ((context->rexx_proc)[(context->rexx_rx_proc)].arg.a[na])
-                    STACKTOP = (context->rexx_proc)[(context->rexx_rx_proc)].arg.a[na];
+                    STACKTOP = (context->rexx_proc)[(context->rexx_rx_proc)].arg
+                            .a[na];
                 else {
                     LZEROSTR(
-                            (context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
-                    STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                            (context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]);
+                    STACKTOP = &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)]);
                 }
                 DEBUGDISPLAY("LOADARG");
                 goto main_loop;
@@ -1266,11 +1310,13 @@ RxInterpret(void) {
                 /* LOADOPT [data] */
                 /* load an option */
             case OP_LOADOPT: INCSTACK;
-                nf = (unsigned) *((context->interpreRxcip)++); /* option to load */
+                nf = (unsigned) *((context
+                        ->interpreRxcip)++); /* option to load */
 /**
 /// Maybe only pointer to Option!!!
 **/
-                STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                STACKTOP = &((context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)]);
                 I_LoadOption(STACKTOP, nf);
                 DEBUGDISPLAY("LOADOPT");
                 goto main_loop;
@@ -1279,7 +1325,8 @@ RxInterpret(void) {
                 /* store an option */
             case OP_STOREOPT:
                 DEBUGDISPLAY("STOREOPT");
-                nf = (unsigned) *((context->interpreRxcip)++); /* option to store */
+                nf = (unsigned) *((context
+                        ->interpreRxcip)++); /* option to store */
                 I_StoreOption(STACKTOP, nf);
                 (context->interpre_RxStckTop)--;
                 goto main_loop;
@@ -1304,15 +1351,19 @@ RxInterpret(void) {
                     else {
                         if (inf->stem) {
                             /* Lstrcpy to a temp variable */
-                            Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                            Lstrcpy(&((context->interpre__tmpstr)[(context
+                                            ->interpre_RxStckTop)]),
                                     &(context->variable_stemvaluenotfound));
-                            STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                            STACKTOP = &((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]);
                             if (leaf == NULL &&
-                                (context->rexx_proc)[(context->rexx_rx_proc)].condition &
+                                (context->rexx_proc)[(context->rexx_rx_proc)]
+                                        .condition &
                                 SC_NOVALUE)
                                 RxSignalCondition(SC_NOVALUE);
                         } else {
-                            if ((context->rexx_proc)[(context->rexx_rx_proc)].condition &
+                            if ((context->rexx_proc)[(context->rexx_rx_proc)]
+                                        .condition &
                                 SC_NOVALUE)
                                 RxSignalCondition(SC_NOVALUE);
                             STACKTOP = &(litleaf->key);
@@ -1402,10 +1453,13 @@ RxInterpret(void) {
                 DEBUGDISPLAY("BYINIT");
                 /* copy to temporary only if different */
                 if (STACKTOP !=
-                    &((context->interpre__tmpstr)[(context->interpre_RxStckTop)])) {
-                    Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                    &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)])) {
+                    Lstrcpy(&((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]),
                             STACKTOP);
-                    STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                    STACKTOP = &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)]);
                 }
                 /* patch comparision code */
                 if (Llt(STACKTOP, &((context->rexxzeroStr)->key)))
@@ -1422,10 +1476,13 @@ RxInterpret(void) {
                 DEBUGDISPLAY("FORINIT");
                 /* copy to temporary only if different */
                 if (STACKTOP !=
-                    &((context->interpre__tmpstr)[(context->interpre_RxStckTop)])) {
-                    Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                    &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)])) {
+                    Lstrcpy(&((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]),
                             STACKTOP);
-                    STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                    STACKTOP = &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)]);
                 }
                 L2INT(STACKTOP); /* it is in temporary */
                 if (Llt(STACKTOP, &((context->rexxzeroStr)->key)))
@@ -1474,7 +1531,8 @@ RxInterpret(void) {
                 /* clear stack and jmp to LABEL pos */
             case OP_SIGNAL:
                 /* clear stack */
-                (context->interpre_RxStckTop) = (context->rexx_proc)[(context->rexx_rx_proc)].stacktop;
+                (context->interpre_RxStckTop) =
+                        (context->rexx_proc)[(context->rexx_rx_proc)].stacktop;
 
                 /* check label */
                 PLEAF(leaf);
@@ -1498,7 +1556,8 @@ RxInterpret(void) {
                 /* search for label */
                 L2STR(STACKTOP);
                 leaf = BinFind(&(context->rexx_labels),
-                               (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                               (context->interpre_RxStck)[(context
+                                       ->interpre_RxStckTop)--]);
                 if (leaf == NULL ||
                     ((RxFunc *) (leaf->value))->label == UNKNOWN_LABEL)
                     (context->lstring_Lerror)(ERR_UNEXISTENT_LABEL, 1,
@@ -1508,7 +1567,8 @@ RxInterpret(void) {
                 func = (RxFunc *) (leaf->value);
 
                 /* clear stack */
-                (context->interpre_RxStckTop) = (context->rexx_proc)[(context->rexx_rx_proc)].stacktop;
+                (context->interpre_RxStckTop) =
+                        (context->rexx_proc)[(context->rexx_rx_proc)].stacktop;
 
                 /* jump */
                 (context->interpreRxcip) = (CIPTYPE *) (
@@ -1543,7 +1603,8 @@ RxInterpret(void) {
                 }
 #endif
                 if (!Lbool(
-                        (context->interpre_RxStck)[(context->interpre_RxStckTop)--]))
+                        (context->interpre_RxStck)[(context
+                                ->interpre_RxStckTop)--]))
                     (context->interpreRxcip) = (CIPTYPE *) (
                             (byte huge *) (context->interpreRxcodestart) +
                             *(CWORD *) (context->interpreRxcip));
@@ -1565,7 +1626,8 @@ RxInterpret(void) {
                 }
 #endif
                 if (Lbool(
-                        (context->interpre_RxStck)[(context->interpre_RxStckTop)--]))
+                        (context->interpre_RxStck)[(context
+                                ->interpre_RxStckTop)--]))
                     (context->interpreRxcip) = (CIPTYPE *) (
                             (byte huge *) (context->interpreRxcodestart) +
                             *(CWORD *) (context->interpreRxcip));
@@ -1607,14 +1669,17 @@ RxInterpret(void) {
                 if ((context->rexx_rx_proc) == 0) { /* Root program */
                     if (CMScalltype() == 5) {
                         Lstrcpy(&(context->rexxrxReturnResult),
-                                (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                                (context->interpre_RxStck)[(context
+                                        ->interpre_RxStckTop)--]);
                         (context->rexxrxReturnCode) = 0;
                     } else
                         (context->rexxrxReturnCode) = (int) Lrdint(
-                                (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                                (context->interpre_RxStck)[(context
+                                        ->interpre_RxStckTop)--]);
                     goto interpreter_fin;
                 } else if (
-                        (context->rexx_proc)[(context->rexx_rx_proc)].calltype !=
+                        (context->rexx_proc)[(context->rexx_rx_proc)]
+                                .calltype !=
                         CT_PROCEDURE)
 /**
 // It is possible to do a DUP in the compile code of returnf
@@ -1628,11 +1693,14 @@ RxInterpret(void) {
                         (context->rexx_proc)[(context->rexx_rx_proc) - 1].scope)
                         /* not a tmp var */
                         if (STACKTOP !=
-                            &((context->interpre__tmpstr)[(context->interpre_RxStckTop)])) {
-                            Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                            &((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)])) {
+                            Lstrcpy(&((context->interpre__tmpstr)[(context
+                                            ->interpre_RxStckTop)]),
                                     STACKTOP);
                             STACKTOP =
-                                    &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                                    &((context->interpre__tmpstr)[(context
+                                            ->interpre_RxStckTop)]);
                         }
                     /* point the return data */
                     a = STACKTOP;
@@ -1652,10 +1720,13 @@ RxInterpret(void) {
                 DEBUGDISPLAY("INTERPRET");
                 /* copy to a temporary var */
                 if (STACKTOP !=
-                    &((context->interpre__tmpstr)[(context->interpre_RxStckTop)])) {
-                    Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                    &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)])) {
+                    Lstrcpy(&((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]),
                             STACKTOP);
-                    STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                    STACKTOP = &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)]);
                 }
                 RxInitInterStr();
                 goto main_loop;
@@ -1676,7 +1747,8 @@ RxInterpret(void) {
             case OP_SAY:
                 DEBUGDISPLAY("SAY");
                 Lprint(STDOUT,
-                       (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                       (context->interpre_RxStck)[(context
+                               ->interpre_RxStckTop)--]);
                 PUTCHAR('\n');
                 goto main_loop;
 
@@ -1696,11 +1768,13 @@ RxInterpret(void) {
                 DEBUGDISPLAY("EXIT");
                 if (CMScalltype() == 5) {
                     Lstrcpy(&(context->rexxrxReturnResult),
-                            (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                            (context->interpre_RxStck)[(context
+                                    ->interpre_RxStckTop)--]);
                     (context->rexxrxReturnCode) = 0;
                 } else
                     (context->rexxrxReturnCode) = (int) Lrdint(
-                            (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                            (context->interpre_RxStck)[(context
+                                    ->interpre_RxStckTop)--]);
                 /* free everything from stack */
 #ifndef __DEBUG__
                 (context->interpre_RxStckTop) = -1;
@@ -1730,7 +1804,8 @@ RxInterpret(void) {
                 /* Do not remove from stack */
                 (context->interpre_ToParse) = STACKTOP;
                 L2STR((context->interpre_ToParse));
-                (context->interpre_DataStart) = (context->interpre_BreakStart) = (context->interpre_BreakEnd) = 1;
+                (context->interpre_DataStart) = (context->interpre_BreakStart) =
+                (context->interpre_BreakEnd) = 1;
                 (context->interpre_SourceEnd) =
                         LLEN(*(context->interpre_ToParse)) + 1;
                 goto main_loop;
@@ -1743,12 +1818,14 @@ RxInterpret(void) {
                     (context->interpre_DataStart))
                     (context->interpre_DataEnd) = (context->interpre_SourceEnd);
                 else
-                    (context->interpre_DataEnd) = (context->interpre_BreakStart);
+                    (context->interpre_DataEnd) =
+                            (context->interpre_BreakStart);
 
                 if ((context->interpre_DataEnd) !=
                     (context->interpre_DataStart))
                     _Lsubstr(
-                            (context->interpre_RxStck)[(context->interpre_RxStckTop)--],
+                            (context->interpre_RxStck)[(context
+                                    ->interpre_RxStckTop)--],
                             (context->interpre_ToParse),
                             (context->interpre_DataStart),
                             (context->interpre_DataEnd) -
@@ -1774,12 +1851,15 @@ RxInterpret(void) {
                 if ((context->interpre__trace)) {
                     /* Make space */
                     (context->interpre_RxStckTop)++;
-                    STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                    STACKTOP = &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)]);
                     if ((context->interpre_BreakEnd) <=
                         (context->interpre_DataStart))
-                        (context->interpre_DataEnd) = (context->interpre_SourceEnd);
+                        (context->interpre_DataEnd) =
+                                (context->interpre_SourceEnd);
                     else
-                        (context->interpre_DataEnd) = (context->interpre_BreakStart);
+                        (context->interpre_DataEnd) =
+                                (context->interpre_BreakStart);
                     if ((context->interpre_DataEnd) !=
                         (context->interpre_DataStart))
                         _Lsubstr(STACKTOP, (context->interpre_ToParse),
@@ -1806,7 +1886,8 @@ RxInterpret(void) {
                 DEBUGDISPLAY("TR_LIT");
                 (context->interpre_DataStart) = (context->interpre_BreakEnd);
                 I_trigger_litteral(
-                        (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                        (context->interpre_RxStck)[(context
+                                ->interpre_RxStckTop)--]);
                 goto main_loop;
 
                 /* TR_ABS   */
@@ -1818,7 +1899,8 @@ RxInterpret(void) {
 **/
                 (context->interpre_DataStart) = (context->interpre_BreakEnd);
                 (context->interpre_BreakStart) = (size_t) LINT(
-                        *((context->interpre_RxStck)[(context->interpre_RxStckTop)--]));
+                        *((context->interpre_RxStck)[(context
+                                ->interpre_RxStckTop)--]));
 
                 /* check for boundaries */
                 (context->interpre_BreakStart) = RANGE(1,
@@ -1838,7 +1920,9 @@ RxInterpret(void) {
                 (context->interpre_DataStart) = (context->interpre_BreakStart);
                 (context->interpre_BreakStart) = (context->interpre_DataStart) +
                                                  (size_t) LINT(
-                                                         *((context->interpre_RxStck)[(context->interpre_RxStckTop)--]));
+                                                         *((context
+                                                                 ->interpre_RxStck)[(context
+                                                                 ->interpre_RxStckTop)--]));
 
                 /* check for boundaries */
                 (context->interpre_BreakStart) = RANGE(1,
@@ -1863,7 +1947,8 @@ RxInterpret(void) {
                 LPMALLOC(a); /* duplicate variable */
                 Lfx(a, 1);
                 Lstrcpy(a,
-                        (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                        (context->interpre_RxStck)[(context
+                                ->interpre_RxStckTop)--]);
                 Queue2Stack(a);
                 goto main_loop;
 
@@ -1874,7 +1959,8 @@ RxInterpret(void) {
                 LPMALLOC(a); /* duplicate variable */
                 Lfx(a, 1);
                 Lstrcpy(a,
-                        (context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                        (context->interpre_RxStck)[(context
+                                ->interpre_RxStckTop)--]);
                 Push2Stack(a);
                 goto main_loop;
 
@@ -1882,7 +1968,8 @@ RxInterpret(void) {
                 /* pull stck from Rexx queue */
             case OP_RX_PULL:
                 (context->interpre_RxStckTop)++;
-                STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                STACKTOP = &((context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)]);
                 a = NULL;
                 Lread(context->rawstdin, STACKTOP, LREADLINE);
                 DEBUGDISPLAY("RX_PULL");
@@ -1892,7 +1979,8 @@ RxInterpret(void) {
                 /* read data from external queue */
             case OP_RX_EXTERNAL:
                 (context->interpre_RxStckTop)++;
-                STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                STACKTOP = &((context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)]);
                 Lread(context->rawstdin, STACKTOP, LREADLINE);
                 DEBUGDISPLAY("RX_EXTERNAL");
                 goto main_loop;
@@ -1987,7 +2075,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Leq(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_TNE:
@@ -1996,7 +2085,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Lne(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_TDEQ:
@@ -2005,7 +2095,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Ldeq(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_TDNE:
@@ -2014,7 +2105,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Ldne(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_TGT:
@@ -2023,7 +2115,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Lgt(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_TGE:
@@ -2032,7 +2125,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Lge(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_TLT:
@@ -2041,7 +2135,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Llt(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_TLE:
@@ -2050,7 +2145,8 @@ RxInterpret(void) {
                         (context->interpre_RxStckTop) - 1]);
                 LICPY(*a, Lle(STACKP(1), STACKTOP));
                 (context->interpre_RxStckTop)--;
-                STACKTOP = &(context->interpre__tmpstr)[(context->interpre_RxStckTop)];
+                STACKTOP = &(context->interpre__tmpstr)[(context
+                        ->interpre_RxStckTop)];
                 goto chk4trace;
 
             case OP_NOT:
@@ -2088,11 +2184,13 @@ RxInterpret(void) {
                     Lstrcpy(a, STACKP(1));
                     Lstrcat(a, STACKTOP);
                 } else {
-                    Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                    Lstrcpy(&((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]),
                             STACKTOP);
                     Lstrcpy(a, STACKP(1));
                     Lstrcat(a,
-                            &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]));
+                            &((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]));
                 }
                 (context->interpre_RxStckTop) -= 2;
                 goto chk4trace;
@@ -2101,9 +2199,11 @@ RxInterpret(void) {
                 DEBUGDISPLAY2("BCONCAT");
                 a = STACKP(2);
                 if (a == STACKTOP) {
-                    Lstrcpy(&((context->interpre__tmpstr)[(context->interpre_RxStckTop)]),
+                    Lstrcpy(&((context->interpre__tmpstr)[(context
+                                    ->interpre_RxStckTop)]),
                             STACKTOP);
-                    STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+                    STACKTOP = &((context->interpre__tmpstr)[(context
+                            ->interpre_RxStckTop)]);
                 }
                 Lstrcpy(a, STACKP(1));
                 L2STR(a);
@@ -2121,12 +2221,14 @@ RxInterpret(void) {
 
             case OP_INC:
                 DEBUGDISPLAY("INC");
-                Linc((context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                Linc((context->interpre_RxStck)[(context
+                        ->interpre_RxStckTop)--]);
                 goto chk4trace;
 
             case OP_DEC:
                 DEBUGDISPLAY("DEC");
-                Ldec((context->interpre_RxStck)[(context->interpre_RxStckTop)--]);
+                Ldec((context->interpre_RxStck)[(context
+                        ->interpre_RxStckTop)--]);
                 goto chk4trace;
 
             case OP_ADD:
@@ -2204,9 +2306,12 @@ RxInterpret(void) {
                 (context->rexx_proc)[(context->rexx_rx_proc)].env);
 
         (context->rexx_rx_proc)--;
-        (context->interpreRx_id) = (context->rexx_proc)[(context->rexx_rx_proc)].id;
-        (context->interpre_VarScope) = (context->rexx_proc)[(context->rexx_rx_proc)].scope;
-        (context->lstring_lNumericDigits) = (context->rexx_proc)[(context->rexx_rx_proc)].digits;
+        (context->interpreRx_id) =
+                (context->rexx_proc)[(context->rexx_rx_proc)].id;
+        (context->interpre_VarScope) =
+                (context->rexx_proc)[(context->rexx_rx_proc)].scope;
+        (context->lstring_lNumericDigits) =
+                (context->rexx_proc)[(context->rexx_rx_proc)].digits;
         if ((context->rexx_proc)[(context->rexx_rx_proc)].trace &
             (normal_trace | off_trace | error_trace))
             (context->interpre__trace) = FALSE;

@@ -5,6 +5,8 @@ set(CMAKE_C_STANDARD 90)
 
 include_directories(.)
 
+add_definitions(-D__CMS__)
+
 add_executable(CMS_370_BREXX
         abbrev.c
         abs.c

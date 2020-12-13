@@ -48,9 +48,9 @@
 #define DECL(A)  void __CDECL R_##A ( const int );
 
 #ifdef __CMS__
-#define VMDCL( A )  void __CDECL VM_##A ( const int );
+#define VMDCL(A)  void __CDECL VM_##A ( const int );
 
-VMDCL( O )
+VMDCL(O)
 
 #endif
 
@@ -204,7 +204,7 @@ TBltFunc
         {"BITOR", R_SoSoC, f_bitor},
         {"BITXOR", R_SoSoC, f_bitxor},
 #ifdef __CMS__
-        { "B2X", R_S  ,f_b2x  },
+        {"B2X", R_S, f_b2x},
 #else
         {"C2D", R_SoI, f_c2d},
         {"C2X", R_S, f_c2x},
@@ -217,7 +217,7 @@ TBltFunc
         {"CHARS", R_charslines, f_chars},
         {"CLOSE", R_close, f_close},
 #ifdef __CMS__
-        { "CMSFLAG", VM_O  ,f_cmsflag },
+        {"CMSFLAG", VM_O, f_cmsflag},
 #endif
         {"COMPARE", R_compare, f_compare},
         {"COPIES", R_copies, f_copies},
@@ -227,8 +227,8 @@ TBltFunc
 #endif
         {"COUNTSTR", R_SS, f_countstr},
 #ifdef __CMS__
-        { "C2D", R_SoI  ,f_c2d  },
-        { "C2X", R_S  ,f_c2x  },
+        {"C2D", R_SoI, f_c2d},
+        {"C2X", R_S, f_c2x},
 #else
         {"D2C", R_IoI, f_d2c},
         {"D2X", R_IoI, f_d2x},
@@ -245,8 +245,8 @@ TBltFunc
         {"DROPBUF", R_dropbuf, f_dropbuf},
 #endif
 #ifdef __CMS__
-        { "D2C", R_IoI  ,f_d2c  },
-        { "D2X", R_IoI  ,f_d2x  },
+        {"D2C", R_IoI, f_d2c},
+        {"D2X", R_IoI, f_d2x},
 #endif
         {"EOF", R_eof, f_eof},
         {"ERRORTEXT", R_errortext, f_errortext},
@@ -283,7 +283,7 @@ TBltFunc
         {"LINEOUT", R_charlineout, f_lineout},
         {"LINES", R_charslines, f_lines},
 #ifdef __CMS__
-        { "LINESIZE", VM_O  ,f_cmsline },
+        {"LINESIZE", VM_O, f_cmsline},
 #endif
         {"LOAD", R_S, f_load},
 #ifndef __CMS__
@@ -336,7 +336,7 @@ TBltFunc
         {"TRANSLATE", R_translate, f_translate},
         {"TRUNC", R_trunc, f_trunc},
 #ifdef __CMS__
-        { "USERID", VM_O  ,f_cmsuser },
+        {"USERID", VM_O, f_cmsuser},
 #endif
 #ifdef WCE
         { "U2A", R_S  ,f_u2a  },
@@ -351,10 +351,10 @@ TBltFunc
         {"WORDS", R_S, f_words},
         {"WRITE", R_write, f_write},
 #ifdef __CMS__
-        { "XRANGE", R_xrange ,f_xrange },
-        { "X2B", R_S  ,f_x2b  },
-        { "X2C", R_S  ,f_x2c  },
-        { "X2D", R_SoI  ,f_x2d  }
+        {"XRANGE", R_xrange, f_xrange},
+        {"X2B", R_S, f_x2b},
+        {"X2C", R_S, f_x2c},
+        {"X2D", R_SoI, f_x2d}
 #else
         {"X2B", R_S, f_x2b},
         {"X2C", R_S, f_x2c},

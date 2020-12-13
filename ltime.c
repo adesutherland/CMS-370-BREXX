@@ -77,7 +77,7 @@ _Ltimeinit(void) {
     struct _timeb tb;
 #elif defined(__CMS__) || defined(__MVS__)
     unsigned int vmnow[2];
-    struct tm * tv;
+    struct tm *tv;
     time_t rawtime;
 #else
     struct timeval tv;
@@ -95,8 +95,9 @@ _Ltimeinit(void) {
     (context->ltime_elapsed) = (double)tb.time + (double)tb.millitm/1000.0;
 #elif defined(__CMS__)
     rawtime = rexclock(vmnow);
-    tv=gmtime(&rawtime);
-    (context->ltime_elapsed) = (double)vmnow[0] + (double)vmnow[1]/1000000.0;
+    tv = gmtime(&rawtime);
+    (context->ltime_elapsed) =
+            (double) vmnow[0] + (double) vmnow[1] / 1000000.0;
 #elif defined(__MVS__)
     rawtime = __getclk(vmnow);
     tv=gmtime(&rawtime);
@@ -127,7 +128,7 @@ Ltime(const PLstr timestr, char option) {
     struct _timeb tb;
 # elif defined(__CMS__) || defined(__MVS__)
     unsigned int vmnow[2];
-    struct tm * tv;
+    struct tm *tv;
 # else
     struct timeval tv;
     struct timezone tz;
@@ -174,7 +175,7 @@ Ltime(const PLstr timestr, char option) {
             unow = (double)tb.time + (double)tb.millitm/1000.0;
 #elif defined(__CMS__)
             rexclock(vmnow);
-            unow = (double)vmnow[0]+(double)vmnow[1]/1000000.0;
+            unow = (double) vmnow[0] + (double) vmnow[1] / 1000000.0;
 #elif defined(__MVS__)
             __getclk(vmnow);
             unow = (double)(vmnow[0]>>12)+(double)(vmnow[1]>>12)/1000000.0;
@@ -251,7 +252,7 @@ Ltime(const PLstr timestr, char option) {
             unow = (double)tb.time + (double)tb.millitm/1000.0;
 #elif defined(__CMS__)
             rexclock(vmnow);
-            unow=(double)vmnow[0] + (double)vmnow[1]/1000000.0;
+            unow = (double) vmnow[0] + (double) vmnow[1] / 1000000.0;
 #elif defined(__MVS__)
             __getclk(vmnow);
             unow=(double)(vmnow[0] >> 12) + (double)(vmnow[1] >> 12)/1000000.0;

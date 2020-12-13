@@ -50,7 +50,9 @@
 #include <stdlib.h>
 
 #ifdef __CMS__
+
 #include <cmssys.h>
+
 #endif
 
 #include "lstring.h"
@@ -276,24 +278,29 @@ RxExecuteCmd(PLstr cmd, PLstr env) {
 #if defined(__CMS__)
     int how;
 
-   LASCIIZ(* env);
-   /*
-    if (!Lcmp(env, "CMS")) how = CMS_CONSOLE;
-    else how = CMS_COMMAND;
-    (context->rexxrxReturnCode) = CMScommand(LSTR(* cmd), how);                                 // execute the command
-   */
-   (context->rexxrxReturnCode) = __HOSTCM(cmd, env);
+    LASCIIZ(*env);
+    /*
+     if (!Lcmp(env, "CMS")) how = CMS_CONSOLE;
+     else how = CMS_COMMAND;
+     (context->rexxrxReturnCode) = CMScommand(LSTR(* cmd), how); // execute the command
+    */
+    (context->rexxrxReturnCode) = __HOSTCM(cmd, env);
 
-    RxSetSpecialVar(RCVAR,(context->rexxrxReturnCode));                                 // set the returncode variable
-    if (((context->rexxrxReturnCode) < 0) && !((context->rexx_proc)[(context->rexx_rx_proc)].trace & off_trace)) {       // do the right thing for tracing
-     if ((context->rexx_proc)[(context->rexx_rx_proc)].trace & (error_trace | normal_trace)) {
-      TraceCurline(NULL,TRUE);
-      fprintf(STDERR,"       +++ RC(%d) +++\n",(context->rexxrxReturnCode));
-      if ((context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace)
-       TraceInteractive(FALSE);
-     }
-     if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_ERROR)
-      RxSignalCondition(SC_ERROR);
+    RxSetSpecialVar(RCVAR,
+                    (context->rexxrxReturnCode)); // set the returncode variable
+    if (((context->rexxrxReturnCode) < 0) &&
+        !((context->rexx_proc)[(context->rexx_rx_proc)].trace &
+          off_trace)) {       // do the right thing for tracing
+        if ((context->rexx_proc)[(context->rexx_rx_proc)].trace &
+            (error_trace | normal_trace)) {
+            TraceCurline(NULL, TRUE);
+            fprintf(STDERR, "       +++ RC(%d) +++\n",
+                    (context->rexxrxReturnCode));
+            if ((context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace)
+                TraceInteractive(FALSE);
+        }
+        if ((context->rexx_proc)[(context->rexx_rx_proc)].condition & SC_ERROR)
+            RxSignalCondition(SC_ERROR);
     }
 #elif defined(__MVS__)
     (context->rexxrxReturnCode) = system(LSTR(* cmd));

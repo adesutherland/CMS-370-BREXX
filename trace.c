@@ -113,7 +113,7 @@ TraceCurline(RxFile **rxf, int print) {
             ch = (context->compileCompileClause)[cl].ptr;
         }
         for (chend = ch;
-             *chend != ';' && *chend != '\n'; chend++) /*do nothing*/;;
+                *chend != ';' && *chend != '\n'; chend++) /*do nothing*/;;
     }
 
 #ifndef WIN
@@ -164,7 +164,8 @@ TraceSet(PLstr trstr) {
     } else if (*ch == '?') {
         (context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace
                 = 1 -
-                  (context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace;
+                  (context->rexx_proc)[(context->rexx_rx_proc)]
+                          .interactive_trace;
         if ((context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace)
 #ifndef WIN
             fprintf(STDERR, "       +++ %s +++\n", errortext[2].errormsg);
@@ -181,7 +182,8 @@ TraceSet(PLstr trstr) {
             (context->rexx_proc)[(context->rexx_rx_proc)].trace = all_trace;
             break;
         case 'C':
-            (context->rexx_proc)[(context->rexx_rx_proc)].trace = commands_trace;
+            (context->rexx_proc)[(context->rexx_rx_proc)].trace =
+                    commands_trace;
             break;
         case 'E':
             (context->rexx_proc)[(context->rexx_rx_proc)].trace = error_trace;
@@ -192,7 +194,8 @@ TraceSet(PLstr trstr) {
 ///   break;
 */
         case 'I':
-            (context->rexx_proc)[(context->rexx_rx_proc)].trace = intermediates_trace;
+            (context->rexx_proc)[(context->rexx_rx_proc)].trace =
+                    intermediates_trace;
             break;
         case 'L':
             (context->rexx_proc)[(context->rexx_rx_proc)].trace = labels_trace;
@@ -202,7 +205,8 @@ TraceSet(PLstr trstr) {
             break;
         case 'O':
             (context->rexx_proc)[(context->rexx_rx_proc)].trace = off_trace;
-            (context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace = FALSE;
+            (context->rexx_proc)[(context->rexx_rx_proc)].interactive_trace =
+                    FALSE;
             break;
         case 'R':
             (context->rexx_proc)[(context->rexx_rx_proc)].trace = results_trace;
@@ -283,7 +287,8 @@ TraceInteractive(int frominterpret) {
     Context *context = (Context *) CMSGetPG();
     /* Read the interactive string into a tmp var */
     (context->interpre_RxStckTop)++;
-    (context->interpre_RxStck)[(context->interpre_RxStckTop)] = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
+    (context->interpre_RxStck)[(context->interpre_RxStckTop)] =
+            &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
 
     Lread(STDIN, (context->interpre_RxStck)[(context->interpre_RxStckTop)],
           LREADLINE);

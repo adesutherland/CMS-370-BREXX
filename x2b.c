@@ -49,12 +49,12 @@ Lx2b(const PLstr to, const PLstr from) {
         d = HEXVAL(LSTR(*from)[i]);
         for (k = 8; k; k >>= 1)
 #ifndef __CMS__
-                *c++ = (d & k) ? '1' : '0';
+            *c++ = (d & k) ? '1' : '0';
 #else
-        if (d&k)
-         *c++ = '1';
-        else
-         *c++ = '0';
+                if (d & k)
+                    *c++ = '1';
+                else
+                    *c++ = '0';
 #endif
     }
     *c = 0;

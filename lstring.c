@@ -63,7 +63,9 @@
 #endif
 
 #if defined(__CMS__) || defined(__MVS__)
+
 # include <limits.h>
+
 # define MAXLONG LONG_MAX
 #endif
 
@@ -498,7 +500,8 @@ _Lisnum(const PLstr s) {
         R = TRUE; /* Treat it as real number */
 
     if (sign)
-        (context->lstring_lLastScannedNumber) = -(context->lstring_lLastScannedNumber);
+        (context->lstring_lLastScannedNumber) =
+                -(context->lstring_lLastScannedNumber);
 
     if (R) return LREAL_TY;
 

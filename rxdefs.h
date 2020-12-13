@@ -38,7 +38,9 @@
 #define __RXDEFS_H__
 
 #if defined(__CMS__) || defined(__MVS__)
+
 # include "rxmvs.h"
+
 #endif
 
 #define ARGN   ((context->rexxrxArg).n)

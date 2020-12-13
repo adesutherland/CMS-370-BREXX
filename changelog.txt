@@ -1,6 +1,9 @@
 BREXX CMS Change LOG
 ====================
 
+F0035 - Code reformatting
+        Added -D__CMS__ to CMAKE so that the right #ifdefs work including code
+        reformatting
 F0034 - Fix Function package in search path breaks EXEC to EXEC function
         calls (Issue #51)
 F0033 - Fix PULL stripping trailing blanks (issue #50)

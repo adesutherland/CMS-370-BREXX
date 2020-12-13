@@ -148,10 +148,12 @@ C_template(void) {
                     type = _Lisnum(&(context->nextsymbsymbolstr));
                     if (type == LREAL_TY)
                         (context->lstring_Lerror)(ERR_INVALID_INTEGER, 4,
-                                                  &(context->nextsymbsymbolstr));
+                                                  &(context
+                                                          ->nextsymbsymbolstr));
                     else if (type == LSTRING_TY)
                         (context->lstring_Lerror)(ERR_INVALID_TEMPLATE, 1,
-                                                  &(context->nextsymbsymbolstr));
+                                                  &(context
+                                                          ->nextsymbsymbolstr));
 
                     _CodeAddByte(OP_PUSH);
                     _CodeAddPtr(SYMBOLADD2LITS_KEY);
