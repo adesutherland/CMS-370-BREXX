@@ -633,6 +633,7 @@ I_CallFunction(void) {
                                                      argv, lenv);
                             if (!(i < 0)) func->systype = SYST_RX;
                         }
+                        else i = -3; /* Function is not in this package */
                     }
 
                     if (i < 0 &&
@@ -650,6 +651,7 @@ I_CallFunction(void) {
                                                      argv, lenv);
                             if (!(i < 0)) func->systype = SYST_RX;
                         }
+                        else i = -3; /* Function is not in this package */
                     }
 
                     if (i < 0 &&
@@ -667,6 +669,7 @@ I_CallFunction(void) {
                                                      argv, lenv);
                             if (!(i < 0)) func->systype = SYST_RX;
                         }
+                        else i = -3; /* Function is not in this package */
                     }
 
                     /* 4. RX is removed and the REXX function (i.e. an EXEC) searched for */
