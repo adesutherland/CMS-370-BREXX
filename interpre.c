@@ -1881,35 +1881,16 @@ RxInterpret(void) {
                 (context->interpre_RxStckTop)++;
                 STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
                 a = NULL;
-                /* delete empty stacks */
-/* dw - let VM handle the stack */
-#if !defined(__CMS__)
-                while (StackQueued() == 0 &&
-                       (context->rexxrxStackList).items > 1)
-                    DeleteStack();
-                if (StackQueued() > 0) {
-                    a = PullFromStack();
-                    Lstrcpy(STACKTOP, a);
-                    LPFREE(a);
-                    while (StackQueued() == 0 &&
-                           (context->rexxrxStackList).items > 1)
-                        DeleteStack();
-                } else {
-#else
-                    {
-#endif
-/*** dw end of let vm do stack */
-                    Lread(STDIN, STACKTOP, LREADLINE);
-                }
+                Lread(context->rawstdin, STACKTOP, LREADLINE);
                 DEBUGDISPLAY("RX_PULL");
                 goto main_loop;
 
                 /* RX_EXTERNAL   */
-                /* read data from extrnal queue */
+                /* read data from external queue */
             case OP_RX_EXTERNAL:
                 (context->interpre_RxStckTop)++;
                 STACKTOP = &((context->interpre__tmpstr)[(context->interpre_RxStckTop)]);
-                Lread(STDIN, STACKTOP, LREADLINE);
+                Lread(context->rawstdin, STACKTOP, LREADLINE);
                 DEBUGDISPLAY("RX_EXTERNAL");
                 goto main_loop;
 

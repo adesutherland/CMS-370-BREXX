@@ -454,8 +454,9 @@ RxRun(char *filename, PLstr programstr,
      printf("Return Code = %d\n",(context->rexxrxReturnCode));
 #endif
 
-    /* ======== free up memory ======== */
+    /* ======== close files and free up memory ======== */
     RxFileFree((context->rexxrxFileList));
+    if (context->rawstdin) fclose(context->rawstdin);
 
     LPFREE(pr->env);
     if ((context->compileCompileClause)) {
