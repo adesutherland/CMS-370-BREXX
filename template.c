@@ -132,6 +132,11 @@ C_template(void) {
                     _CodeAddByte(OP_NEG);
                     TraceByte(nothing_middle);
                 }
+                else {
+                    _CodeInsByte(pos, OP_PUSHTMP);
+                    _CodeAddByte(OP_PLUS);
+                    TraceByte(nothing_middle);
+                }
                 _CodeAddByte(OP_TR_REL);
                 break;
 

@@ -1,6 +1,10 @@
 BREXX CMS Change LOG
 ====================
 
+0.9.10- 15 Dec 2020
+F0036 - X2D fixes
+          - Added OP_PLUS bytecode for unary plus expressions
+          - Added check if a real is an int
 F0035 - Code reformatting
         Added -D__CMS__ to CMAKE so that the right #ifdefs work including code
         reformatting

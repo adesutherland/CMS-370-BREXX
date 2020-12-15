@@ -2219,6 +2219,12 @@ RxInterpret(void) {
                 (context->interpre_RxStckTop)--;
                 goto chk4trace;
 
+            case OP_PLUS:
+                DEBUGDISPLAY("PLUS");
+                Lplus(STACKP(1), STACKTOP);
+                (context->interpre_RxStckTop)--;
+                goto chk4trace;
+
             case OP_INC:
                 DEBUGDISPLAY("INC");
                 Linc((context->interpre_RxStck)[(context

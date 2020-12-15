@@ -1,44 +1,4 @@
-/* Modified for VM/370 CMS and GCC by Robert O'Hara, July 2010. */
-/*
- * $Id: lstring.c,v 1.11 2009/06/02 09:40:53 bnv Exp $
- * $Log: lstring.c,v $
- * Revision 1.11  2009/06/02 09:40:53  bnv
- * MVS/CMS corrections
- *
- * Revision 1.10  2008/07/15 07:40:54  bnv
- * #include changed from <> to ""
- *
- * Revision 1.9  2008/07/14 13:08:16  bnv
- * MVS,CMS support
- *
- * Revision 1.8  2004/03/26 22:51:11  bnv
- * values to limits
- *
- * Revision 1.7  2003/02/26 16:29:24  bnv
- * Changed: READLINE definitions
- *
- * Revision 1.6  2002/06/11 12:37:15  bnv
- * Added: CDECL
- *
- * Revision 1.5  2002/06/06 08:21:29  bnv
- * Added: Readline support
- *
- * Revision 1.4  2001/06/25 18:49:48  bnv
- * Header changed to Id
- *
- * Revision 1.3  1999/11/26 12:52:25  bnv
- * Added: Windows CE support
- * Added: Lwscpy, for unicode string copy
- * Changed: _Lisnum, it creates immediately a double number contained in
- * the string, for faster access. The value is hold in _lLastScannedNumber
- *
- * Revision 1.2  1999/05/14 13:11:47  bnv
- * Minor changes
- *
- * Revision 1.1  1998/07/02 17:18:00  bnv
- * Initial Version
- *
- */
+/* BREXX lstring.c */
 
 #define __LSTRING_C__
 
@@ -63,6 +23,9 @@
 #endif
 
 #if defined(__CMS__) || defined(__MVS__)
+
+/* C90 does not have round() */
+#define round(N) floor(0.5+(N))
 
 # include <limits.h>
 
@@ -360,9 +323,6 @@ _Lsubstr(const PLstr to, const PLstr from, size_t start, size_t length) {
 /* _Lisnum      - returns if it is possible to convert      */
 /*               a LSTRING to NUMBER                        */
 /*               a LREAL_TY or LINTEGER_TY                  */
-/* There is one possibility that is missing...              */
-/* that is to hold an integer number as a real in a string. */
-/* ie.   '  2.0 '  this should be LINTEGER not LREAL        */
 /* -------------------------------------------------------- */
 int __CDECL
 _Lisnum(const PLstr s) {
@@ -376,17 +336,6 @@ _Lisnum(const PLstr s) {
     int fractionDigits;
 
     (context->lstring_lLastScannedNumber) = 0.0;
-
-/* ---
-#ifdef USEOPTION
- if (LOPT(*s) & (LOPTINT | LOPTREAL)) {
-  if (LOPT(*s) & LOPTINT)
-   return LINTEGER_TY;
-  else
-   return LREAL_TY;
- }
-#endif
---- */
 
     ch = LSTR(*s);
     if (ch == NULL) return LSTRING_TY;
@@ -496,14 +445,14 @@ _Lisnum(const PLstr s) {
         (context->lstring_lLastScannedNumber) *= pow(10.0, (double) exponent);
 #endif
 
-    if ((context->lstring_lLastScannedNumber) > LONG_MAX)
-        R = TRUE; /* Treat it as real number */
-
     if (sign)
         (context->lstring_lLastScannedNumber) =
                 -(context->lstring_lLastScannedNumber);
 
-    if (R) return LREAL_TY;
+    if (fabs(context->lstring_lLastScannedNumber) > LONG_MAX)
+        return LREAL_TY; /* Always treat big nums as reals */
+
+    if (R && !Disint(context->lstring_lLastScannedNumber)) return LREAL_TY;
 
     return LINTEGER_TY;
 } /* _Lisnum */
@@ -555,7 +504,7 @@ L2int(const PLstr s) {
         switch (_Lisnum(s)) {
             case LINTEGER_TY:
                 /*///LINT(*s) = atol( LSTR(*s) ); */
-                LINT(*s) = (long) (context->lstring_lLastScannedNumber);
+                LINT(*s) = (long) round(context->lstring_lLastScannedNumber);
                 break;
 
             case LREAL_TY:
@@ -625,35 +574,47 @@ _L2num(const PLstr s, const int type) {
     }
 } /* _L2num */
 
+/* ------------------ Disint ------------------- */
+/* Is a double an int */
+int Disint(double d) {
+    int len;
+    double x;
+    double epsilon;
+    Context *context = (Context *) CMSGetPG();
+
+    if (d == 0.0) return TRUE;
+
+    /* Calculate precision (epsilon) - REXX DIGITS less size of int bit of the number */
+    if (d < 0.0) d = (-1.0) * d;
+    len = context->lstring_lNumericDigits;
+    len -= (int)log10(d);
+    if (len < 1) len = 1;
+    epsilon = pow(10.0, -(double) len) /
+              2.01; /* 2.01 rather 2.0 just to tune rounding */
+
+    /* Is the difference between the nearest integer less that the epsilon */
+    x = d - floor(d);
+    if (x > 0.5) x = 1.0 - x;
+    if (x < epsilon) return TRUE;
+    return FALSE;
+} /* Disint */
+
+
 /* ------------------ L2num ------------------- */
 void __CDECL
 L2num(const PLstr s) {
     Context *context = (Context *) CMSGetPG();
     switch (_Lisnum(s)) {
         case LINTEGER_TY:
-            /*//LINT(*s) = atol( LSTR(*s) ); */
-            LINT(*s) = (long) (context->lstring_lLastScannedNumber);
+            LINT(*s) = (long) round(context->lstring_lLastScannedNumber);
             LTYPE(*s) = LINTEGER_TY;
             LLEN(*s) = sizeof(long);
             break;
 
         case LREAL_TY:
-            /*///LREAL(*s) = strtod( LSTR(*s), NULL ); */
             LREAL(*s) = (context->lstring_lLastScannedNumber);
-/*
-//// Numbers like 2.0 should be treated as real and not as integer
-//// because in cases like factorial while give an error result
-////   if ((double)((long)LREAL(*s)) == LREAL(*s)) {
-////    LINT(*s) = (long)LREAL(*s);
-////    LTYPE(*s) = LINTEGER_TY;
-////    LLEN(*s) = sizeof(long);
-////   } else {
-*/
             LTYPE(*s) = LREAL_TY;
             LLEN(*s) = sizeof(double);
-/*
-////   }
-*/
             break;
 
         default:
@@ -677,7 +638,7 @@ Lrdint(const PLstr s) {
         switch (_Lisnum(s)) {
             case LINTEGER_TY:
                 /*///return atol( LSTR(*s) ); */
-                return (long) (context->lstring_lLastScannedNumber);
+                return (long) round(context->lstring_lLastScannedNumber);
 
             case LREAL_TY:
                 /*///d = strtod( LSTR(*s), NULL );

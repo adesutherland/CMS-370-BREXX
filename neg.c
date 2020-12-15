@@ -32,3 +32,20 @@ Lneg(const PLstr to, const PLstr num) {
         LLEN(*to) = sizeof(double);
     }
 } /* Lneg */
+
+/* ------------------- Lneg ------------------ */
+void __CDECL
+Lplus(const PLstr to, const PLstr num) {
+    L2NUM(num);
+
+    if (LTYPE(*num) == LINTEGER_TY) {
+        LINT(*to) = LINT(*num);
+        LTYPE(*to) = LINTEGER_TY;
+        LLEN(*to) = sizeof(long);
+    } else {
+        LREAL(*to) = LREAL(*num);
+        LTYPE(*to) = LREAL_TY;
+        LLEN(*to) = sizeof(double);
+    }
+} /* Lpos */
+

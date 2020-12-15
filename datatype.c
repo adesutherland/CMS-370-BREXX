@@ -18,33 +18,9 @@
  *
  */
 
-#include <math.h>
 #include <ctype.h>
 #include <cmssys.h>
 #include "lstring.h"
-
-static int isRealAnInt(double d) {
-    int len;
-    double x;
-    double epsilon;
-    Context *context = (Context *) CMSGetPG();
-
-    if (d == 0.0) return TRUE;
-
-    /* Calculate precision (epsilon) - REXX DIGITS less size of int bit of the number */
-    if (d < 0.0) d = (-1.0) * d;
-    len = context->lstring_lNumericDigits;
-    len -= log10(d);
-    if (len < 1) len = 1;
-    epsilon = pow(10.0, -(double) len) /
-              2.01; /* 2.01 rather 2.0 just to tune rounding */
-
-    /* Is the difference between the nearest integer less that the epsilon */
-    x = d - floor(d);
-    if (x > 0.5) x = 1.0 - x;
-    if (x < epsilon) return TRUE;
-    return FALSE;
-}
 
 /* --------------- Ldatatype ----------------- */
 /* returns -1 on error type                    */
@@ -113,13 +89,13 @@ Ldatatype(const PLstr str, char type) {
             break;
         case 'W':
             if (LTYPE(*str) == LINTEGER_TY) return TRUE;
-            if (LTYPE(*str) == LREAL_TY) return isRealAnInt(LREAL(*str));
+            if (LTYPE(*str) == LREAL_TY) return Disint(LREAL(*str));
             int tp = _Lisnum(str);
             if (tp == LSTRING_TY) return FALSE;
             else if (tp == LINTEGER_TY) return TRUE;
             else {
                 L2real(str);
-                return isRealAnInt(LREAL(*str));
+                return Disint(LREAL(*str));
             }
         case 'X':
             /* check blanks in allowed places */

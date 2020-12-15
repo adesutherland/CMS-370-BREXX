@@ -390,22 +390,23 @@ Exp7(void) {
     _symbol = (context->nextsymbsymbol);
 
     if (((context->nextsymbsymbol) == not_sy) ||
+        ((context->nextsymbsymbol) == plus_sy) ||
         ((context->nextsymbsymbol) == minus_sy)) {
         nextsymbol();
         prefix = TRUE;
     } else
         prefix = FALSE;
 
-    if (!prefix && ((context->nextsymbsymbol) == plus_sy))
-        nextsymbol();
-
     Exp8();
+
     if (prefix) {
         if ((context->compileCompileCodeLen) == pos)
             (context->lstring_Lerror)(ERR_INVALID_EXPRESSION, 0);
         InsTmp(pos, TRUE);
         if (_symbol == not_sy)
             _CodeAddByte(OP_NOT);
+        else if (_symbol == plus_sy)
+            _CodeAddByte(OP_PLUS);
         else
             _CodeAddByte(OP_NEG);
         TraceByte(operator_middle);

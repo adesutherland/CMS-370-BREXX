@@ -479,11 +479,15 @@ void  __CDECL Lmult(const PLstr to, const PLstr A, const PLstr B);
 
 void  __CDECL Lneg(const PLstr to, const PLstr num);
 
+void  __CDECL Lplus(const PLstr to, const PLstr num);
+
 void  __CDECL Lsub(const PLstr to, const PLstr A, const PLstr B);
 
 void  __CDECL Labs(const PLstr result, const PLstr num);
 
 int   __CDECL Lsign(const PLstr num);
+
+int __CDECL Disint(double d); /* Is a double an int */
 
 #ifndef __CMS__
 
