@@ -2,3 +2,10 @@
 *.exec~
 *.sh~
 nrws.exec
+
+* CMAKE
+cmake*/
+
+* idea / clion
+.idea/
+

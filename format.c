@@ -30,9 +30,8 @@
 
 /* ---------------- Lformat ------------------ */
 void __CDECL
-Lformat( const PLstr to, const PLstr from,
- long before, long after, long expp, long expt )
-{
+Lformat(const PLstr to, const PLstr from,
+        long before, long after, long expp, long expt) {
 /****************
  Lstr tmp,Integer,Befo,Afte,Mantissa,Exponent;
  long i,j,Point,Afters;
@@ -150,100 +149,115 @@ Lfo20:
  LFREESTR(exponent);
 *********************/
 #ifdef __CMS__
-// This code is not tied to CMS.  But I don't want to inflict it on other systems where I cannot
-// test it... RPO.
-//
-// As it stands, Lformat is called from R_format in RXCONV.C with 'before' and'after' set to 0
-// regardless of whether they were specified or omitted on the call to the FORMAT function.  We will
-// therefore adopt the convention that 'before' or 'after' with a value < 0 means they were not
-// specified on the call to FORMAT.
-char buffer[80];
-char * s;
-double t;
-int i;
-int digits;
-int exponent;
-int fractions;
-int len;
-Lstr tmp;
-LINITSTR(tmp);
-Context *context = (Context*)CMSGetPG();
+    // This code is not tied to CMS.  But I don't want to inflict it on other systems where I cannot
+    // test it... RPO.
+    //
+    // As it stands, Lformat is called from R_format in RXCONV.C with 'before' and'after' set to 0
+    // regardless of whether they were specified or omitted on the call to the FORMAT function.  We will
+    // therefore adopt the convention that 'before' or 'after' with a value < 0 means they were not
+    // specified on the call to FORMAT.
+    char buffer[80];
+    char *s;
+    double t;
+    int i;
+    int digits;
+    int exponent;
+    int fractions;
+    int len;
+    Lstr tmp;
+    LINITSTR(tmp);
+    Context *context = (Context *) CMSGetPG();
 
-t = Lrdreal(from);
-sprintf(buffer, "%40.20f", t);
-len = strlen(buffer);
-for (i = 0; i < len; i++) if (isdigit(buffer[i])) break;             // find the start of the number
-digits = 1;
-for (i++; i < len; i++) {                                       // count digits before decimal point
-   if (! isdigit(buffer[i])) break;
-   digits++;
-   }
-fractions = 0;
-for (i++; i < strlen(buffer); i++) {                             // count digits after decimal point
-   if (! isdigit(buffer[i])) break;
-   fractions++;
-   }
-if ((digits > (context->lstring_lNumericDigits)) || (expp > 0)) {                     // exponential notation required?
-   exponent = 1;
-   if (expp > 0) fractions = expp;
-   else if (fractions > ((context->lstring_lNumericDigits) - 1)) fractions = (context->lstring_lNumericDigits) - 1;
-   }
-else {
-   exponent = 0;  // standard display
-   if ((digits + fractions) > (context->lstring_lNumericDigits)) fractions = (context->lstring_lNumericDigits) - digits;
-   if ((after >= 0) && (after < fractions)) fractions = after;        // caller wants less precision
-   }
+    t = Lrdreal(from);
+    sprintf(buffer, "%40.20f", t);
+    len = strlen(buffer);
+    for (i = 0; i < len; i++)
+        if (isdigit(buffer[i]))
+            break;             // find the start of the number
+    digits = 1;
+    for (i++; i <
+              len;
+            i++) {                                       // count digits before decimal point
+        if (!isdigit(buffer[i])) break;
+        digits++;
+    }
+    fractions = 0;
+    for (i++; i <
+              strlen(buffer);
+            i++) {                             // count digits after decimal point
+        if (!isdigit(buffer[i])) break;
+        fractions++;
+    }
+    if ((digits > (context->lstring_lNumericDigits)) ||
+        (expp > 0)) {                     // exponential notation required?
+        exponent = 1;
+        if (expp > 0) fractions = expp;
+        else if (fractions > ((context->lstring_lNumericDigits) - 1))
+            fractions = (context->lstring_lNumericDigits) - 1;
+    } else {
+        exponent = 0;  // standard display
+        if ((digits + fractions) > (context->lstring_lNumericDigits))
+            fractions = (context->lstring_lNumericDigits) - digits;
+        if ((after >= 0) && (after < fractions))
+            fractions = after;        // caller wants less precision
+    }
 
-if (exponent) {                                                   // display in exponential notation
-   sprintf(buffer, "%.*e", fractions, t);
-   Lscpy(to, buffer);
-   }
-else {  // display normally
-   sprintf(buffer, "%20.*f", fractions, t);          // in the form nnnn.dddd with correct precision
-   if (after < 0) {                                                     // must strip trailing zeros
-      for (i = strlen(buffer) - 1; buffer[i] == '0'; i--) buffer[i] = '\0';
-      if (buffer[i] == '.') buffer[i] = '\0';         // and the decimal pointif it is what is left
-      }
-   else if (after > fractions) {                                              // must pad with zeros
-      len = strlen(buffer) + after - fractions;
-      for (i = strlen(buffer); i < len ; i++) buffer[i] = '0';
-      buffer[i] = '\0';
-      }
-   for (s = buffer; s[0] == ' '; s++);                                       // strip leading blanks
-   // printf("format: [%s]\n", buffer);
-   if (before > 0) {                                                   // right justify as requested
-      len = before - digits + strlen(s);
-      Lscpy(&tmp, s);
-      Lright(to, &tmp, len, ' ');
-      }
-   else Lscpy(to, s);
-   }
-LFREESTR(tmp);
-return;
+    if (exponent) {                                                   // display in exponential notation
+        sprintf(buffer, "%.*e", fractions, t);
+        Lscpy(to, buffer);
+    } else {  // display normally
+        sprintf(buffer, "%20.*f", fractions,
+                t);          // in the form nnnn.dddd with correct precision
+        if (after <
+            0) {                                                     // must strip trailing zeros
+            for (i = strlen(buffer) - 1; buffer[i] == '0'; i--)
+                buffer[i] = '\0';
+            if (buffer[i] == '.')
+                buffer[i] =
+                        '\0';         // and the decimal pointif it is what is left
+        } else if (after >
+                   fractions) {                                              // must pad with zeros
+            len = strlen(buffer) + after - fractions;
+            for (i = strlen(buffer); i < len; i++) buffer[i] = '0';
+            buffer[i] = '\0';
+        }
+        for (s = buffer; s[0] ==
+                         ' ';
+                s++);                                       // strip leading blanks
+        // printf("format: [%s]\n", buffer);
+        if (before >
+            0) {                                                   // right justify as requested
+            len = before - digits + strlen(s);
+            Lscpy(&tmp, s);
+            Lright(to, &tmp, len, ' ');
+        } else Lscpy(to, s);
+    }
+    LFREESTR(tmp);
+    return;
 
 #else
- double r;
- TCHAR str[50];
+    double r;
+    TCHAR str[50];
 
- r = Lrdreal(from);
- if (before<0) before = 0;
- if (after<0)  after  = 0;
- if (after)    before += (after+1);
+    r = Lrdreal(from);
+    if (before < 0) before = 0;
+    if (after < 0) after = 0;
+    if (after) before += (after + 1);
 
 # ifndef WCE
- sprintf(
+    sprintf(
 # else
- swprintf(
+            swprintf(
 # endif
-  str,
-  (expp<=0)? TEXT("%#*.*lf") :
-  (expp==1)? TEXT("%#*.*lG") : TEXT("%#*.*lE"),
-  (int)before, (int)after, r);
+            str,
+            (expp <= 0) ? TEXT("%#*.*lf") :
+            (expp == 1) ? TEXT("%#*.*lG") : TEXT("%#*.*lE"),
+            (int) before, (int) after, r);
 
 #ifndef WCE
- Lscpy(to,str);
+    Lscpy(to, str);
 #else
- Lwscpy(to,str);
+    Lwscpy(to,str);
 #endif
 #endif
 } /* Lformat */

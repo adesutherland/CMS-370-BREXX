@@ -19,19 +19,19 @@
 
 /* ------------------ Lreverse ------------------- */
 void __CDECL
-Lreverse( const PLstr s )
-{
- long i;
- char c,*cf,*cl;
+Lreverse(const PLstr s) {
+    long i;
+    char c, *cf, *cl;
 
- L2STR(s);
- if (LLEN(*s)==0)
-  return;
- cf = LSTR(*s);  cl = cf + LLEN(*s) - 1;
- i = LLEN(*s) / 2;
- while (i--) {
-  c = *cf;
-  *cf++ = *cl;
-  *cl-- = c;
- }
+    L2STR(s);
+    if (LLEN(*s) == 0)
+        return;
+    cf = LSTR(*s);
+    cl = cf + LLEN(*s) - 1;
+    i = LLEN(*s) / 2;
+    while (i--) {
+        c = *cf;
+        *cf++ = *cl;
+        *cl-- = c;
+    }
 } /* Lreverse */

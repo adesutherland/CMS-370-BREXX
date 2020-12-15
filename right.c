@@ -20,18 +20,17 @@
 
 /* ------------------ Lright ------------------- */
 void __CDECL
-Lright( const PLstr to, const PLstr from, const long length, const char pad)
-{
- L2STR(from);
+Lright(const PLstr to, const PLstr from, const long length, const char pad) {
+    L2STR(from);
 
- if (length<=0) {
-  LZEROSTR(*to);
-  return;
- }
+    if (length <= 0) {
+        LZEROSTR(*to);
+        return;
+    }
 
- if (length > LLEN(*from)) {
-  Lstrset(to, length-LLEN(*from), pad );
-  Lstrcat(to, from);
- } else
-  Lsubstr(to, from, LLEN(*from)-length+1,LREST,pad);
+    if (length > LLEN(*from)) {
+        Lstrset(to, length - LLEN(*from), pad);
+        Lstrcat(to, from);
+    } else
+        Lsubstr(to, from, LLEN(*from) - length + 1, LREST, pad);
 } /* Lright */

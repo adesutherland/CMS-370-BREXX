@@ -18,17 +18,18 @@
 #include "lerror.h"
 #include "lstring.h"
 #include <cmssys.h>
+
 /* ------------------ Lmod ----------------- */
 void __CDECL
-Lmod( const PLstr to, const PLstr A, const PLstr B )
-{
- L2REAL(A);
- L2REAL(B);
- Context *context = (Context*)CMSGetPG();
+Lmod(const PLstr to, const PLstr A, const PLstr B) {
+    L2REAL(A);
+    L2REAL(B);
+    Context *context = (Context *) CMSGetPG();
 
- if (LREAL(*B) == 0) (context->lstring_Lerror)(ERR_ARITH_OVERFLOW,0);
+    if (LREAL(*B) == 0) (context->lstring_Lerror)(ERR_ARITH_OVERFLOW, 0);
 
- LREAL(*to) = (double) (LREAL(*A) - (long)(LREAL(*A) / LREAL(*B)) * LREAL(*B));
- LTYPE(*to) = LREAL_TY;
- LLEN(*to)  = sizeof(double);
+    LREAL(*to) = (double) (LREAL(*A) -
+                           (long) (LREAL(*A) / LREAL(*B)) * LREAL(*B));
+    LTYPE(*to) = LREAL_TY;
+    LLEN(*to) = sizeof(double);
 } /* Lmod */

@@ -19,30 +19,29 @@
 
 /* ---------------- Lbitxor ------------------ */
 void __CDECL
-Lbitxor( const PLstr to, const PLstr s1, const PLstr s2,
-  const bool usepad, const char pad )
-{
- long i;
+Lbitxor(const PLstr to, const PLstr s1, const PLstr s2,
+        const bool usepad, const char pad) {
+    long i;
 
- L2STR(s1);
- L2STR(s2);
+    L2STR(s1);
+    L2STR(s2);
 
- if (LLEN(*s1) < LLEN(*s2)) {
-  Lstrcpy(to,s2);
-  for (i=0; i<LLEN(*s1); i++)
-   LSTR(*to)[i] = LSTR(*s1)[i] ^ LSTR(*s2)[i];
+    if (LLEN(*s1) < LLEN(*s2)) {
+        Lstrcpy(to, s2);
+        for (i = 0; i < LLEN(*s1); i++)
+            LSTR(*to)[i] = LSTR(*s1)[i] ^ LSTR(*s2)[i];
 
-  if (usepad)
-   for (; i<LLEN(*s2); i++)
-    LSTR(*to)[i] = LSTR(*s2)[i] ^ pad;
- } else {
-  Lstrcpy(to,s1);
+        if (usepad)
+            for (; i < LLEN(*s2); i++)
+                LSTR(*to)[i] = LSTR(*s2)[i] ^ pad;
+    } else {
+        Lstrcpy(to, s1);
 
-  for (i=0; i<LLEN(*s2); i++)
-   LSTR(*to)[i] = LSTR(*s1)[i] ^ LSTR(*s2)[i];
+        for (i = 0; i < LLEN(*s2); i++)
+            LSTR(*to)[i] = LSTR(*s1)[i] ^ LSTR(*s2)[i];
 
-  if (usepad)
-   for (; i<LLEN(*s1); i++)
-    LSTR(*to)[i] = LSTR(*s1)[i] ^ pad;
- }
+        if (usepad)
+            for (; i < LLEN(*s1); i++)
+                LSTR(*to)[i] = LSTR(*s1)[i] ^ pad;
+    }
 } /* Lbitxor */

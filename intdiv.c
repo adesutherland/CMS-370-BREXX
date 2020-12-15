@@ -21,16 +21,15 @@
 
 /* ---------------- Lintdiv ---------------- */
 void __CDECL
-Lintdiv( const PLstr to, const PLstr A, const PLstr B )
-{
- double b;
- Context *context = (Context*)CMSGetPG();
+Lintdiv(const PLstr to, const PLstr A, const PLstr B) {
+    double b;
+    Context *context = (Context *) CMSGetPG();
 
- b = Lrdreal(B);
+    b = Lrdreal(B);
 
- if (b == 0) (context->lstring_Lerror)(ERR_ARITH_OVERFLOW,0);
+    if (b == 0) (context->lstring_Lerror)(ERR_ARITH_OVERFLOW, 0);
 
- LINT(*to)  = (long) (Lrdreal(A) / b);
- LTYPE(*to) = LINTEGER_TY;
- LLEN(*to)  = sizeof(long);
+    LINT(*to) = (long) (Lrdreal(A) / b);
+    LTYPE(*to) = LINTEGER_TY;
+    LLEN(*to) = sizeof(long);
 } /* Lintdiv */

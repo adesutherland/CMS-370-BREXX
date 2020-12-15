@@ -143,6 +143,8 @@ struct Context {
 
    /* rexxfunc.c */
    BinTree *rexxfunc_ExtraFuncs;
+
+   FILE* rawstdin;
 };
 
 void InitContext();

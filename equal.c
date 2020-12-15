@@ -34,69 +34,66 @@
 
 /* -------------------- Lequal ----------------- */
 int __CDECL
-Lequal(const PLstr A, const PLstr B)
-{
- int ta, tb;
- byte *a, *b;  /* start position in string */
- byte *ae, *be; /* ending position in string */
- double ra, rb;
- Context *context = (Context*)CMSGetPG();
+Lequal(const PLstr A, const PLstr B) {
+    int ta, tb;
+    byte *a, *b;  /* start position in string */
+    byte *ae, *be; /* ending position in string */
+    double ra, rb;
+    Context *context = (Context *) CMSGetPG();
 
- if (LTYPE(*A)==LSTRING_TY) {
-  ta = _Lisnum(A);
+    if (LTYPE(*A) == LSTRING_TY) {
+        ta = _Lisnum(A);
 
-  /* check to see if the first argument is string? */
-  if (ta == LSTRING_TY) {
-   L2STR(B); /* make string and the second */
-   goto eq_str; /* go and check strings  */
-  }
+        /* check to see if the first argument is string? */
+        if (ta == LSTRING_TY) {
+            L2STR(B); /* make string and the second */
+            goto eq_str; /* go and check strings  */
+        }
 
-  ra = (context->lstring_lLastScannedNumber);
- } else {
-  ta = LTYPE(*A);
-  ra = TOREAL(*A);
- }
+        ra = (context->lstring_lLastScannedNumber);
+    } else {
+        ta = LTYPE(*A);
+        ra = TOREAL(*A);
+    }
 
- if (LTYPE(*B)==LSTRING_TY) {
-  tb = _Lisnum(B);
-  rb = (context->lstring_lLastScannedNumber);
- } else {
-  tb = LTYPE(*B);
-  rb = TOREAL(*B);
- }
+    if (LTYPE(*B) == LSTRING_TY) {
+        tb = _Lisnum(B);
+        rb = (context->lstring_lLastScannedNumber);
+    } else {
+        tb = LTYPE(*B);
+        rb = TOREAL(*B);
+    }
 
- /* is B also a number */
- if (tb != LSTRING_TY) {
-  if (fabs(ra-rb)<=1E-20)
-   return 0;
-  else
-  if (ra>rb)
-   return 1;
-  else
-   return -1;
- }
+    /* is B also a number */
+    if (tb != LSTRING_TY) {
+        if (fabs(ra - rb) <= 1E-20)
+            return 0;
+        else if (ra > rb)
+            return 1;
+        else
+            return -1;
+    }
 
- /* nope it was a string */
- L2STR(A);  /* convert A string */
-eq_str:
- a = (byte*)LSTR(*A);
- ae = a + LLEN(*A);
- for(; (a<ae) && ISSPACE(*a); a++) ;
+    /* nope it was a string */
+    L2STR(A);  /* convert A string */
+    eq_str:
+    a = (byte *) LSTR(*A);
+    ae = a + LLEN(*A);
+    for (; (a < ae) && ISSPACE(*a); a++);
 
- b = (byte*)LSTR(*B);
- be = b + LLEN(*B);
- for(; (b<be) && ISSPACE(*b); b++) ;
+    b = (byte *) LSTR(*B);
+    be = b + LLEN(*B);
+    for (; (b < be) && ISSPACE(*b); b++);
 
- for(;(a<ae) && (b<be) && (*a==*b); a++,b++) ;
+    for (; (a < ae) && (b < be) && (*a == *b); a++, b++);
 
- for(; (a<ae) && ISSPACE(*a);a++) ;
- for(; (b<be) && ISSPACE(*b);b++) ;
+    for (; (a < ae) && ISSPACE(*a); a++);
+    for (; (b < be) && ISSPACE(*b); b++);
 
- if (a==ae && b==be)
-  return 0;
- else
- if (a<ae && b<be)
-  return (*a<*b) ? -1 : 1 ;
- else
-  return (a<ae) ? 1 : -1 ;
+    if (a == ae && b == be)
+        return 0;
+    else if (a < ae && b < be)
+        return (*a < *b) ? -1 : 1;
+    else
+        return (a < ae) ? 1 : -1;
 } /* Lequal */

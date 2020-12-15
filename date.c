@@ -25,11 +25,14 @@
  */
 
 #ifndef WCE
+
 # include <time.h>
+
 #endif
 #ifdef MSDOS
 # include <dos.h>
 #endif
+
 #include <cmssys.h>
 #include "lerror.h"
 #include "lstring.h"
@@ -58,151 +61,151 @@ day_of_year(LPSYSTEMTIME time)
 
 /* Keep Global as constant */
 static const TCHAR *WeekDays[] = {
- TEXT("Sunday"), TEXT("Monday"), TEXT("Tuesday"), TEXT("Wednesday"),
- TEXT("Thursday"), TEXT("Friday"), TEXT("Saturday") };
+        TEXT("Sunday"), TEXT("Monday"), TEXT("Tuesday"), TEXT("Wednesday"),
+        TEXT("Thursday"), TEXT("Friday"), TEXT("Saturday")};
 
- /* Keep Global as constant */
+/* Keep Global as constant */
 static const TCHAR *months[] = {
- TEXT("January"), TEXT("February"), TEXT("March"),
- TEXT("April"), TEXT("May"), TEXT("June"),
- TEXT("July"), TEXT("August"), TEXT("September"),
- TEXT("October"), TEXT("November"), TEXT("December") };
+        TEXT("January"), TEXT("February"), TEXT("March"),
+        TEXT("April"), TEXT("May"), TEXT("June"),
+        TEXT("July"), TEXT("August"), TEXT("September"),
+        TEXT("October"), TEXT("November"), TEXT("December")};
 
 /* ----------------- Ldate ------------------ */
 void __CDECL
-Ldate( const PLstr datestr, char option )
-{
- static TCHAR *fmt = TEXT("%02d/%02d/%02d");
- static TCHAR *iso = TEXT("%4d%02d%02d");
- long length;
- const TCHAR *chptr;
- Context *context = (Context*)CMSGetPG();
+Ldate(const PLstr datestr, char option) {
+    static TCHAR *fmt = TEXT("%02d/%02d/%02d");
+    static TCHAR *iso = TEXT("%4d%02d%02d");
+    long length;
+    const TCHAR *chptr;
+    Context *context = (Context *) CMSGetPG();
 
 #ifndef WCE
- time_t now ;
- struct tm *tmdata ;
+    time_t now;
+    struct tm *tmdata;
 #else
- TCHAR buf[30];
- SYSTEMTIME time;
+    TCHAR buf[30];
+    SYSTEMTIME time;
 #endif
 
- option = (context->lstring_l2u)[(byte)option];
- Lfx(datestr,30); LZEROSTR(*datestr);
+    option = (context->lstring_l2u)[(byte) option];
+    Lfx(datestr, 30);
+    LZEROSTR(*datestr);
 
 #ifndef WCE
- now = time(NULL);
- tmdata = localtime(&now) ;
+    now = time(NULL);
+    tmdata = localtime(&now);
 #else
- GetLocalTime(&time);
+    GetLocalTime(&time);
 #endif
 
- switch (option) {
-  case 'C':
+    switch (option) {
+        case 'C':
 #ifndef WCE
-   length = tmdata->tm_yday + 1 +
-   (long)(((double)tmdata->tm_year-1)*365.25) + 365 ;
-   sprintf(LSTR(*datestr),"%ld",length) ;
+            length = tmdata->tm_yday + 1 +
+                     (long) (((double) tmdata->tm_year - 1) * 365.25) + 365;
+            sprintf(LSTR(*datestr), "%ld", length);
 #else
-   length = day_of_year(&time) +
-   (long)((time.wYear%100-1)*365.25) + 365;
-   swprintf(buf,TEXT("%ld"),length) ;
+            length = day_of_year(&time) +
+            (long)((time.wYear%100-1)*365.25) + 365;
+            swprintf(buf,TEXT("%ld"),length) ;
 #endif
-   break;
+            break;
 
-  case 'D':
+        case 'D':
 #ifndef WCE
-   sprintf(LSTR(*datestr), "%d", tmdata->tm_yday+1) ;
+            sprintf(LSTR(*datestr), "%d", tmdata->tm_yday + 1);
 #else
-   swprintf(buf, TEXT("%d"), day_of_year(&time)) ;
+            swprintf(buf, TEXT("%d"), day_of_year(&time)) ;
 #endif
-   break;
+            break;
 
-  case 'E':
+        case 'E':
 #ifndef WCE
-   sprintf(LSTR(*datestr), fmt, tmdata->tm_mday,
-    tmdata->tm_mon+1, tmdata->tm_year%100) ;
+            sprintf(LSTR(*datestr), fmt, tmdata->tm_mday,
+                    tmdata->tm_mon + 1, tmdata->tm_year % 100);
 #else
-   swprintf(buf, fmt, time.wDay,
-    time.wMonth, time.wYear%100) ;
+            swprintf(buf, fmt, time.wDay,
+             time.wMonth, time.wYear%100) ;
 #endif
-   break;
+            break;
 
-  case 'J':
+        case 'J':
 #ifndef WCE
-   sprintf(LSTR(*datestr),"%02d%03d",
-    tmdata->tm_year%100, tmdata->tm_yday+1);
+            sprintf(LSTR(*datestr), "%02d%03d",
+                    tmdata->tm_year % 100, tmdata->tm_yday + 1);
 #else
-   swprintf(buf,TEXT("%02d%03d"),
-    time.wYear%100, day_of_year(&time));
+            swprintf(buf,TEXT("%02d%03d"),
+             time.wYear%100, day_of_year(&time));
 #endif
-   break;
+            break;
 
-  case 'M':
+        case 'M':
 #ifndef WCE
-   STRCPY(LSTR(*datestr),months[tmdata->tm_mon]);
+            STRCPY(LSTR(*datestr), months[tmdata->tm_mon]);
 #else
-   wcscpy(buf,months[time.wMonth-1]);
+            wcscpy(buf,months[time.wMonth-1]);
 #endif
-   break;
+            break;
 
-  case 'N':
+        case 'N':
 #ifndef WCE
-   chptr = months[tmdata->tm_mon] ;
-   sprintf(LSTR(*datestr),"%d %c%c%c %4d",
-    tmdata->tm_mday, chptr[0], chptr[1],
-    chptr[2], tmdata->tm_year+1900) ;
+            chptr = months[tmdata->tm_mon];
+            sprintf(LSTR(*datestr), "%d %c%c%c %4d",
+                    tmdata->tm_mday, chptr[0], chptr[1],
+                    chptr[2], tmdata->tm_year + 1900);
 #else
-   chptr = months[time.wMonth-1] ;
-   swprintf(buf,TEXT("%d %c%c%c %4d"),
-    time.wDay, chptr[0], chptr[1],
-    chptr[2], time.wYear) ;
+            chptr = months[time.wMonth-1] ;
+            swprintf(buf,TEXT("%d %c%c%c %4d"),
+             time.wDay, chptr[0], chptr[1],
+             chptr[2], time.wYear) ;
 #endif
-   break;
+            break;
 
-  case 'O':
+        case 'O':
 #ifndef WCE
-   sprintf(LSTR(*datestr), fmt, tmdata->tm_year%100,
-    tmdata->tm_mon+1, tmdata->tm_mday);
+            sprintf(LSTR(*datestr), fmt, tmdata->tm_year % 100,
+                    tmdata->tm_mon + 1, tmdata->tm_mday);
 #else
-   swprintf(buf, fmt, time.wYear%100,
-    time.wMonth, time.wDay);
+            swprintf(buf, fmt, time.wYear%100,
+             time.wMonth, time.wDay);
 #endif
-   break;
+            break;
 
-  case 'S':
+        case 'S':
 #ifndef WCE
-   sprintf(LSTR(*datestr), iso, tmdata->tm_year+1900,
-    tmdata->tm_mon+1, tmdata->tm_mday) ;
+            sprintf(LSTR(*datestr), iso, tmdata->tm_year + 1900,
+                    tmdata->tm_mon + 1, tmdata->tm_mday);
 #else
-   swprintf(buf, iso, time.wYear,
-    time.wMonth, time.wDay) ;
+            swprintf(buf, iso, time.wYear,
+             time.wMonth, time.wDay) ;
 #endif
-   break;
+            break;
 
-  case 'U':
+        case 'U':
 #ifndef WCE
-   sprintf(LSTR(*datestr), fmt, tmdata->tm_mon+1,
-    tmdata->tm_mday, tmdata->tm_year%100 ) ;
+            sprintf(LSTR(*datestr), fmt, tmdata->tm_mon + 1,
+                    tmdata->tm_mday, tmdata->tm_year % 100);
 #else
-   swprintf(buf, fmt, time.wMonth,
-    time.wDay, time.wYear%100 ) ;
+            swprintf(buf, fmt, time.wMonth,
+             time.wDay, time.wYear%100 ) ;
 #endif
-   break;
+            break;
 
-  case 'W':
+        case 'W':
 #ifndef WCE
-   STRCPY(LSTR(*datestr),WeekDays[tmdata->tm_wday]);
+            STRCPY(LSTR(*datestr), WeekDays[tmdata->tm_wday]);
 #else
-   wcscpy(buf, WeekDays[time.wDayOfWeek]);
+            wcscpy(buf, WeekDays[time.wDayOfWeek]);
 #endif
-   break;
+            break;
 
-  default:
-   (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
- }
+        default:
+            (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+    }
 #ifndef WCE
- LLEN(*datestr) = STRLEN(LSTR(*datestr));
+    LLEN(*datestr) = STRLEN(LSTR(*datestr));
 #else
- wcstombs(LSTR(*datestr),buf,LLEN(*datestr)=wcslen(buf));
+    wcstombs(LSTR(*datestr),buf,LLEN(*datestr)=wcslen(buf));
 #endif
 } /* Ldate */

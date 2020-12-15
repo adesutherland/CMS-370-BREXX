@@ -26,53 +26,52 @@
 
 /* ---------------- Ltrunc ----------------- */
 void __CDECL
-Ltrunc( const PLstr to, const PLstr from, long n)
-{
+Ltrunc(const PLstr to, const PLstr from, long n) {
 #ifdef __CMS__
- Lformat(to, from, -1, n, 0, 0);
+    Lformat(to, from, -1, n, 0, 0);
 #else
 #ifdef WCE
- char *snum, *s;
- int decp, sign;
+    char *snum, *s;
+    int decp, sign;
 #endif
- if (n<0) n = 0;
+    if (n < 0) n = 0;
 
- if (!n) {
-  Lstrcpy(to,from);
-  L2REAL(to);
-  LINT(*to)  = (long)LREAL(*to);
-  LTYPE(*to) = LINTEGER_TY;
-  LLEN(*to)  = sizeof(long);
- } else {
-  L2REAL(from);
-  Lfx(to,n+15);
+    if (!n) {
+        Lstrcpy(to, from);
+        L2REAL(to);
+        LINT(*to) = (long) LREAL(*to);
+        LTYPE(*to) = LINTEGER_TY;
+        LLEN(*to) = sizeof(long);
+    } else {
+        L2REAL(from);
+        Lfx(to, n + 15);
 #ifndef WCE
-  /*sprintf(LSTR(*to),"%.*f", (int)n, LREAL(*from));*/
-  GCVT(LREAL(*from) , (n), LSTR(*to));
+        /*sprintf(LSTR(*to),"%.*f", (int)n, LREAL(*from));*/
+        GCVT(LREAL(*from), (n), LSTR(*to));
 #else
-//////// WARNING NO ROUNDING ON THE NUMBER IS DONE!
+        //////// WARNING NO ROUNDING ON THE NUMBER IS DONE!
 #define NDIG 20
-  s = LSTR(*to);
-  snum = FCVT(LREAL(*from), NDIG, &decp, &sign);
-  if (sign) *s++ = '-';
-  if (decp<0)  // Move it in the front
-   decp += NDIG;
-  if (decp>=0) {
-   while (decp--)
-    *s++ = *snum++;
-   *s++ = '.';
-  } else {
-   *s++ = '0';
-   *s++ = '.';
-   while (decp++ && n--)
-    *s++ = '0';
-  }
-  while (n--)
-   *s++ = *snum++;
-  *s = 0;
+          s = LSTR(*to);
+          snum = FCVT(LREAL(*from), NDIG, &decp, &sign);
+          if (sign) *s++ = '-';
+          if (decp<0)  // Move it in the front
+           decp += NDIG;
+          if (decp>=0) {
+           while (decp--)
+            *s++ = *snum++;
+           *s++ = '.';
+          } else {
+           *s++ = '0';
+           *s++ = '.';
+           while (decp++ && n--)
+            *s++ = '0';
+          }
+          while (n--)
+           *s++ = *snum++;
+          *s = 0;
 #endif
-  LTYPE(*to) = LSTRING_TY;
-  LLEN(*to)  = STRLEN(LSTR(*to));
- }
+        LTYPE(*to) = LSTRING_TY;
+        LLEN(*to) = STRLEN(LSTR(*to));
+    }
 #endif
 } /* R_trunc */

@@ -31,37 +31,38 @@
 
 /* ------------------ Lx2c ------------------ */
 void __CDECL
-Lx2c( const PLstr to, const PLstr from )
-{
- int i,j,r;
- char *t,*f;
- Context *context = (Context*)CMSGetPG();
+Lx2c(const PLstr to, const PLstr from) {
+    int i, j, r;
+    char *t, *f;
+    Context *context = (Context *) CMSGetPG();
 
- L2STR(from);
- Lfx(to,LLEN(*from)/2+1);    /* a rough estimation */
+    L2STR(from);
+    Lfx(to, LLEN(*from) / 2 + 1);    /* a rough estimation */
 
- t = LSTR(*to); f = LSTR(*from);
+    t = LSTR(*to);
+    f = LSTR(*from);
 
- for (i=r=0; i<LLEN(*from); )  {
-  for (; ISSPACE(f[i]) && (i<LLEN(*from)); i++) ;; /*skip spaces*/
-  for (j=i; ISXDIGIT(f[j]) && (j<LLEN(*from)); j++) ;; /* find hexdigits */
+    for (i = r = 0; i < LLEN(*from);) {
+        for (; ISSPACE(f[i]) && (i < LLEN(*from)); i++);; /*skip spaces*/
+        for (j = i;
+                ISXDIGIT(f[j]) && (j < LLEN(*from)); j++);; /* find hexdigits */
 
-  if ((i<LLEN(*from)) && (j==i)) { /* Ooops wrong character */
-   LZEROSTR(*to);  /* Free memory */
-   LFREESTR(*to);
-   (context->lstring_Lerror)(ERR_INVALID_HEX_CONST,0);
-   /* (context->lstring_Lerror) does not return */
-   return;
-  }
+        if ((i < LLEN(*from)) && (j == i)) { /* Ooops wrong character */
+            LZEROSTR(*to);  /* Free memory */
+            LFREESTR(*to);
+            (context->lstring_Lerror)(ERR_INVALID_HEX_CONST, 0);
+            /* (context->lstring_Lerror) does not return */
+            return;
+        }
 
-  if ((j-i)&1)  {
-   t[r++] = HEXVAL(f[i]);
-   i++;
-  }
-  for (; i<j; i+=2)
-  t[r++] = (HEXVAL(f[i])<<4) | HEXVAL(f[i+1]);
- }
+        if ((j - i) & 1) {
+            t[r++] = HEXVAL(f[i]);
+            i++;
+        }
+        for (; i < j; i += 2)
+            t[r++] = (HEXVAL(f[i]) << 4) | HEXVAL(f[i + 1]);
+    }
 
- LTYPE(*to) = LSTRING_TY;
- LLEN(*to) = r;
+    LTYPE(*to) = LSTRING_TY;
+    LLEN(*to) = r;
 } /* Lx2c */

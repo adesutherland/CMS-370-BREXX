@@ -19,20 +19,20 @@
 
 /* ------------------- Lc2x ------------------- */
 void __CDECL
-Lc2x( const PLstr to, const PLstr from )
-{
- char *re, *ar;
- int i,r;
+Lc2x(const PLstr to, const PLstr from) {
+    char *re, *ar;
+    int i, r;
 
- L2STR(from);
+    L2STR(from);
 
- Lfx(to,2*LLEN(*from));
- re = LSTR(*to); ar = LSTR(*from);
+    Lfx(to, 2 * LLEN(*from));
+    re = LSTR(*to);
+    ar = LSTR(*from);
 
- for (i=0,r=0; i<LLEN(*from); i++) {
-  re[r++] = chex[(ar[i] >> 4) & 0x0F];
-  re[r++] = chex[ar[i] & 0x0F];
- }
- LTYPE(*to) = LSTRING_TY;
- LLEN(*to) = r;
+    for (i = 0, r = 0; i < LLEN(*from); i++) {
+        re[r++] = chex[(ar[i] >> 4) & 0x0F];
+        re[r++] = chex[ar[i] & 0x0F];
+    }
+    LTYPE(*to) = LSTRING_TY;
+    LLEN(*to) = r;
 } /* Lc2x */

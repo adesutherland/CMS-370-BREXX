@@ -8,41 +8,41 @@
 
 /* ---------------- Llinein ------------------- */
 void __CDECL
-Llinein( FILEP f, const PLstr line, long start, long length )
-{
-  int l, i;
-  char *c;
-  Context *context = (Context*)CMSGetPG();
+Llinein(FILEP f, const PLstr line, long start, long length) {
+    int l, i;
+    char *c;
+    Context *context = (Context *) CMSGetPG();
 
-  /* initialise line */
-  LZEROSTR(*line);
+    /* initialise line */
+    LZEROSTR(*line);
 
-  /* find start line */
-  if (start>=0) {
-    if (!fsetrec(f,start)) {
-      if (errno==ENOTBLK) (context->lstring_Lerror)(ERR_NOT_RECORD_ACCESS,0);
-      else (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+    /* find start line */
+    if (start >= 0) {
+        if (!fsetrec(f, start)) {
+            if (errno == ENOTBLK)
+                (context->lstring_Lerror)(ERR_NOT_RECORD_ACCESS, 0);
+            else (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+        }
     }
-  }
 
-  if (length<=0) return;
+    if (length <= 0) return;
 
-  else if (length==1) Lread(f,line,LREADLINE);
+    else if (length == 1) Lread(f, line, LREADLINE);
 
-  else {
-    Lfx(line,LREADINCSIZE);
-    l = 0;
-    while (length && (i=nextrecLen(f))>0) {
-      if (l+i > LMAXLEN(*line)) {
-        Lfx(line, (size_t)(l+i+LREADINCSIZE));
-      }
-      c = LSTR(*line) + l;
-      fgets(c, i+1, f);
-      l+=i;
-      length--;
+    else {
+        Lfx(line, LREADINCSIZE);
+        l = 0;
+        while (length && (i = nextrecLen(f)) > 0) {
+            if (l + i > LMAXLEN(*line)) {
+                Lfx(line, (size_t) (l + i + LREADINCSIZE));
+            }
+            c = LSTR(*line) + l;
+            fgets(c, i + 1, f);
+            l += i;
+            length--;
+        }
+        Lfx(line, l); /* Give back unwanted memory */
+        LLEN(*line) = l;
+        LTYPE(*line) = LSTRING_TY;
     }
-    Lfx(line,l); /* Give back unwanted memory */
-    LLEN(*line) = l;
-    LTYPE(*line) = LSTRING_TY;
-  }
 } /* Llinein */

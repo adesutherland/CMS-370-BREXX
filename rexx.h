@@ -112,30 +112,30 @@
 /* ----------------- file structure --------------- */
 typedef
 struct trxfile {
- Lstr name;  /* complete file path */
- char *filename; /* filename in name */
- char *filetype; /* filetype in name */
- void *libHandle; /* Shared library handle*/
- Lstr file;  /* actual file  */
- struct trxfile *next; /* prev in list  */
+    Lstr name;  /* complete file path */
+    char *filename; /* filename in name */
+    char *filetype; /* filetype in name */
+    void *libHandle; /* Shared library handle*/
+    Lstr file;  /* actual file  */
+    struct trxfile *next; /* prev in list  */
 } RxFile;
 
 /* ------------- clause structure ----------------- */
 typedef
 struct tclause {
- size_t code;  /* code start position */
- size_t line;  /* line number in file */
- int nesting; /* nesting level */
- char *ptr;  /* pointer in file */
- RxFile *fptr;  /* RxFile pointer */
+    size_t code;  /* code start position */
+    size_t line;  /* line number in file */
+    int nesting; /* nesting level */
+    char *ptr;  /* pointer in file */
+    RxFile *fptr;  /* RxFile pointer */
 } Clause;
 
 /* ----------------- ident info ------------------- */
 typedef
 struct tidentinfo {
- int id;  /* the last prg that set leaf value */
- int stem;  /* if it is a stem   */
- PBinLeaf leaf[1]; /* Variable array of leafs  */
+    int id;  /* the last prg that set leaf value */
+    int stem;  /* if it is a stem   */
+    PBinLeaf leaf[1]; /* Variable array of leafs  */
     /* Variable value if stem=0 OR  */
     /* pointers to litterals  */
 } IdentInfo;
@@ -143,43 +143,45 @@ struct tidentinfo {
 /* ------------ argument structure ---------------- */
 typedef
 struct targs {
- int n;  /* number of args */
- PLstr r;  /* return data  */
- PLstr a[MAXARGS]; /* argument pointers */
+    int n;  /* number of args */
+    PLstr r;  /* return data  */
+    PLstr a[MAXARGS]; /* argument pointers */
 } Args;
 
 /* ------------ internal rexxfunctions ------------ */
 typedef
 struct tbltfunc {
- char *name;
- void (__CDECL *func)(int);
- int opt;
+    char *name;
+
+    void (__CDECL *func)(int);
+
+    int opt;
 } TBltFunc;
 
 /* ----------- proc data structure ---------------- */
 typedef
 struct trxproc {
- int id;  /* procedure id  */
- int calltype; /* call type...  */
- size_t ip;  /* instruction pointer */
- size_t stack;  /* stack position */
- size_t stacktop; /* stack after args */
- Scope scope;  /* Variables  */
- Args arg;  /* stck pos of args */
- PLstr env;  /* environment  */
- int digits;  /* numeric digits */
- int fuzz;  /* numeric fuzz  */
- int form;  /* numeric form  */
- int condition; /* signal on condition */
- PLstr lbl_error; /* labels  */
- PLstr lbl_halt; /*   */
- PLstr lbl_novalue; /*   */
- PLstr lbl_notready; /*   */
- PLstr lbl_syntax; /*   */
- int codelen; /* used in OP_INTERPRET */
- int clauselen; /* used in OP_INTERPRET */
- int trace;  /* trace type  */
- bool interactive_trace;
+    int id;  /* procedure id  */
+    int calltype; /* call type...  */
+    size_t ip;  /* instruction pointer */
+    size_t stack;  /* stack position */
+    size_t stacktop; /* stack after args */
+    Scope scope;  /* Variables  */
+    Args arg;  /* stck pos of args */
+    PLstr env;  /* environment  */
+    int digits;  /* numeric digits */
+    int fuzz;  /* numeric fuzz  */
+    int form;  /* numeric form  */
+    int condition; /* signal on condition */
+    PLstr lbl_error; /* labels  */
+    PLstr lbl_halt; /*   */
+    PLstr lbl_novalue; /*   */
+    PLstr lbl_notready; /*   */
+    PLstr lbl_syntax; /*   */
+    int codelen; /* used in OP_INTERPRET */
+    int clauselen; /* used in OP_INTERPRET */
+    int trace;  /* trace type  */
+    bool interactive_trace;
 } RxProc;
 
 /* ------------- global variables ----------------- */
@@ -190,25 +192,36 @@ struct trxproc {
 extern "C" {
 #endif
 
-void __CDECL RxInitialize( char *program_name );
-void __CDECL RxFinalize( void );
-RxFile* __CDECL RxFileAlloc( char *fname );
-void __CDECL RxFileFree( RxFile *rxf );
-void __CDECL RxFileType( RxFile *rxf );
-int __CDECL RxFileLoad( RxFile *rxf );
-int __CDECL RxLoadLibrary( PLstr libname );
-int __CDECL RxRun( char *filename, PLstr programstr,
-  PLstr arguments, PLstr tracestr, char *environment );
+void __CDECL RxInitialize(char *program_name);
 
-int __CDECL RxRegFunction( char *name, void (__CDECL *func)(int), int opt );
+void __CDECL RxFinalize(void);
 
-void __CDECL RxHaltTrap( int );
-void __CDECL RxSignalCondition( int );
+RxFile *__CDECL RxFileAlloc(char *fname);
+
+void __CDECL RxFileFree(RxFile *rxf);
+
+void __CDECL RxFileType(RxFile *rxf);
+
+int __CDECL RxFileLoad(RxFile *rxf);
+
+int __CDECL RxLoadLibrary(PLstr libname);
+
+int __CDECL RxRun(char *filename, PLstr programstr,
+                  PLstr arguments, PLstr tracestr, char *environment);
+
+int __CDECL RxRegFunction(char *name, void (__CDECL *func)(int), int opt);
+
+void __CDECL RxHaltTrap(int);
+
+void __CDECL RxSignalCondition(int);
 
 #if !defined (__CMS__) && !defined(__MVS__)
+
 int __CDECL RxRedirectCmd(PLstr cmd, int in, int out, PLstr resultstr);
+
 #endif
-int __CDECL RxExecuteCmd( PLstr cmd, PLstr env );
+
+int __CDECL RxExecuteCmd(PLstr cmd, PLstr env);
 
 #ifdef __cplusplus
 }

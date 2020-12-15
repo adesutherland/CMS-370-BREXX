@@ -28,66 +28,66 @@
 #define SOUNDEX_LENGTH  4 /* length of Soundex code */
 
 #define ALPHA_OFFSET    65 /* ALPHA_OFFSET is decimal */
-    /* value of 'A' in ASCII character set */
+
+/* value of 'A' in ASCII character set */
 void __CDECL
-Lsoundex( const PLstr to, const PLstr str )
-{
- /* ctable contains the Soundex value of each
-    letter in alphabetical order. 0 represents
-    letters which are to be ignored. */
- char  *code, *name;
- static char ctable[] =  { "01230120022455012623010202" };
- char  prior=' ', c;
- short  i, y=0;
- word  len;
- Context *context = (Context*)CMSGetPG();
+Lsoundex(const PLstr to, const PLstr str) {
+    /* ctable contains the Soundex value of each
+       letter in alphabetical order. 0 represents
+       letters which are to be ignored. */
+    char *code, *name;
+    static char ctable[] = {"01230120022455012623010202"};
+    char prior = ' ', c;
+    short i, y = 0;
+    word len;
+    Context *context = (Context *) CMSGetPG();
 
 
- /* ---- initialise ---- */
- L2STR(str);
- LZEROSTR(*to);
- Lfx(to,SOUNDEX_LENGTH);
+    /* ---- initialise ---- */
+    L2STR(str);
+    LZEROSTR(*to);
+    Lfx(to, SOUNDEX_LENGTH);
 
- len = LLEN(*str);
- code = LSTR(*to);
- name = LSTR(*str);
- if (len==0) return;
+    len = LLEN(*str);
+    code = LSTR(*to);
+    name = LSTR(*str);
+    if (len == 0) return;
 
- /* convert name to all upper case */
- if (len > MAX_LENGTH) len = MAX_LENGTH;
+    /* convert name to all upper case */
+    if (len > MAX_LENGTH) len = MAX_LENGTH;
 
- /* generate 1st character of Soundex code */
- code[0] = (context->lstring_l2u)[(byte)name[0]];
- y=1;
+    /* generate 1st character of Soundex code */
+    code[0] = (context->lstring_l2u)[(byte) name[0]];
+    y = 1;
 
 
- if ((context->lstring_l2u)[(byte)name[0]]=='K') /* modifications */
-  code[0] = 'C';
- else
- if ((context->lstring_l2u)[(byte)name[0]]=='P' && (context->lstring_l2u)[(byte)name[1]]=='H')
-  code[0] = 'F';
+    if ((context->lstring_l2u)[(byte) name[0]] == 'K') /* modifications */
+        code[0] = 'C';
+    else if ((context->lstring_l2u)[(byte) name[0]] == 'P' &&
+             (context->lstring_l2u)[(byte) name[1]] == 'H')
+        code[0] = 'F';
 
- /* loop through the rest of name, until code complete */
- for (i=1; i<len; i++) {
-  c = (context->lstring_l2u)[(byte)name[i]];
-   /* skip non alpha */
-  if (!ISALPHA(c))
-   continue;
+    /* loop through the rest of name, until code complete */
+    for (i = 1; i < len; i++) {
+        c = (context->lstring_l2u)[(byte) name[i]];
+        /* skip non alpha */
+        if (!ISALPHA(c))
+            continue;
 
-   /* skip succesive occurance */
-  if (c==prior)  continue;
-  prior = c;
+        /* skip succesive occurance */
+        if (c == prior) continue;
+        prior = c;
 
-   /* lookup letter in table   */
-  c -= ALPHA_OFFSET;
-  if (ctable[(byte)c]=='0')
-   continue; /* ignore this letter */
+        /* lookup letter in table   */
+        c -= ALPHA_OFFSET;
+        if (ctable[(byte) c] == '0')
+            continue; /* ignore this letter */
 
-  code[y++] = ctable[(byte)c]; /* add to code */
+        code[y++] = ctable[(byte) c]; /* add to code */
 
-  if (y >= SOUNDEX_LENGTH) break; /* code is complete */
- }
- while (y < SOUNDEX_LENGTH) code[y++] = '0';   /* pad code with zeros */
- code[y] = '\0';
- LLEN(*to) = y;
+        if (y >= SOUNDEX_LENGTH) break; /* code is complete */
+    }
+    while (y < SOUNDEX_LENGTH) code[y++] = '0';   /* pad code with zeros */
+    code[y] = '\0';
+    LLEN(*to) = y;
 } /* Lsoundex */

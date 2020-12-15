@@ -22,35 +22,33 @@
 
 /* ----------------- Ldelword ---------------- */
 void __CDECL
-Ldelword( const PLstr to, const PLstr from, long start, long length )
-{
- size_t i;
- Lstr tmp;
+Ldelword(const PLstr to, const PLstr from, long start, long length) {
+    size_t i;
+    Lstr tmp;
 
- if (start <= 0) start = 1;
- i = Lwordindex(from,start);
- if (i==0) {
-  Lstrcpy(to,from);
-  return;
- }
+    if (start <= 0) start = 1;
+    i = Lwordindex(from, start);
+    if (i == 0) {
+        Lstrcpy(to, from);
+        return;
+    }
 
- if (i==1)
-  LZEROSTR(*to)
- else
-  _Lsubstr(to,from,1,i-1);
+    if (i == 1) LZEROSTR(*to)
+    else
+        _Lsubstr(to, from, 1, i - 1);
 
- if (length<0) return;
+    if (length < 0) return;
 
- i--;
- while (length) {
-  length--;
-  LSKIPWORD(*from,i);
-  if (i>=LLEN(*from)) return;
-  LSKIPBLANKS(*from,i);
-  if (i>=LLEN(*from)) return;
- };
- LINITSTR(tmp);
- _Lsubstr(&tmp, from, i+1, 0);
- Lstrcat(to,&tmp);
- LFREESTR(tmp);
+    i--;
+    while (length) {
+        length--;
+        LSKIPWORD(*from, i);
+        if (i >= LLEN(*from)) return;
+        LSKIPBLANKS(*from, i);
+        if (i >= LLEN(*from)) return;
+    };
+    LINITSTR(tmp);
+    _Lsubstr(&tmp, from, i + 1, 0);
+    Lstrcat(to, &tmp);
+    LFREESTR(tmp);
 } /* Ldelword */

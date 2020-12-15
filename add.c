@@ -27,37 +27,36 @@
 
 /* ---------------- Ladd ------------------- */
 void __CDECL
-Ladd( const PLstr to, const PLstr A, const PLstr B)
-{
- int ta, tb;
- double r;
- Context *context = (Context*)CMSGetPG();
+Ladd(const PLstr to, const PLstr A, const PLstr B) {
+    int ta, tb;
+    double r;
+    Context *context = (Context *) CMSGetPG();
 
- if (LTYPE(*A) == LSTRING_TY) {
-  ta = _Lisnum(A);
-  if (ta==LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
-  r = (context->lstring_lLastScannedNumber);
- } else {
-  ta = LTYPE(*A);
-  r = TOREAL(*A);
- }
+    if (LTYPE(*A) == LSTRING_TY) {
+        ta = _Lisnum(A);
+        if (ta == LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
+        r = (context->lstring_lLastScannedNumber);
+    } else {
+        ta = LTYPE(*A);
+        r = TOREAL(*A);
+    }
 
- if (LTYPE(*B) == LSTRING_TY) {
-  tb = _Lisnum(B);
-  if (tb==LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC,0);
-  r += (context->lstring_lLastScannedNumber);
- } else {
-  tb = LTYPE(*B);
-  r += TOREAL(*B);
- }
+    if (LTYPE(*B) == LSTRING_TY) {
+        tb = _Lisnum(B);
+        if (tb == LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
+        r += (context->lstring_lLastScannedNumber);
+    } else {
+        tb = LTYPE(*B);
+        r += TOREAL(*B);
+    }
 
- if ( (ta == LINTEGER_TY) && (tb == LINTEGER_TY) ) {
-  LINT(*to)  = (long)r;
-  LTYPE(*to) = LINTEGER_TY;
-  LLEN(*to)  = sizeof(long);
- } else {
-  LREAL(*to) = r;
-  LTYPE(*to) = LREAL_TY;
-  LLEN(*to)  = sizeof(double);
- }
+    if ((ta == LINTEGER_TY) && (tb == LINTEGER_TY)) {
+        LINT(*to) = (long) r;
+        LTYPE(*to) = LINTEGER_TY;
+        LLEN(*to) = sizeof(long);
+    } else {
+        LREAL(*to) = r;
+        LTYPE(*to) = LREAL_TY;
+        LLEN(*to) = sizeof(double);
+    }
 } /* Ladd */

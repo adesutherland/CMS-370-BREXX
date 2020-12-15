@@ -34,8 +34,10 @@
 #include "context.h"
 
 /* -------- function prototypes ------- */
-void __CDECL RxInitInterpret( void );
-void __CDECL RxDoneInterpret( void );
-int __CDECL RxInterpret( void );
+void __CDECL RxInitInterpret(void);
+
+void __CDECL RxDoneInterpret(void);
+
+int __CDECL RxInterpret(void);
 
 #endif

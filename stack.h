@@ -24,12 +24,19 @@
 
 /* ---- function prototypes ---- */
 #ifndef __CMS__
-void __CDECL CreateStack( void );
-void __CDECL DeleteStack( void );
+
+void __CDECL CreateStack(void);
+
+void __CDECL DeleteStack(void);
+
 #endif
-void __CDECL Queue2Stack( PLstr str );
-void __CDECL Push2Stack( PLstr str );
-PLstr __CDECL PullFromStack( void );
-long __CDECL StackQueued( void );
+
+void __CDECL Queue2Stack(PLstr str);
+
+void __CDECL Push2Stack(PLstr str);
+
+PLstr __CDECL PullFromStack(void);
+
+long __CDECL StackQueued(void);
 
 #endif

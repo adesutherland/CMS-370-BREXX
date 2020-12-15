@@ -45,56 +45,134 @@
 #include "compile.h"
 #include "context.h"
 
-#define DECL( A )  void __CDECL R_##A ( const int );
+#define DECL(A)  void __CDECL R_##A ( const int );
 
 #ifdef __CMS__
-#define VMDCL( A )  void __CDECL VM_##A ( const int );
+#define VMDCL(A)  void __CDECL VM_##A ( const int );
 
-VMDCL( O )
+VMDCL(O)
 
 #endif
 
-DECL( SSoI     )   DECL( SIoC  )  DECL( S   )   DECL( SIoI )
-DECL( SSoIoIoC )   DECL( SoSoC )  DECL( SoI )   DECL( IoI  )
-DECL( O        )   DECL( SI    )  DECL( C   )   DECL( oSoS )
-DECL( SS       )   DECL( SoSoS )
-DECL( arg       )  DECL( compare   )  DECL( copies    )
-DECL( close     )
-DECL( datatype  )  DECL( eof       )  DECL( errortext )
-DECL( filesize  )  DECL( format    )  DECL( intr      )
-DECL( max       )  DECL( min       )
-DECL( open      )
-DECL( random    )
-DECL( read      )
-DECL( seek      )
-DECL( substr    )  DECL( sourceline)  DECL( strip     )
-DECL( storage   )  DECL( space     )  DECL( translate )
-DECL( trunc     )  DECL( verify    )
-DECL( write     )
-DECL( xrange    )
+DECL(SSoI)
+
+DECL(SIoC)
+
+DECL(S)
+
+DECL(SIoI)
+
+DECL(SSoIoIoC)
+
+DECL(SoSoC)
+
+DECL(SoI)
+
+DECL(IoI)
+
+DECL(O)
+
+DECL(SI)
+
+DECL(C)
+
+DECL(oSoS)
+
+DECL(SS)
+
+DECL(SoSoS)
+
+DECL(arg)
+
+DECL(compare)
+
+DECL(copies)
+
+DECL(close)
+
+DECL(datatype)
+
+DECL(eof)
+
+DECL(errortext)
+
+DECL(filesize)
+
+DECL(format)
+
+DECL(intr)
+
+DECL(max)
+
+DECL(min)
+
+DECL(open)
+
+DECL(random)
+
+DECL(read)
+
+DECL(seek)
+
+DECL(substr)
+
+DECL(sourceline)
+
+DECL(strip)
+
+DECL(storage)
+
+DECL(space)
+
+DECL(translate)
+
+DECL(trunc)
+
+DECL(verify)
+
+DECL(write)
+
+DECL(xrange)
 
 #ifndef __CMS__
-DECL( dropbuf   )
-#endif
-DECL( changestr )
-DECL( flush     )
-#ifndef __CMS__
-DECL( port      )
+
+DECL(dropbuf)
+
 #endif
 
-DECL( charslines )
-DECL( charlinein )
-DECL( charlineout )
-DECL( stream )
+DECL(changestr)
+
+DECL(flush)
+
+#ifndef __CMS__
+
+DECL(port)
+
+#endif
+
+DECL(charslines)
+
+DECL(charlinein)
+
+DECL(charlineout)
+
+DECL(stream)
 
 /* Math routines */
-DECL( abs_sign  )
-DECL( math )
+DECL(abs_sign)
+
+DECL(math)
+
 #ifndef __CMS__
-DECL( atanpow )
+
+DECL(atanpow)
+
 #endif
-DECL( bitwise )
-DECL( not )
+
+DECL(bitwise)
+
+DECL(not)
+
 #undef DECL
 
 /* ------------- Register Functions Tree ----------- */
@@ -102,278 +180,277 @@ DECL( not )
 /* !!!!!! EBCDIC SORT ORDER IS NOT THE SAME AS ASCII */
 static const
 TBltFunc
-rexx_routine[] = {
+        rexx_routine[] = {
 #ifdef WCE
- { "A2U", R_S  ,f_a2u  },
+        { "A2U", R_S  ,f_a2u  },
 #endif
- { "ABBREV", R_SSoI  ,f_abbrev },
- { "ABS", R_abs_sign ,f_abs  },
+        {"ABBREV", R_SSoI, f_abbrev},
+        {"ABS", R_abs_sign, f_abs},
 #ifndef __CMS__
- { "ACOS", R_math  ,f_acos  },
+        {"ACOS", R_math, f_acos},
 #endif
- { "ADDR", R_SoSoS  ,f_addr  },
- { "ADDRESS", R_O  ,f_address },
- { "ARG", R_arg  ,f_arg  },
+        {"ADDR", R_SoSoS, f_addr},
+        {"ADDRESS", R_O, f_address},
+        {"ARG", R_arg, f_arg},
 #ifndef __CMS__
- { "ASIN", R_math  ,f_asin  },
- { "ATAN", R_math  ,f_atan  },
- { "ATAN2", R_atanpow ,f_atan2 },
+        {"ASIN", R_math, f_asin},
+        {"ATAN", R_math, f_atan},
+        {"ATAN2", R_atanpow, f_atan2},
 #endif
 #ifndef __CMS__
- { "B2X", R_S  ,f_b2x  },
+        {"B2X", R_S, f_b2x},
 #endif
- { "BITAND", R_SoSoC  ,f_bitand },
- { "BITOR", R_SoSoC  ,f_bitor },
- { "BITXOR", R_SoSoC  ,f_bitxor },
+        {"BITAND", R_SoSoC, f_bitand},
+        {"BITOR", R_SoSoC, f_bitor},
+        {"BITXOR", R_SoSoC, f_bitxor},
 #ifdef __CMS__
- { "B2X", R_S  ,f_b2x  },
+        {"B2X", R_S, f_b2x},
 #else
- { "C2D", R_SoI  ,f_c2d  },
- { "C2X", R_S  ,f_c2x  },
+        {"C2D", R_SoI, f_c2d},
+        {"C2X", R_S, f_c2x},
 #endif
- { "CENTER", R_SIoC  ,f_center },
- { "CENTRE", R_SIoC  ,f_center },
- { "CHANGESTR", R_changestr ,f_changestr },
- { "CHARIN", R_charlinein ,f_charin },
- { "CHAROUT", R_charlineout ,f_charout },
- { "CHARS", R_charslines ,f_chars },
- { "CLOSE", R_close  ,f_close },
+        {"CENTER", R_SIoC, f_center},
+        {"CENTRE", R_SIoC, f_center},
+        {"CHANGESTR", R_changestr, f_changestr},
+        {"CHARIN", R_charlinein, f_charin},
+        {"CHAROUT", R_charlineout, f_charout},
+        {"CHARS", R_charslines, f_chars},
+        {"CLOSE", R_close, f_close},
 #ifdef __CMS__
- { "CMSFLAG", VM_O  ,f_cmsflag },
+        {"CMSFLAG", VM_O, f_cmsflag},
 #endif
- { "COMPARE", R_compare ,f_compare },
- { "COPIES", R_copies ,f_copies },
+        {"COMPARE", R_compare, f_compare},
+        {"COPIES", R_copies, f_copies},
 #ifndef __CMS__
- { "COS", R_math  ,f_cos  },
- { "COSH", R_math  ,f_cosh  },
+        {"COS", R_math, f_cos},
+        {"COSH", R_math, f_cosh},
 #endif
- { "COUNTSTR", R_SS  ,f_countstr },
+        {"COUNTSTR", R_SS, f_countstr},
 #ifdef __CMS__
- { "C2D", R_SoI  ,f_c2d  },
- { "C2X", R_S  ,f_c2x  },
+        {"C2D", R_SoI, f_c2d},
+        {"C2X", R_S, f_c2x},
 #else
- { "D2C", R_IoI  ,f_d2c  },
- { "D2X", R_IoI  ,f_d2x  },
+        {"D2C", R_IoI, f_d2c},
+        {"D2X", R_IoI, f_d2x},
 #endif
- { "DATATYPE", R_datatype ,f_datatype },
- { "DATE", R_C  ,f_date  },
- { "DELSTR", R_SIoI  ,f_delstr },
- { "DELWORD", R_SIoI  ,f_delword },
+        {"DATATYPE", R_datatype, f_datatype},
+        {"DATE", R_C, f_date},
+        {"DELSTR", R_SIoI, f_delstr},
+        {"DELWORD", R_SIoI, f_delword},
 #ifndef __CMS__
- { "DESBUF", R_O  ,f_desbuf },
+        {"DESBUF", R_O, f_desbuf},
 #endif
- { "DIGITS", R_O  ,f_digits },
+        {"DIGITS", R_O, f_digits},
 #ifndef __CMS__
-{ "DROPBUF", R_dropbuf ,f_dropbuf },
+        {"DROPBUF", R_dropbuf, f_dropbuf},
 #endif
 #ifdef __CMS__
- { "D2C", R_IoI  ,f_d2c  },
- { "D2X", R_IoI  ,f_d2x  },
+        {"D2C", R_IoI, f_d2c},
+        {"D2X", R_IoI, f_d2x},
 #endif
- { "EOF", R_eof  ,f_eof  },
- { "ERRORTEXT", R_errortext ,f_errortext },
+        {"EOF", R_eof, f_eof},
+        {"ERRORTEXT", R_errortext, f_errortext},
 #ifndef __CMS__
- { "EXP", R_math  ,f_exp  },
+        {"EXP", R_math, f_exp},
 #endif
- { "FIND", R_SSoI  ,f_find  },
- { "FLUSH", R_flush  ,f_flush },
- { "FORM", R_O  ,f_form  },
- { "FORMAT", R_format ,f_format },
- { "FUZZ", R_O  ,f_fuzz  },
+        {"FIND", R_SSoI, f_find},
+        {"FLUSH", R_flush, f_flush},
+        {"FORM", R_O, f_form},
+        {"FORMAT", R_format, f_format},
+        {"FUZZ", R_O, f_fuzz},
 #if !defined(WCE) && !defined(__CMS__)
- { "GETENV", R_S  ,f_getenv },
+        {"GETENV", R_S, f_getenv},
 #endif
- { "HASHVALUE", R_S  ,f_hashvalue },
- { "IAND", R_bitwise ,f_and  },
- { "IMPORT", R_S  ,f_import },
- { "INDEX", R_SSoI  ,f_index },
- { "INOT", R_not  ,0  },
- { "INSERT", R_SSoIoIoC ,f_insert },
+        {"HASHVALUE", R_S, f_hashvalue},
+        {"IAND", R_bitwise, f_and},
+        {"IMPORT", R_S, f_import},
+        {"INDEX", R_SSoI, f_index},
+        {"INOT", R_not, 0},
+        {"INSERT", R_SSoIoIoC, f_insert},
 #if defined(__BORLANDC__) && !defined(__WIN32__) && !defined(WCE)
- { "INTR", R_intr  ,f_intr  },
+        { "INTR", R_intr  ,f_intr  },
 #endif
- { "IOR", R_bitwise ,f_or  },
- { "IXOR", R_bitwise ,f_xor  },
- { "JUSTIFY", R_SIoC  ,f_justify },
+        {"IOR", R_bitwise, f_or},
+        {"IXOR", R_bitwise, f_xor},
+        {"JUSTIFY", R_SIoC, f_justify},
 #ifdef WCE
- { "LASTERROR", R_O  ,f_lasterror },
+        { "LASTERROR", R_O  ,f_lasterror },
 #endif
- { "LASTPOS", R_SSoI  ,f_lastpos },
- { "LEFT", R_SIoC  ,f_left  },
- { "LENGTH", R_S  ,f_length },
- { "LINEIN", R_charlinein ,f_linein },
- { "LINEOUT", R_charlineout ,f_lineout },
- { "LINES", R_charslines ,f_lines },
+        {"LASTPOS", R_SSoI, f_lastpos},
+        {"LEFT", R_SIoC, f_left},
+        {"LENGTH", R_S, f_length},
+        {"LINEIN", R_charlinein, f_linein},
+        {"LINEOUT", R_charlineout, f_lineout},
+        {"LINES", R_charslines, f_lines},
 #ifdef __CMS__
- { "LINESIZE", VM_O  ,f_cmsline },
+        {"LINESIZE", VM_O, f_cmsline},
 #endif
- { "LOAD", R_S  ,f_load  },
+        {"LOAD", R_S, f_load},
 #ifndef __CMS__
- { "LOG", R_math  ,f_log  },
- { "LOG10", R_math  ,f_log10 },
- { "MAKEBUF", R_O  ,f_makebuf },
+        {"LOG", R_math, f_log},
+        {"LOG10", R_math, f_log10},
+        {"MAKEBUF", R_O, f_makebuf},
 #endif
- { "MAX", R_max  ,f_max  },
- { "MIN", R_min  ,f_min  },
- { "OPEN", R_open  ,f_open  },
- { "OVERLAY", R_SSoIoIoC ,f_overlay },
+        {"MAX", R_max, f_max},
+        {"MIN", R_min, f_min},
+        {"OPEN", R_open, f_open},
+        {"OVERLAY", R_SSoIoIoC, f_overlay},
 #if defined(__BORLANDC__) && !defined(__WIN32__) && !defined(WCE) && !defined(__CMS__)
- { "PORT", R_port  ,f_port  },
+        { "PORT", R_port  ,f_port  },
 #endif
- { "POS", R_SSoI  ,f_pos  },
+        {"POS", R_SSoI, f_pos},
 #ifndef __CMS__
- { "POW", R_atanpow ,f_pow  },
- { "POW10", R_math  ,f_pow10 },
+        {"POW", R_atanpow, f_pow},
+        {"POW10", R_math, f_pow10},
 #endif
 #if !defined(WCE) && !defined(__CMS__)
- { "PUTENV", R_SS  ,f_putenv },
+        {"PUTENV", R_SS, f_putenv},
 #endif
- { "QUEUED", R_C  ,f_queued },
- { "RANDOM", R_random ,f_random },
- { "READ", R_read  ,f_read  },
- { "REVERSE", R_S  ,f_reverse },
- { "RIGHT", R_SIoC  ,f_right },
- { "SEEK", R_seek  ,f_seek  },
- { "SIGN", R_abs_sign ,f_sign  },
+        {"QUEUED", R_C, f_queued},
+        {"RANDOM", R_random, f_random},
+        {"READ", R_read, f_read},
+        {"REVERSE", R_S, f_reverse},
+        {"RIGHT", R_SIoC, f_right},
+        {"SEEK", R_seek, f_seek},
+        {"SIGN", R_abs_sign, f_sign},
 #ifndef __CMS__
- { "SIN", R_math  ,f_sin  },
- { "SINH", R_math  ,f_sinh  },
- { "SOUNDEX", R_S  ,f_soundex },
+        {"SIN", R_math, f_sin},
+        {"SINH", R_math, f_sinh},
+        {"SOUNDEX", R_S, f_soundex},
 #endif
- { "SOURCELINE", R_sourceline ,f_sourceline },
- { "SPACE", R_space  ,f_space },
- { "SQRT", R_math  ,f_sqrt  },
- { "STORAGE", R_storage ,f_storage },
- { "STREAM", R_stream ,f_stream },
- { "STRIP", R_strip  ,f_strip },
- { "SUBSTR", R_substr ,f_substr },
- { "SUBWORD", R_SIoI  ,f_subword },
- { "SYMBOL", R_S  ,f_symbol },
+        {"SOURCELINE", R_sourceline, f_sourceline},
+        {"SPACE", R_space, f_space},
+        {"SQRT", R_math, f_sqrt},
+        {"STORAGE", R_storage, f_storage},
+        {"STREAM", R_stream, f_stream},
+        {"STRIP", R_strip, f_strip},
+        {"SUBSTR", R_substr, f_substr},
+        {"SUBWORD", R_SIoI, f_subword},
+        {"SYMBOL", R_S, f_symbol},
 #ifndef __CMS__
- { "TAN", R_math  ,f_tan  },
- { "TANH", R_math  ,f_tanh  },
+        {"TAN", R_math, f_tan},
+        {"TANH", R_math, f_tanh},
 #endif
- { "TIME", R_C  ,f_time  },
- { "TRACE", R_C  ,f_trace },
- { "TRANSLATE", R_translate ,f_translate },
- { "TRUNC", R_trunc  ,f_trunc },
+        {"TIME", R_C, f_time},
+        {"TRACE", R_C, f_trace},
+        {"TRANSLATE", R_translate, f_translate},
+        {"TRUNC", R_trunc, f_trunc},
 #ifdef __CMS__
- { "USERID", VM_O  ,f_cmsuser },
+        {"USERID", VM_O, f_cmsuser},
 #endif
 #ifdef WCE
- { "U2A", R_S  ,f_u2a  },
+        { "U2A", R_S  ,f_u2a  },
 #endif
- { "VALUE", R_SoSoS  ,f_value },
- { "VARDUMP", R_oSoS  ,f_vartree },
- { "VERIFY", R_verify ,f_verify },
- { "WORD", R_SI  ,f_word  },
- { "WORDINDEX", R_SI  ,f_wordindex },
- { "WORDLENGTH", R_SI  ,f_wordlength },
- { "WORDPOS", R_SSoI  ,f_wordpos },
- { "WORDS", R_S  ,f_words },
- { "WRITE", R_write  ,f_write },
+        {"VALUE", R_SoSoS, f_value},
+        {"VARDUMP", R_oSoS, f_vartree},
+        {"VERIFY", R_verify, f_verify},
+        {"WORD", R_SI, f_word},
+        {"WORDINDEX", R_SI, f_wordindex},
+        {"WORDLENGTH", R_SI, f_wordlength},
+        {"WORDPOS", R_SSoI, f_wordpos},
+        {"WORDS", R_S, f_words},
+        {"WRITE", R_write, f_write},
 #ifdef __CMS__
- { "XRANGE", R_xrange ,f_xrange },
- { "X2B", R_S  ,f_x2b  },
- { "X2C", R_S  ,f_x2c  },
- { "X2D", R_SoI  ,f_x2d  }
+        {"XRANGE", R_xrange, f_xrange},
+        {"X2B", R_S, f_x2b},
+        {"X2C", R_S, f_x2c},
+        {"X2D", R_SoI, f_x2d}
 #else
- { "X2B", R_S  ,f_x2b  },
- { "X2C", R_S  ,f_x2c  },
- { "X2D", R_SoI  ,f_x2d  },
- { "XRANGE", R_xrange ,f_xrange }
+        {"X2B", R_S, f_x2b},
+        {"X2C", R_S, f_x2c},
+        {"X2D", R_SoI, f_x2d},
+        {"XRANGE", R_xrange, f_xrange}
 #endif
 };
 
 /* ------------- C_isBuiltin --------------- */
-TBltFunc* __CDECL
-C_isBuiltin( PLstr func )
-{
- int first, middle, last, cmp;
- PBinLeaf leaf;
- Context *context = (Context*)CMSGetPG();
+TBltFunc *__CDECL
+C_isBuiltin(PLstr func) {
+    int first, middle, last, cmp;
+    PBinLeaf leaf;
+    Context *context = (Context *) CMSGetPG();
 
- first = 0; /* Use binary search to find intruction */
- last  = DIMENSION(rexx_routine)-1;
+    first = 0; /* Use binary search to find intruction */
+    last = DIMENSION(rexx_routine) - 1;
 
- while (first<=last)   {
-  middle = (first+last)/2;
-  if ((cmp=Lcmp(func,rexx_routine[middle].name))==0)
-   return (TBltFunc*)(rexx_routine+middle); /* Get rid of const warning */
-  else
-  if (cmp<0)
-   last  = middle-1;
-  else
-   first = middle+1;
- }
+    while (first <= last) {
+        middle = (first + last) / 2;
+        if ((cmp = Lcmp(func, rexx_routine[middle].name)) == 0)
+            return (TBltFunc *) (rexx_routine +
+                                 middle); /* Get rid of const warning */
+        else if (cmp < 0)
+            last = middle - 1;
+        else
+            first = middle + 1;
+    }
 
- /* try to see if it exists in the extra functions */
- if ((context->rexxfunc_ExtraFuncs)) {
-  leaf = BinFind((context->rexxfunc_ExtraFuncs),func);
-  if (leaf)
-   return (TBltFunc*)(leaf->value);
- }
- return NULL;
+    /* try to see if it exists in the extra functions */
+    if ((context->rexxfunc_ExtraFuncs)) {
+        leaf = BinFind((context->rexxfunc_ExtraFuncs), func);
+        if (leaf)
+            return (TBltFunc *) (leaf->value);
+    }
+    return NULL;
 } /* C_isBuiltin */
 
 /* ----------- RxRegFunction ------------- */
 /* returns TRUE if an error occurs */
 int __CDECL
-RxRegFunction( char *name, void (__CDECL *func)(int), int opt )
-{
- Lstr  fn;
- TBltFunc *fp;
- PBinLeaf leaf;
- RxFunc  *fc;
- Context *context = (Context*)CMSGetPG();
+RxRegFunction(char *name, void (__CDECL *func)(int), int opt) {
+    Lstr fn;
+    TBltFunc *fp;
+    PBinLeaf leaf;
+    RxFunc *fc;
+    Context *context = (Context *) CMSGetPG();
 
- if ((context->rexxfunc_ExtraFuncs)==NULL) {
-  (context->rexxfunc_ExtraFuncs) = (BinTree*)MALLOC(sizeof(BinTree),"(context->rexxfunc_ExtraFuncs)");
-  BINTREEINIT(*(context->rexxfunc_ExtraFuncs));
- }
+    if ((context->rexxfunc_ExtraFuncs) == NULL) {
+        (context->rexxfunc_ExtraFuncs) = (BinTree *) MALLOC(sizeof(BinTree),
+                                                            "(context->rexxfunc_ExtraFuncs)");
+        BINTREEINIT(*(context->rexxfunc_ExtraFuncs));
+    }
 
- LINITSTR(fn);
- Lscpy(&fn,name);
- Lupper(&fn); /* translate to upper case */
+    LINITSTR(fn);
+    Lscpy(&fn, name);
+    Lupper(&fn); /* translate to upper case */
 
- /* Function Already exists */
- if (C_isBuiltin(&fn)) {
-  LFREESTR(fn);
-  return TRUE;
- }
+    /* Function Already exists */
+    if (C_isBuiltin(&fn)) {
+        LFREESTR(fn);
+        return TRUE;
+    }
 
- /* create the structure */
- fp = (TBltFunc*)MALLOC(sizeof(TBltFunc),"RegFunc");
- if (!fp) return TRUE;
+    /* create the structure */
+    fp = (TBltFunc *) MALLOC(sizeof(TBltFunc), "RegFunc");
+    if (!fp) return TRUE;
 
- fp->name = NULL;
- fp->func = func;
- fp->opt  = opt;
+    fp->name = NULL;
+    fp->func = func;
+    fp->opt = opt;
 
- /* Check the labels */
- leaf = BinFind(&(context->rexx_labels), &fn);
- if (leaf != NULL) {
-  fc = (RxFunc*)(leaf->value);
-  fc->type = FT_BUILTIN;
-  fc->builtin = fp;
- } /* if it does not exists, it will be added when needed */
+    /* Check the labels */
+    leaf = BinFind(&(context->rexx_labels), &fn);
+    if (leaf != NULL) {
+        fc = (RxFunc *) (leaf->value);
+        fc->type = FT_BUILTIN;
+        fc->builtin = fp;
+    } /* if it does not exists, it will be added when needed */
 
- /* Add it to the (context->rexxfunc_ExtraFuncs).
-  * fn after BinAdd will be empty,
-  * so the BinAdd should be the last
-  */
- BinAdd((context->rexxfunc_ExtraFuncs),&fn,fp);
+    /* Add it to the (context->rexxfunc_ExtraFuncs).
+     * fn after BinAdd will be empty,
+     * so the BinAdd should be the last
+     */
+    BinAdd((context->rexxfunc_ExtraFuncs), &fn, fp);
 
- return FALSE;
+    return FALSE;
 } /* RxRegFunction */
 
 /* ----------- RxRegFunctionDone --------- */
 void __CDECL
-RxRegFunctionDone( void )
-{
- Context *context = (Context*)CMSGetPG();
- if (!(context->rexxfunc_ExtraFuncs)) return;
- BinDisposeLeaf((context->rexxfunc_ExtraFuncs),(context->rexxfunc_ExtraFuncs)->parent,FREE);
- FREE((context->rexxfunc_ExtraFuncs));
- (context->rexxfunc_ExtraFuncs) = NULL;
+RxRegFunctionDone(void) {
+    Context *context = (Context *) CMSGetPG();
+    if (!(context->rexxfunc_ExtraFuncs)) return;
+    BinDisposeLeaf((context->rexxfunc_ExtraFuncs),
+                   (context->rexxfunc_ExtraFuncs)->parent, FREE);
+    FREE((context->rexxfunc_ExtraFuncs));
+    (context->rexxfunc_ExtraFuncs) = NULL;
 } /* RxRegFunctionDone */

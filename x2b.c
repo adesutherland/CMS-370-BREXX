@@ -31,34 +31,33 @@
 
 /* ------------------- Lx2b ------------------- */
 void __CDECL
-Lx2b( const PLstr to, const PLstr from )
-{
- long i;
- int k;
- char *c,d;
- Context *context = (Context*)CMSGetPG();
+Lx2b(const PLstr to, const PLstr from) {
+    long i;
+    int k;
+    char *c, d;
+    Context *context = (Context *) CMSGetPG();
 
- L2STR(from);
- Lfx(to,4*LLEN(*from));
- c = LSTR(*to);
+    L2STR(from);
+    Lfx(to, 4 * LLEN(*from));
+    c = LSTR(*to);
 
- for (i=0; i<LLEN(*from); i++) {
-  if (ISSPACE(LSTR(*from)[i])) continue;
-  if (!ISXDIGIT(LSTR(*from)[i]))
-   (context->lstring_Lerror)(ERR_INVALID_HEX_CONST,0);
+    for (i = 0; i < LLEN(*from); i++) {
+        if (ISSPACE(LSTR(*from)[i])) continue;
+        if (!ISXDIGIT(LSTR(*from)[i]))
+            (context->lstring_Lerror)(ERR_INVALID_HEX_CONST, 0);
 
-  d = HEXVAL(LSTR(*from)[i]);
-  for (k=8; k; k>>=1)
+        d = HEXVAL(LSTR(*from)[i]);
+        for (k = 8; k; k >>= 1)
 #ifndef __CMS__
-   *c++ = (d&k)? '1' : '0';
+            *c++ = (d & k) ? '1' : '0';
 #else
-   if (d&k)
-    *c++ = '1';
-   else
-    *c++ = '0';
+                if (d & k)
+                    *c++ = '1';
+                else
+                    *c++ = '0';
 #endif
- }
- *c = 0;
- LLEN(*to) = STRLEN(LSTR(*to));
- LTYPE(*to) = LSTRING_TY;
+    }
+    *c = 0;
+    LLEN(*to) = STRLEN(LSTR(*to));
+    LTYPE(*to) = LSTRING_TY;
 } /* Lx2b */

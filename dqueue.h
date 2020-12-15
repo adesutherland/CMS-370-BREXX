@@ -20,31 +20,35 @@
 
 /* ============= type definitions ================= */
 typedef struct dequeue_elem_st {
- void *dat;
- struct dequeue_elem_st *prev, *next;
+    void *dat;
+    struct dequeue_elem_st *prev, *next;
 } DQueueElem;
 
 typedef struct {
- long  items;
- DQueueElem *head;
- DQueueElem *tail;
+    long items;
+    DQueueElem *head;
+    DQueueElem *tail;
 } DQueue;
 
 #include "lstring.h"
 
 #define DQINIT(q) {(q).items=0; (q).head=NULL; (q).tail=NULL;}
-#define DQQUEUE(q,s) DQAdd2Head(q,s)
-#define DQPUSH(q,s) DQAdd2Tail(q,s)
+#define DQQUEUE(q, s) DQAdd2Head(q,s)
+#define DQPUSH(q, s) DQAdd2Tail(q,s)
 #define DQDELLAST(q) DQDel(q,q->tail)
 #define DQDELFIRST(q) DQDel(q,q->head)
 #define DQPEEK(q) (((q)->tail)->dat)
 
 /* ============= function prototypes ============= */
-void __CDECL DQAdd2Head( DQueue *queue, void *dat);
-void __CDECL DQAdd2Tail( DQueue *queue, void *dat);
-void  *DQPop( DQueue *queue );
-void __CDECL DQDel( DQueue *queue, DQueueElem *elem );
-void __CDECL DQFlush( DQueue *queue, void (__CDECL *freefunc)(void *) );
+void __CDECL DQAdd2Head(DQueue *queue, void *dat);
+
+void __CDECL DQAdd2Tail(DQueue *queue, void *dat);
+
+void *DQPop(DQueue *queue);
+
+void __CDECL DQDel(DQueue *queue, DQueueElem *elem);
+
+void __CDECL DQFlush(DQueue *queue, void (__CDECL *freefunc)(void *));
 
 /*DQueueElem * DQFind( DQueue *queue, PLstr str );*/
 

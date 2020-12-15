@@ -22,8 +22,11 @@
  */
 
 #ifndef WIN
+
 # include "bmem.h"
+
 #endif
+
 #include "lstring.h"
 #include "bintree.h"
 #include "nextsymb.h"
@@ -187,6 +190,7 @@ enum mnemonic_type {
  ,OP_BCONCAT /* concat two strings with space */
 
  ,OP_NEG
+ ,OP_PLUS
  ,OP_INC
  ,OP_DEC
 

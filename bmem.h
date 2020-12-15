@@ -35,8 +35,11 @@
 
 #include "os.h"
 #include <stdlib.h>
+
 #if !defined(__CMS__) && !defined(__MVS__)
+
 # include <malloc.h>
+
 #endif
 
 #include "config.h"
@@ -51,8 +54,8 @@
 #  define REALLOC(p,s) farrealloc(p,s)
 #  define FREE  farfree
 # else
-#  define MALLOC(s,d) malloc(s)
-#  define REALLOC(p,s) realloc(p,s)
+#  define MALLOC(s, d) malloc(s)
+#  define REALLOC(p, s) realloc(p,s)
 #  define FREE  free
 # endif
 #endif

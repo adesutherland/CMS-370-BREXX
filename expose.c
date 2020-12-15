@@ -22,44 +22,43 @@
 
 /* -----------------  expose ---------------- */
 void __CDECL
-Lexpose( const PLstr to, const PLstr A, const PLstr B )
-{
- double ar,r;
- long   bi;
- bool   minusA;
- bool   minusB;
+Lexpose(const PLstr to, const PLstr A, const PLstr B) {
+    double ar, r;
+    long bi;
+    bool minusA;
+    bool minusB;
 
- ar = Lrdreal(A);
- bi = Lrdint(B);
+    ar = Lrdreal(A);
+    bi = Lrdint(B);
 
- if (ar < 0 ) {
-  if (ODD(bi))
-   minusA = TRUE;
-  else
-   minusA = FALSE;
-  ar = - ar;
- } else
-  minusA = FALSE;
+    if (ar < 0) {
+        if (ODD(bi))
+            minusA = TRUE;
+        else
+            minusA = FALSE;
+        ar = -ar;
+    } else
+        minusA = FALSE;
 
- if (bi < 0 ) {
-  minusB = TRUE;
-  bi = - bi;
- } else
-  minusB = FALSE;
- r = 1;
+    if (bi < 0) {
+        minusB = TRUE;
+        bi = -bi;
+    } else
+        minusB = FALSE;
+    r = 1;
 
- while (bi != 0) {
-  if (ODD(bi)) r *= ar;
-  ar *= ar;
-  bi /= 2;
- }
- if (minusA) r = -r;
+    while (bi != 0) {
+        if (ODD(bi)) r *= ar;
+        ar *= ar;
+        bi /= 2;
+    }
+    if (minusA) r = -r;
 
- if (minusB)
-  LREAL(*to) = 1/r;
- else
-  LREAL(*to) = r;
+    if (minusB)
+        LREAL(*to) = 1 / r;
+    else
+        LREAL(*to) = r;
 
- LTYPE(*to) = LREAL_TY;
- LLEN(*to)  = sizeof(double);
+    LTYPE(*to) = LREAL_TY;
+    LLEN(*to) = sizeof(double);
 } /* Lexpose */

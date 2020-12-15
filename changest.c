@@ -25,34 +25,33 @@
 
 /* ----------------- Lchagestr ------------------- */
 void __CDECL
-Lchangestr( const PLstr to, const PLstr oldstr,
- const PLstr str, const PLstr newstr)
-{
- size_t pos, foundpos;
- Lstr tmp;
+Lchangestr(const PLstr to, const PLstr oldstr,
+           const PLstr str, const PLstr newstr) {
+    size_t pos, foundpos;
+    Lstr tmp;
 
- if (LLEN(*oldstr)==0) {
-  Lstrcpy(to,str);
-  return;
- }
+    if (LLEN(*oldstr) == 0) {
+        Lstrcpy(to, str);
+        return;
+    }
 
- Lfx(to,LLEN(*str));
- LZEROSTR(*to);
+    Lfx(to, LLEN(*str));
+    LZEROSTR(*to);
 
- LINITSTR(tmp);
+    LINITSTR(tmp);
 
- pos = 1;
- for (;;) {
-  foundpos = Lindex(str,oldstr,pos);
-  if (foundpos==0) break;
-  if (foundpos!=pos) {
-   _Lsubstr(&tmp,str,pos,foundpos-pos);
-   Lstrcat(to,&tmp);
-  }
-  Lstrcat(to,newstr);
-  pos = foundpos + LLEN(*oldstr);
- }
- _Lsubstr(&tmp,str,pos,0);
- Lstrcat(to,&tmp);
- LFREESTR(tmp);
+    pos = 1;
+    for (;;) {
+        foundpos = Lindex(str, oldstr, pos);
+        if (foundpos == 0) break;
+        if (foundpos != pos) {
+            _Lsubstr(&tmp, str, pos, foundpos - pos);
+            Lstrcat(to, &tmp);
+        }
+        Lstrcat(to, newstr);
+        pos = foundpos + LLEN(*oldstr);
+    }
+    _Lsubstr(&tmp, str, pos, 0);
+    Lstrcat(to, &tmp);
+    LFREESTR(tmp);
 } /* Lchagestr */

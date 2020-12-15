@@ -18,130 +18,106 @@
  *
  */
 
-#include <math.h>
 #include <ctype.h>
 #include <cmssys.h>
 #include "lstring.h"
 
-static int isRealAnInt(double d) {
-    int len;
-    double x;
-    double epsilon;
-    Context *context = (Context*)CMSGetPG();
-
-    if (d == 0.0) return TRUE;
-
-    /* Calculate precision (epsilon) - REXX DIGITS less size of int bit of the number */
-    if (d < 0.0) d = (-1.0) * d;
-    len = context->lstring_lNumericDigits;
-    len -= log10(d) ;
-    if (len<1) len = 1;
-    epsilon = pow( 10.0, - (double)len ) / 2.01; /* 2.01 rather 2.0 just to tune rounding */
-
-    /* Is the difference between the nearest integer less that the epsilon */
-    x = d - floor(d);
-    if (x > 0.5) x = 1.0 - x;
-    if (x < epsilon) return TRUE;
-    return FALSE;
-}
-
 /* --------------- Ldatatype ----------------- */
 /* returns -1 on error type                    */
 int __CDECL
-Ldatatype( const PLstr str, char type )
-{
- Lstr ref;
- int t,j,digits;
- char *c;
- Context *context = (Context*)CMSGetPG();
+Ldatatype(const PLstr str, char type) {
+    Lstr ref;
+    int t, j, digits;
+    char *c;
+    Context *context = (Context *) CMSGetPG();
 
- type = (context->lstring_l2u)[(byte)type];
+    type = (context->lstring_l2u)[(byte) type];
 
- LINITSTR(ref);
+    LINITSTR(ref);
 
- if (type!='T' && type!='N') {
-  L2STR(str);
-  if (!LLEN(*str)) /* special type */
-   return (type=='X') || (type=='B');
- }
-
- switch (type) {
-  case 'A':
-   Lscpy(&ref,clower);
-   Lcat(&ref,cUPPER);
-   Lcat(&ref,cdigits);
-   break;
-  case 'B':
-   /* check blanks in allowed places */
-   if (ISSPACE(LSTR(*str)[0])) return 0;
-   c = LSTR(*str) + (LLEN(*str)-1);
-   if (ISSPACE(*c)) return 0;
-   digits = 0;
-   for (j=LLEN(*str); j>0; j--, c--) {
-    if (ISSPACE(*c)) {
-     /* Blanks need four Binary
-      Digits to the right of them */
-     if (digits%4!=0) return 0;
-    } else {
-     if (*c!='0' && *c!='1') return 0;
-     digits++;
+    if (type != 'T' && type != 'N') {
+        L2STR(str);
+        if (!LLEN(*str)) /* special type */
+            return (type == 'X') || (type == 'B');
     }
-   }
-   return 1;
-  case 'L':
-   Lscpy(&ref,clower);
-   break;
-  case 'M':
-   Lscpy(&ref,clower);
-   Lcat(&ref,cUPPER);
-   break;
-  case 'N':
-   if (LTYPE(*str)==LSTRING_TY)
-    return (_Lisnum(str) != LSTRING_TY);
-   else
-    return TRUE;
-  case 'S':
-   Lscpy(&ref,clower);
-   Lcat(&ref,cUPPER);
-   Lcat(&ref,cdigits);
-   Lcat(&ref,crxsymb);
-   break;
-  case 'T':
-   return LTYPE(*str);       /* mine special type */
-  case 'U':
-   Lscpy(&ref,cUPPER);
-   break;
-  case 'W':
-      if (LTYPE(*str)==LINTEGER_TY) return TRUE;
-      if (LTYPE(*str)==LREAL_TY) return isRealAnInt(LREAL(*str));
-      int tp = _Lisnum(str);
-      if (tp == LSTRING_TY) return FALSE;
-      else if (tp == LINTEGER_TY) return TRUE;
-      else {
-          L2real(str);
-          return isRealAnInt( LREAL(*str) );
-      }
-  case 'X':
-   /* check blanks in allowed places */
-   if (ISSPACE(LSTR(*str)[0])) return 0;
-   c = LSTR(*str) + (LLEN(*str)-1);
-   if (ISSPACE(*c)) return 0;
-   digits = 0;
-   for (j=LLEN(*str); j>0; j--, c--) {
-    if (ISSPACE(*c)) {
-     /* Blanks need a pair of Hex
-      Digits to the right of them */
-     if (digits%2!=0) return 0;
-    } else {
-     if (STRCHR(chex,*c)==NULL) return 0;
-     digits++;
+
+    switch (type) {
+        case 'A':
+            Lscpy(&ref, clower);
+            Lcat(&ref, cUPPER);
+            Lcat(&ref, cdigits);
+            break;
+        case 'B':
+            /* check blanks in allowed places */
+            if (ISSPACE(LSTR(*str)[0])) return 0;
+            c = LSTR(*str) + (LLEN(*str) - 1);
+            if (ISSPACE(*c)) return 0;
+            digits = 0;
+            for (j = LLEN(*str); j > 0; j--, c--) {
+                if (ISSPACE(*c)) {
+                    /* Blanks need four Binary
+                     Digits to the right of them */
+                    if (digits % 4 != 0) return 0;
+                } else {
+                    if (*c != '0' && *c != '1') return 0;
+                    digits++;
+                }
+            }
+            return 1;
+        case 'L':
+            Lscpy(&ref, clower);
+            break;
+        case 'M':
+            Lscpy(&ref, clower);
+            Lcat(&ref, cUPPER);
+            break;
+        case 'N':
+            if (LTYPE(*str) == LSTRING_TY)
+                return (_Lisnum(str) != LSTRING_TY);
+            else
+                return TRUE;
+        case 'S':
+            Lscpy(&ref, clower);
+            Lcat(&ref, cUPPER);
+            Lcat(&ref, cdigits);
+            Lcat(&ref, crxsymb);
+            break;
+        case 'T':
+            return LTYPE(*str);       /* mine special type */
+        case 'U':
+            Lscpy(&ref, cUPPER);
+            break;
+        case 'W':
+            if (LTYPE(*str) == LINTEGER_TY) return TRUE;
+            if (LTYPE(*str) == LREAL_TY) return Disint(LREAL(*str));
+            int tp = _Lisnum(str);
+            if (tp == LSTRING_TY) return FALSE;
+            else if (tp == LINTEGER_TY) return TRUE;
+            else {
+                L2real(str);
+                return Disint(LREAL(*str));
+            }
+        case 'X':
+            /* check blanks in allowed places */
+            if (ISSPACE(LSTR(*str)[0])) return 0;
+            c = LSTR(*str) + (LLEN(*str) - 1);
+            if (ISSPACE(*c)) return 0;
+            digits = 0;
+            for (j = LLEN(*str); j > 0; j--, c--) {
+                if (ISSPACE(*c)) {
+                    /* Blanks need a pair of Hex
+                     Digits to the right of them */
+                    if (digits % 2 != 0) return 0;
+                } else {
+                    if (STRCHR(chex, *c) == NULL) return 0;
+                    digits++;
+                }
+            }
+            return 1;
+        default:
+            return -1;
     }
-   }
-   return 1;
-  default:
-   return -1;
- }
- t = (Lverify(str,&ref,FALSE,1)==LNOTFOUND);
- LFREESTR(ref);
- return t;
+    t = (Lverify(str, &ref, FALSE, 1) == LNOTFOUND);
+    LFREESTR(ref);
+    return t;
 } /* Ldatatype */

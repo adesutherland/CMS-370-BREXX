@@ -29,18 +29,18 @@
 
 /* ---------------- Llineout ------------------- */
 int __CDECL
-Llineout( FILEP f, const PLstr line, long start )
-{
-  Context *context = (Context*)CMSGetPG();
-  /* find start line */
-  if (start>=0) {
-    if (!fsetrec(f,start)) {
-      if (errno==ENOTBLK) (context->lstring_Lerror)(ERR_NOT_RECORD_ACCESS,0);
-      else (context->lstring_Lerror)(ERR_INCORRECT_CALL,0);
+Llineout(FILEP f, const PLstr line, long start) {
+    Context *context = (Context *) CMSGetPG();
+    /* find start line */
+    if (start >= 0) {
+        if (!fsetrec(f, start)) {
+            if (errno == ENOTBLK)
+                (context->lstring_Lerror)(ERR_NOT_RECORD_ACCESS, 0);
+            else (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+        }
     }
-  }
 
-  Lwrite(f,line,TRUE);
+    Lwrite(f, line, TRUE);
 
-  return 0;  /* if everything ok */
+    return 0;  /* if everything ok */
 } /* Llineout */
