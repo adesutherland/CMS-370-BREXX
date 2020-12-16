@@ -28,12 +28,7 @@ Llastpos(const PLstr needle, const PLstr haystack, long p) {
 
     if (p < 0 || p >= LLEN(*haystack)) p = LLEN(*haystack);
 
-    if (!LLEN(*needle)) {
-        if (LLEN(*haystack))
-            return (p > 0) ? p : 1;
-        else
-            return LNOTFOUND;
-    }
+    if (!LLEN(*needle)) return LNOTFOUND;
 
     LINITSTR(N);
     Lstrcpy(&N, needle);
