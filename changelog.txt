@@ -1,6 +1,10 @@
 BREXX CMS Change LOG
 ====================
 
+F0037 - X2D fixes
+          - Comment out test 68 - WONTFIX
+          - X2D(xxx,0) returns 0
+
 0.9.10- 15 Dec 2020
 F0036 - X2D fixes
           - Added OP_PLUS bytecode for unary plus expressions
