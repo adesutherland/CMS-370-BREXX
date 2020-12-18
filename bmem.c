@@ -102,7 +102,7 @@ mem_malloc(size_t size, char *desc) {
         if (((Memory *) (context->bmem_mem_head)))
             ((Memory *) (context->bmem_mem_head))->next = mem;
 
-        ((Memory *) (context->bmem_mem_head)) = mem;
+        (context->bmem_mem_head) = mem;
         (context->bmem_total_mem) += size;
 
         /* Mark also the END of data */

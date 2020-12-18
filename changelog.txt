@@ -1,7 +1,9 @@
 BREXX CMS Change LOG
 ====================
 
-F0038 - LASTPOS fix
+F0039 - POS() fix - zero length needle should return 0
+        Fixed check if a real is an int - significant digits not worked out right
+F0038 - LASTPOS() fix
 F0037 - X2D fixes
           - Comment out test 68 - WONTFIX
           - X2D(xxx,0) returns 0

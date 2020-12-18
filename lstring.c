@@ -586,8 +586,10 @@ int Disint(double d) {
 
     /* Calculate precision (epsilon) - REXX DIGITS less size of int bit of the number */
     if (d < 0.0) d = (-1.0) * d;
-    len = context->lstring_lNumericDigits;
-    len -= (int)log10(d);
+    len = (int)log10(d);
+    if (len<0) len=0;
+    else len++;
+    len = context->lstring_lNumericDigits - len;
     if (len < 1) len = 1;
     epsilon = pow(10.0, -(double) len) /
               2.01; /* 2.01 rather 2.0 just to tune rounding */
