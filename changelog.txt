@@ -1,6 +1,9 @@
 BREXX CMS Change LOG
 ====================
-
+F0040 - TRUNC() fix - replaced string to numeric parser with one that adds
+        an epsilon to ensure a round up with a number with a 5 as the least
+        significant digit. Also looks at the digit after the max significant
+        digits to decide rounding.
 F0039 - POS() fix - zero length needle should return 0
         Fixed check if a real is an int - significant digits not worked out right
 F0038 - LASTPOS() fix

@@ -295,7 +295,7 @@ void  __CDECL L2int(const PLstr s);
 
 void  __CDECL L2real(const PLstr s);
 
-void  __CDECL _L2num(const PLstr s, const int type);
+void __CDECL Lround(PLstr var);
 
 void  __CDECL L2num(const PLstr s);
 

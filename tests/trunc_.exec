@@ -26,9 +26,11 @@ if trunc(10000000.0055,2) \== 10000000.00 then say 'failed in test 21 '
 if trunc(10000000.04,2) \== 10000000.00 then say 'failed in test 22 '
 if trunc(10000000.045,2) \== 10000000.00 then say 'failed in test 23 '
 if trunc(10000000.45,2) \== 10000000.50 then say 'failed in test 24 '
+/* Duplicates of test 16
 if trunc(10000000.05,2) \== 10000000.10 then say 'failed in test 25 '
 if trunc(10000000.05,2) \== 10000000.10 then say 'failed in test 26 '
 if trunc(10000000.05,2) \== 10000000.10 then say 'failed in test 27 '
+*/
 if trunc(99999999.,2) \== 99999999.00 then say 'failed in test 28 '
 if trunc(99999999.9,2) \== 99999999.90 then say 'failed in test 29 '
 if trunc(99999999.99,2) \== 100000000.00 then say 'failed in test 30 '
