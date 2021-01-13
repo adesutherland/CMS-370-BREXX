@@ -1,0 +1,3 @@
+/* rexx */
+call load date_fn.exec
+say date('B')

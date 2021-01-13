@@ -1,0 +1,89 @@
+/**/
+say date('S',0,'B')
+say GoodDate(3652059,'B')
+say date('S',3652058,'B')
+say date('B',"99991231",'S')
+say date('B',"00010101",'S')
+say GoodDate("00001231",'S')
+say '0 seconds is' TIME('C',0,'S')
+say GoodTime(-1,'S')
+say '3600*24-1 seconds is' TIME('C',3600*24-1,'S')
+say GoodTime(3600*24,'S')
+say '0 seconds is' TIME('C',0,'S')
+say '60 seconds is' TIME('C',60,'S')
+say '3600*12-60 seconds is' TIME('C',3600*12-60,'S')
+say '3600*12 seconds is' TIME('C',3600*12,'S')
+say '3600*12+60 seconds is' TIME('C',3600*12+60,'S')
+say '3600*24-60 seconds is' TIME('C',3600*24-60,'S')
+if GoodTime(1,'S') then nop;else say "Bad 0 using GoodTime"
+if GoodTime(-1,'S') then say "Bad 1 using GoodTime"
+if GoodDate("19890827",'S') then nop;else say "Bad 0 using GoodDate"
+if GoodDate("19890837",'S') then say "Bad 1 using GoodDate"
+if 'TIME'() == time() then nop;else say "Bad using time()"
+parse version v .
+if v="OBJREXX" then do
+  do j=1 to 6
+    InLet=substr("CHLMNS",j,1)
+    t='TIME'(InLet)
+    do k=1 to 6
+    OutLet=substr("CHLMNS",k,1)
+    if 'TIME'(OutLet,t,Inlet) == time(OutLet,t,InLet) then nop;else
+       say "Bad time" InLet "convert" OutLet
+    end k
+  end j
+  t=0;InLet='S'
+  do k=1 to 6
+    OutLet=substr("CHLMNS",k,1)
+    if 'TIME'(OutLet,t,Inlet) == time(OutLet,t,InLet) then nop;else
+     say "Bad time 0" InLet "convert" OutLet
+  end k
+  t=3600*24-1;InLet='S'
+  do k=1 to 6
+    OutLet=substr("CHLMNS",k,1)
+    if 'TIME'(OutLet,t,Inlet) == time(OutLet,t,InLet) then nop;else
+     say "Bad time Max" InLet "convert" OutLet
+  end k
+  if 'DATE'() == date() then nop;else say "Bad using date()"
+  do j=1 to 6
+  /* Had to take D out because OOREXX won't take it. */
+    InLet=substr("BENOSU",j,1)
+    t='DATE'(InLet)
+    do k=1 to 7
+    OutLet=substr("BDENOSU",k,1)
+    if 'DATE'(OutLet,t,Inlet) == date(OutLet,t,InLet) then nop;else
+     say "Bad date" InLet "convert" OutLet
+    end k
+  end j
+  t="00010101";InLet='S'
+  do k=1 to 6
+   /* Take 'S' out because of OOREXX bug. */
+    OutLet=substr("BDENOU",k,1)
+    if 'DATE'(OutLet,t,Inlet) == date(OutLet,t,InLet) then nop;else
+     say "Bad date 0" InLet "convert" OutLet
+  end k
+  t="99991231";InLet='S'
+  do k=1 to 7
+    OutLet=substr("BDENOSU",k,1)
+    if 'DATE'(OutLet,t,Inlet) == date(OutLet,t,InLet) then nop;else
+     say "Bad date Max" InLet "convert" OutLet
+  end k
+end /* ObjRexx comparisons. */
+/* Sparse test of separators */
+ if date('S',"99991231",'S','-') == "9999-12-31" then nop;else signal error
+ if date('S',"99991231",'S',' ','') == "9999 12 31" then nop;else signal error
+ if date('S',"9999 12 31",'S','',' ') == "99991231" then nop;else signal error
+ if date('S',"9999-12-31",'S','','-') == "99991231" then nop;else signal error
+ if date('B',"9999-12-31",'S',  ,'-') == "3652058" then nop;else signal error
+ signal on syntax name toolong
+ date('S',"99991231",'S','--')
+toolong:
+ signal on syntax name alphan
+ date('S',"99991231",'S','x')
+alphan:
+ signal on syntax name nosep
+ date('B',"9999-12-31",'S','','-')
+nosep:
+  say 'Done'
+return
+
+

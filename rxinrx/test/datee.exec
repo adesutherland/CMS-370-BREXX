@@ -1,0 +1,13 @@
+/* rexx */
+call load date_fn.exec
+say date()
+say date('b')
+say date('E')
+say date('M')
+say date('O')
+say date('S')
+say date('U')
+say date('W')
+say date('M')
+say date('N')
+say date('J')
