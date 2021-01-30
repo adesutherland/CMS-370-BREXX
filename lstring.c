@@ -378,12 +378,13 @@ static double rxpow10(int E) {
 /*
 ** IBM's Hex float (long / double) uses 14 hex chars for the significant
 ** which can handle 16 decimal digits (plus a bit more for rounding!)
-** So we will support up to 16 significant digits only - this also means
+** NOTE However that for whatever reason on GCC/370 GCCLIB etc. we get 15 digits
+** accuracy only. (This is just by trial and error)
+** So we will support up to 15 significant digits only - this also means
 ** we can use a double for the significant and avoid rolling our own 64bit
-** integer maths stuff ...
+** integer maths stuff ... I did trial this but it did not improve accuracy.
 */
-#define SIGDIGITS 16
-
+#define SIGDIGITS 15
 static int rxatof( char *z, double *pResult, int length) {
     const char *zEnd;
     /* sign * significand * (10 ^ (esign * exponent)) */
@@ -436,7 +437,7 @@ static int rxatof( char *z, double *pResult, int length) {
          * This really should be integer maths - but we would need 64bits to
          * store the required number of digits. Oh well maybe next time!
          */
-        s = s * 10 + (*z - '0');
+        s = s * 10.0 + (*z - '0');
         if (*z == '5') {
             round_epsilon = 1;
             round_digit = 0;
@@ -476,11 +477,23 @@ static int rxatof( char *z, double *pResult, int length) {
     if (*z == '.') {
         z++;
         eType++;
+
+        /* skip leading zeros  */
+        if (s == 0) {
+            while (z < zEnd && *z == '0') {
+                z++;
+                nLeadingZeros++;
+                d--;
+            }
+            if (z >= zEnd) return 1; /* Zero is an integer */
+        }
+
+
         /* copy digits from after decimal to significand
         ** (decrease exponent by d to shift decimal right) */
         while (z < zEnd && isdigit(*z)) {
             if (nDigit < SIGDIGITS) {
-                s = s * 10 + (*z - '0');
+                s = s * 10.0 + (*z - '0');
                 if (*z == '5') {
                     round_epsilon = 1;
                     round_digit = 0;
@@ -555,21 +568,6 @@ static int rxatof( char *z, double *pResult, int length) {
         result = (double)0.0;
         eType = 1;
     } else {
-        /* Attempt to reduce exponent. */
-        while (e >
-               0) {
-            if (esign > 0) {
-                if (s >= rxpow10(SIGDIGITS - 1) )
-                    break;
-                s *= 10;
-            } else {
-                if ((long)fmod(s, 10) != 0)
-                    break;
-                s /= 10;
-            }
-            e--;
-        }
-
         /* adjust the sign of significand */
         s = sign < 0 ? -s : s;
         if (e == 0) {
@@ -583,8 +581,8 @@ static int rxatof( char *z, double *pResult, int length) {
                 scale = rxpow10(e);
                 if (esign < 0) {
                     if (round_epsilon) {
-                        /* Ok we scale to 17 digits and add 1
-                         * (i.e. 1/(10 power of 17) */
+                        /* Ok we scale to SIGDIGITS + 1 digits and add 1
+                         * (i.e. 1/(10 power of (SIGDIGITS + 1)) */
                         double scale2 = rxpow10(SIGDIGITS - nDigit + 1);
                         result = ((s * scale2) + 1.0) / (scale * scale2);
                     }

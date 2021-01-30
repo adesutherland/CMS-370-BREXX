@@ -159,16 +159,14 @@ R_format(const int func) {
     get_oi0(4, expp);
     get_oi0(5, expt);
 
-#ifdef __CMS__
-    // As it stands, Lformat is called with 'before' and 'after' set to 0 regardless of whether they
-    // were specified or omitted on the call to the FORMAT function.  We will adopt the convention that
-    // 'before' or 'after' with a value < 0 means they were not specified on the call to FORMAT.
     if (!exist(2)) before = -1;
     if (!exist(3)) after = -1;
+    if (!exist(4)) expp = -1;
+    if (!exist(5)) expt = -1;
+/*
     if (before == 0)
-        (context->lstring_Lerror)(ERR_INCORRECT_CALL,
-                                  0);                        // cannot specify before as 0
-#endif
+        (context->lstring_Lerror)(ERR_INCORRECT_CALL, 0);
+*/
     Lformat(ARGR, ARG1, before, after, expp, expt);
 } /* R_format */
 

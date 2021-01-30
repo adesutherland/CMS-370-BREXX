@@ -1,5 +1,6 @@
 BREXX CMS Change LOG
 ====================
+F0041 - FORMAT() fix
 F0040 - TRUNC() fix - replaced string to numeric parser with one that adds
         an epsilon to ensure a round up with a number with a 5 as the least
         significant digit. Also looks at the digit after the max significant
