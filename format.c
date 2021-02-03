@@ -51,7 +51,7 @@ static double round_sig_digits(double value, int digits)
 
 static void get_significant_and_expnt(format_data *data) {
     if (data->from == 0.0) data->expnt = 0;
-    else data->expnt = (int)floor(log10(data->from));
+    else data->expnt = (int)floor(log10(data->from) + 1e-14);
 
     /* Make scientific form with significant as nnnnnnnnnnnnnnn which means n.nnnnnnnnnnnnnn */
     sprintf(data->buffer, "%.*e", data->digits, data->from);
@@ -300,7 +300,6 @@ Lformat(const PLstr to, const PLstr from,
      * the operation number+0 had been carried out.
      */
     if (data.digits < 15) from_d = round_sig_digits(from_d, data.digits);
-
     if (from_d < 0) {
         data.sign = -1;
         from_d = from_d * -1.0;

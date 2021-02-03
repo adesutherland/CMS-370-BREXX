@@ -80,5 +80,6 @@ interpreter ' x2b_'||suffix
 interpreter ' x2c_'||suffix
 interpreter ' x2d_'||suffix
 interpreter ' testexc'||suffix
+interpreter ' maths_'||suffix
 
 if system='CMS' then "CP SPOOL CONS STOP CLOSE"

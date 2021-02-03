@@ -39,6 +39,18 @@ Lequal(const PLstr A, const PLstr B) {
     byte *a, *b;  /* start position in string */
     byte *ae, *be; /* ending position in string */
     double ra, rb;
+
+    /* Are A & B both integers? - Optimise for this */
+    if (LTYPE(*A) == LINTEGER_TY && LTYPE(*B) == LINTEGER_TY) {
+        /* TODO - DIGITS and FUZZ */
+        if ( LINT(*A) == LINT(*B) )
+            return 0;
+        else if (LINT(*A) > LINT(*B))
+            return 1;
+        else
+            return -1;
+    }
+
     Context *context = (Context *) CMSGetPG();
 
     if (LTYPE(*A) == LSTRING_TY) {
@@ -66,7 +78,36 @@ Lequal(const PLstr A, const PLstr B) {
 
     /* is B also a number */
     if (tb != LSTRING_TY) {
-        if (fabs(ra - rb) <= 1E-20)
+        /*
+         * The numbers are floats and to work out if two floats are
+         * equal we have to mess around with an epsilon
+         */
+        int magnitude_a, magnitude_b;
+        double epsilon;
+        if (ra == 0) magnitude_a = 0;
+        else {
+            if (ra < 0) magnitude_a = (int)log10(-ra);
+            else magnitude_a = (int)log10(ra);
+            if (magnitude_a >= 0) magnitude_a++;
+        }
+        if (rb == 0) magnitude_b = 0;
+        else {
+            if (rb < 0) magnitude_b = (int)log10(-rb);
+            else magnitude_b = (int)log10(rb);
+            if (magnitude_b >= 0) magnitude_b++;
+        }
+        if (magnitude_a != magnitude_b) {
+            /* They can't be equal! */
+            if (ra > rb) return 1;
+            else return -1;
+        }
+
+        epsilon = pow(10.0, -(double)(context->lstring_lNumericDigits
+            - (context->rexx_proc)[(context->rexx_rx_proc)].fuzz
+            - magnitude_a)) / 0.9;
+
+        /* Is the difference between the them less that the epsilon */
+        if (fabs(ra - rb) < epsilon)
             return 0;
         else if (ra > rb)
             return 1;

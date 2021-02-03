@@ -1,6 +1,12 @@
 BREXX CMS Change LOG
 ====================
-F0042 - FORMAT() fix
+F0043 - Maths fixes (Integer to Double promotion) - MULT, ADD, SUBT
+        FORMAT fix (log10 Rounding error)
+        Integer detecting fix, small >1 (e.g. 0.0000n) is not an integer
+        SAY Always used FORMAT to format numbers (incl. integers)
+        Equals - use an epsilon
+        MATHS_ EXEC TESTS
+F0042 - FORMAT() Complete rewrite!
 F0040 - TRUNC() fix - replaced string to numeric parser with one that adds
         an epsilon to ensure a round up with a number with a 5 as the least
         significant digit. Also looks at the digit after the max significant

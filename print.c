@@ -35,11 +35,13 @@ Lprint(FILEP f, const PLstr str) {
             break;
 
         case LINTEGER_TY:
+            /*
             fprintf(f, "%ld", LINT(*str));
             break;
-
-        case LREAL_TY: LINITSTR(tmp);
-            Lformat(&tmp, str, -1, -1, 0, 0);
+            */
+        case LREAL_TY:
+            LINITSTR(tmp);
+            Lformat(&tmp, str, -1, -1, -1, -1);
             fprintf(f, "%.*s", LLEN(tmp), LSTR(tmp));
             LFREESTR(tmp);
             break;

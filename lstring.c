@@ -394,7 +394,7 @@ static int rxatof( char *z, double *pResult, int length) {
     int esign = 1;   /* sign of exponent */
     int e = 0;       /* exponent */
     int eValid = 1;  /* True exponent is either not used or is well-formed */
-    double result;
+    double result = 0.0;
     int nDigit = 0;  /* Number of digits processed */
     int nLeadingZeros = 0; /* Number of leading zeros */
     /* 1: pure integer,  2+: fractional  -1 or less: bad UTF16 */
@@ -544,7 +544,7 @@ static int rxatof( char *z, double *pResult, int length) {
         }
         /* copy digits to exponent */
         while (z < zEnd && isdigit(*z)) {
-            e = e < 10000 ? (e * 10 + (*z - '0')) : 10000;
+            e = e < 79 ? (e * 10 + (*z - '0')) : 79;
             z++;
             eValid = 1;
         }
@@ -574,7 +574,7 @@ static int rxatof( char *z, double *pResult, int length) {
             result = (double) s;
         } else {
             /* attempt to handle extremely small/large numbers */
-            if (e > 79) {
+            if (e >= 79) {
                 if (esign < 0) result = 0.0 * s;
                 else result = 7.3e75 * s;  /* Infinity */
             } else {
@@ -599,6 +599,7 @@ static int rxatof( char *z, double *pResult, int length) {
     *pResult = result;
 
     /* return true if number and no extra non-whitespace characters after */
+
     if (z == zEnd && (nDigit+nLeadingZeros) > 0 && eValid && eType > 0) {
         return eType;
     } else if (eType >= 2 && (eType == 3 || eValid) && (nDigit+nLeadingZeros) > 0) {
@@ -624,7 +625,11 @@ _Lisnum(const PLstr s) {
     if (ch == NULL) return LSTRING_TY;
 
     rc = rxatof(ch, &(context->lstring_lLastScannedNumber), LLEN(*s));
-    if (rc == 1) return LINTEGER_TY;
+    if (rc == 1) {
+        if (fabs(context->lstring_lLastScannedNumber) > LONG_MAX)
+            return LREAL_TY; /* Always treat big nums as reals */
+        return LINTEGER_TY;
+    }
     else if (rc >= 2) {
         if (fabs(context->lstring_lLastScannedNumber) > LONG_MAX)
             return LREAL_TY; /* Always treat big nums as reals */
@@ -640,34 +645,7 @@ _Lisnum(const PLstr s) {
 /* ------------------ L2str ------------------- */
 void __CDECL
 L2str(const PLstr s) {
-    Context *context = (Context *) CMSGetPG();
-    if (LTYPE(*s) == LINTEGER_TY) {
-#if defined(WCE) || defined(__BORLANDC__)
-        LTOA(LINT(*s),LSTR(*s),10);
-#else
-        sprintf(LSTR(*s), "%ld", LINT(*s));
-#endif
-        LLEN(*s) = STRLEN(LSTR(*s));
-    } else { /* LREAL_TY */
-#ifdef __CMS__
-        Lformat(s, s, -1, -1, 0, 0);
-#else
-        /* There is a problem with the Windows CE */
-        char str[50];
-        size_t len;
-
-        GCVT(LREAL(*s), (context->lstring_lNumericDigits), str);
-        /* --- remove the last dot from the number --- */
-        len = STRLEN(str);
-#ifdef WCE
-        if (str[len-1] == '.') len--;
-#endif
-        if (len >= LMAXLEN(*s)) Lfx(s, len);
-        MEMCPY(LSTR(*s), str, len);
-        LLEN(*s) = len;
-#endif
-    }
-    LTYPE(*s) = LSTRING_TY;
+    Lformat(s, s, -1, -1, -1, -1);
 } /* L2str */
 
 /* ------------------ L2int ------------------- */
@@ -754,7 +732,7 @@ int Disint(double d) {
     /* Calculate precision (epsilon) - REXX DIGITS less size of int bit of the number */
     if (d < 0.0) d = (-1.0) * d;
     len = (int)log10(d);
-    if (len<0) len=0;
+    if (len<0) return FALSE; /* 0.001 etc is not an int ... hopefully! :-( */
     else len++;
     len = context->lstring_lNumericDigits - len;
     if (len < 0) len = 0;
@@ -798,7 +776,7 @@ Lrdint(const PLstr s) {
     Context *context = (Context *) CMSGetPG();
     if (LTYPE(*s) == LINTEGER_TY) return LINT(*s);
 
-    if (LTYPE(*s) == LREAL_TY) {
+    if (LTYPE(*s) == LREAL_TY) { /* TODO - IsInt */
         if ((double) ((long) LREAL(*s)) == LREAL(*s))
             return (long) LREAL(*s);
         else
