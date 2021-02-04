@@ -1,5 +1,6 @@
 BREXX CMS Change LOG
 ====================
+0.9.11- 4 Feb 2021
 F0043 - Maths fixes (Integer to Double promotion) - MULT, ADD, SUBT
         FORMAT fix (log10 Rounding error)
         Integer detecting fix, small >1 (e.g. 0.0000n) is not an integer
