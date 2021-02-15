@@ -91,12 +91,8 @@ Ldatatype(const PLstr str, char type) {
             if (LTYPE(*str) == LINTEGER_TY) return TRUE;
             if (LTYPE(*str) == LREAL_TY) return Disint(LREAL(*str));
             int tp = _Lisnum(str);
-            if (tp == LSTRING_TY) return FALSE;
-            else if (tp == LINTEGER_TY) return TRUE;
-            else {
-                L2real(str);
-                return Disint(LREAL(*str));
-            }
+            if (tp == LINTEGER_TY) return TRUE;
+            else return FALSE;
         case 'X':
             /* check blanks in allowed places */
             if (ISSPACE(LSTR(*str)[0])) return 0;

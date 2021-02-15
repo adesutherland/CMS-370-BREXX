@@ -71,10 +71,12 @@ if X2D('a') \== '10' then say 'failed in test 64 '
 if X2D('0f') \== '15' then say 'failed in test 65 '
 if x2D('80') \== '128' then say 'failed in test 66 '
 if x2d('765') \== '1893' then say 'failed in test 67 '
+/* BREXX Does not support large # digits
 Numeric Digits 1000
 if x2D("eeeeeeeeeeeeeeeeeeeeeeeee") \==,
 '1183140560213014108063589658350' then say 'failed in test 68 '
 Numeric Digits
+*/
 if x2d(01234) \== '4660' then say 'failed in test 69 '
 if x2d(1E2) \== '482' then say 'failed in test 70 '
 if x2d(+1E+2) \== '256' then say 'failed in test 71 '

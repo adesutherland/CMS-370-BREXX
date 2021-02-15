@@ -1,62 +1,50 @@
 /*
- * $Id: add.c,v 1.6 2008/07/15 07:40:54 bnv Exp $
- * $Log: add.c,v $
- * Revision 1.6  2008/07/15 07:40:54  bnv
- * #include changed from <> to ""
- *
- * Revision 1.5  2002/06/11 12:37:15  bnv
- * Added: CDECL
- *
- * Revision 1.4  2001/06/25 18:49:48  bnv
- * Header changed to Id
- *
- * Revision 1.3  1999/11/26 09:50:50  bnv
- * Cleaned up a little
- *
- * Revision 1.2  1999/03/10 16:55:55  bnv
- * Corrected, the use of 'ta' and 'tb'
- *
- * Revision 1.1  1998/07/02 17:16:35  bnv
- * Initial revision
- *
+ * BREXX/370
  */
 
-#include "lerror.h"
 #include "lstring.h"
-#include <cmssys.h>
 
 /* ---------------- Ladd ------------------- */
 void __CDECL
 Ladd(const PLstr to, const PLstr A, const PLstr B) {
-    int ta, tb;
-    double r;
-    Context *context = (Context *) CMSGetPG();
+    L2NUM(A);
+    L2NUM(B);
 
-    if (LTYPE(*A) == LSTRING_TY) {
-        ta = _Lisnum(A);
-        if (ta == LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
-        r = (context->lstring_lLastScannedNumber);
-    } else {
-        ta = LTYPE(*A);
-        r = TOREAL(*A);
+    int int_a, int_b, overflow;
+
+    if ((LTYPE(*A) == LINTEGER_TY) && (LTYPE(*B) == LINTEGER_TY)) {
+        /* OK 2 integers - lets add them and see if it is all good */
+        int_a = LINT(*A);
+        int_b = LINT(*B);
+
+        /*
+         * Detect Overflow using inline assembler (a hack but C can't do this)
+         * See https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html
+         * (Remember we are only in GCC version 3 and in S/370 - so trial and
+         * error ... specifically the goto stuff does not seem to be supported)
+        */
+        overflow = 1;
+        __asm__("AR %[a],%[b]\n\t"
+                "BC 1,*+6\n\t"
+                "SR %[overflow],%[overflow]"
+        : [overflow] "=d"(overflow), [a] "+d"(int_a)  /* Output* Operands */
+        : [b] "d"(int_b)                                /* Input Operands */
+        );
+        /*  *Note that the "+d" marks int_a as input/output
+         *  (the d means type int)
+         */
+
+        if (!overflow) {
+            /* No overflow - all done as fast integers */
+            LINT(*to) = int_a;
+            LTYPE(*to) = LINTEGER_TY;
+            LLEN(*to) = sizeof(long);
+            return; /* All done */
+        }
     }
 
-    if (LTYPE(*B) == LSTRING_TY) {
-        tb = _Lisnum(B);
-        if (tb == LSTRING_TY) (context->lstring_Lerror)(ERR_BAD_ARITHMETIC, 0);
-        r += (context->lstring_lLastScannedNumber);
-    } else {
-        tb = LTYPE(*B);
-        r += TOREAL(*B);
-    }
-
-    if ((ta == LINTEGER_TY) && (tb == LINTEGER_TY)) {
-        LINT(*to) = (long) r;
-        LTYPE(*to) = LINTEGER_TY;
-        LLEN(*to) = sizeof(long);
-    } else {
-        LREAL(*to) = r;
-        LTYPE(*to) = LREAL_TY;
-        LLEN(*to) = sizeof(double);
-    }
+    /* We have to do the maths using floats */
+    LREAL(*to) = TOREAL(*A) + TOREAL(*B);
+    LTYPE(*to) = LREAL_TY;
+    LLEN(*to) = sizeof(double);
 } /* Ladd */

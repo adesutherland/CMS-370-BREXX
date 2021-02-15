@@ -1,5 +1,23 @@
 BREXX CMS Change LOG
 ====================
+0.9.11- 4 Feb 2021
+F0043 - Maths fixes (Integer to Double promotion) - MULT, ADD, SUBT
+        FORMAT fix (log10 Rounding error)
+        Integer detecting fix, small >1 (e.g. 0.0000n) is not an integer
+        SAY Always used FORMAT to format numbers (incl. integers)
+        Equals - use an epsilon
+        MATHS_ EXEC TESTS
+F0042 - FORMAT() Complete rewrite!
+F0040 - TRUNC() fix - replaced string to numeric parser with one that adds
+        an epsilon to ensure a round up with a number with a 5 as the least
+        significant digit. Also looks at the digit after the max significant
+        digits to decide rounding.
+F0039 - POS() fix - zero length needle should return 0
+        Fixed check if a real is an int - significant digits not worked out right
+F0038 - LASTPOS() fix
+F0037 - X2D fixes
+          - Comment out test 68 - WONTFIX
+          - X2D(xxx,0) returns 0
 
 0.9.10- 15 Dec 2020
 F0036 - X2D fixes

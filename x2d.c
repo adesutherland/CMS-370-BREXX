@@ -24,8 +24,10 @@ Lx2d(const PLstr to, const PLstr from, long n) {
     int sign;
 
     LINITSTR(tmp);
-
-    if (n <= 0) {
+    if (n == 0) {
+        Licpy(to, 0);
+    }
+    else if (n < 0) {
         Lx2c(&tmp, from);
         Lc2d(to, &tmp, -1);
     } else {
