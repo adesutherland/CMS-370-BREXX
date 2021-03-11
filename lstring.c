@@ -424,6 +424,8 @@ static int rxatof( char *z, double *pResult, int length) {
 
     while (z < zEnd && isspace(*z)) z++; /* skip spaces */
 
+    if (z >= zEnd) return 0; /* + or - by itself is not a number! */
+
     /* skip leading zeros  */
     while (z < zEnd && *z == '0') {
         z++;
