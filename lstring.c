@@ -404,6 +404,7 @@ static int rxatof( char *z, double *pResult, int length) {
     int round_digit = 0; /* 1 if we have handled the 17th digit for rounding */
     /* -1 if the 16th digit was 4 (so we know to add the
      * epsilon) */
+    int sig_digits = 0; /* Number of digits in the significand */
 
     *pResult = 0.0;  /* Default return value, in case of an error */
     if (length == 0) return 0;
@@ -440,6 +441,7 @@ static int rxatof( char *z, double *pResult, int length) {
          * store the required number of digits. Oh well maybe next time!
          */
         s = s * 10.0 + (*z - '0');
+        sig_digits++;
         if (*z == '5') {
             round_epsilon = 1;
             round_digit = 0;
@@ -496,6 +498,7 @@ static int rxatof( char *z, double *pResult, int length) {
         while (z < zEnd && isdigit(*z)) {
             if (nDigit < SIGDIGITS) {
                 s = s * 10.0 + (*z - '0');
+                sig_digits++;
                 if (*z == '5') {
                     round_epsilon = 1;
                     round_digit = 0;
@@ -546,9 +549,15 @@ static int rxatof( char *z, double *pResult, int length) {
         }
         /* copy digits to exponent */
         while (z < zEnd && isdigit(*z)) {
-            e = e < 79 ? (e * 10 + (*z - '0')) : 79;
+            e = e * 10 + (*z - '0');
             z++;
-            eValid = 1;
+            /* This is just a backstop for big exponents - overflow is
+             * handled later */
+            if (e>=100) {
+                e=100;
+                eValid = 0; /* We will call it an invalid number */
+            }
+            else eValid = 1;
         }
     }
 
@@ -576,9 +585,9 @@ static int rxatof( char *z, double *pResult, int length) {
             result = (double) s;
         } else {
             /* attempt to handle extremely small/large numbers */
-            if (e >= 79) {
-                if (esign < 0) result = 0.0 * s;
-                else result = 7.3e75 * s;  /* Infinity */
+            if (e + sig_digits >= 74) {
+                if (esign < 0) result = 0.0 * sign;
+                else result = 1e75 * sign;  /* Infinity - well good enough! */
             } else {
                 scale = rxpow10(e);
                 if (esign < 0) {

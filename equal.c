@@ -51,6 +51,12 @@ Lequal(const PLstr A, const PLstr B) {
             return -1;
     }
 
+    /* Are A & B both strings? - Don't do any conversions */
+    if (LTYPE(*A) == LSTRING_TY && LTYPE(*B) == LSTRING_TY) {
+        goto eq_str;
+    }
+
+    /* OK Now go through the logic of comparing integers/floats/strings */
     Context *context = (Context *) CMSGetPG();
 
     if (LTYPE(*A) == LSTRING_TY) {
@@ -117,7 +123,7 @@ Lequal(const PLstr A, const PLstr B) {
 
     /* nope it was a string */
     L2STR(A);  /* convert A string */
-    eq_str:
+  eq_str:
     a = (byte *) LSTR(*A);
     ae = a + LLEN(*A);
     for (; (a < ae) && ISSPACE(*a); a++);

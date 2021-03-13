@@ -1,6 +1,7 @@
 BREXX CMS Change LOG
 ====================
 
+F0045 - Fix string to exponent number, where exp>74
 F0044 - Fix '+' and '-' are not valid numbers!
 
 0.9.11- 4 Feb 2021
