@@ -45,13 +45,14 @@ main(int ac, char *av[]) {
 
     if (!ac) return -1; /* Should never happen! */
 
-    if (ac == 1 && CMScalltype() != 5) {
-        printf("BREXX Version %s\n", CMS_VERSION);
-
+    if (CMScalltype() != 5) {
         if (issamearg("DMSREX", av[0])) {
+            int version = 0;
+            int debug = 0;
+            int error = 0;
+
             /* Temporary aid to register entry point for HRC402DS           */
             /* Will be removed once BREXX CMS deployment approach confirmed */
-
             /* Entry point for REXX is stored @ 0x90 - NUCRSV6 */
 #define REXX_ENTRY_HANDLE 0x90
 
@@ -59,11 +60,33 @@ main(int ac, char *av[]) {
             entry_point = (int) __CRT0;
             CMSSetNUCON((void *) REXX_ENTRY_HANDLE, entry_point);
 
-            printf("BREXX Entry Address is 0x%x saved in NUCON at 0x%x\n",
-                   entry_point, REXX_ENTRY_HANDLE);
-        }
+            if (ac > 1) {
+                if (ac > 2) error = 1;
+                if (ac == 2) {
+                    if (issamearg("VERSION", av[1])) {
+                        version = 1;
+                    } else if (issamearg("DEBUG", av[1])) {
+                        version = 1;
+                        debug = 1;
+                        __SDEBUG(1);
+                    } else error = 1;
+                }
+            }
+            if (error) {
+                printf("Invalid arguments\n");
+                printf("   DMSREX [VERSION|DEBUG]\n");
+                return -1;
+            }
+            if (version) {
+                printf("BREXX Version %s\n", CMS_VERSION);
+            }
+            if (debug) {
+                printf("BREXX Entry Address is 0x%x saved in NUCON at 0x%x\n",
+                       entry_point, REXX_ENTRY_HANDLE);
+            }
 
-        return 0;
+            return 0;
+        }
     }
 
     InitContext();
@@ -85,6 +108,7 @@ main(int ac, char *av[]) {
             ia++;
 #ifdef __DEBUG__
             (context->rexx__debug__) = TRUE;
+            __SDEBUG(1);
 #else
             printf("WARNING: BREXX not compiled with debug, -D ignored\n");
 #endif
