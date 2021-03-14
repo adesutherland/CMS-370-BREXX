@@ -1,6 +1,8 @@
 BREXX CMS Change LOG
 ====================
 
+0.9.12- 14 March 2021
+F0047 - Interactive Trace and Trace on/off fixes
 F0046 - Intercept GCCLIB 0.8.4
       - Added DMSREX [VERSION|DEBUG] argument
           VERSION prints version

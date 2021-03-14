@@ -284,7 +284,17 @@ TraceInstruction(CIPTYPE inst) {
 /* ---------------- TraceInteractive ------------------- */
 int __CDECL
 TraceInteractive(int frominterpret) {
+    char line[131];
+    char *p = line;
     Context *context = (Context *) CMSGetPG();
+    /* Interactive trace must not disturb the stack. Use */
+    /* a direct console read to retrieve the interactive */
+    /* trace command line, and then stack it LIFO so the */
+    /* next console read retrieves the trace command and */
+    /* leaves the original stack contents undisturbed.   */
+    CMSdirectRead(p);
+    CMSstackLine(p, CMS_STACKLIFO);
+
     /* Read the interactive string into a tmp var */
     (context->interpre_RxStckTop)++;
     (context->interpre_RxStck)[(context->interpre_RxStckTop)] =

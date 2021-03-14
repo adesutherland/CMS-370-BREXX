@@ -142,6 +142,8 @@
 # define CWORD  dword
 #endif
 
+extern const ErrorMsg errortext[];  /* CONST - from lstring/errortxt.c */
+
 #ifdef __DEBUG__
 /* -------------- DebugStackList ------------- */
 static void
@@ -1082,6 +1084,7 @@ RxDoneInterpret(void) {
 int __CDECL
 RxInterpret(void) {
     PLstr a;
+    Lstr tracestr;
     IdentInfo *inf;
     CTYPE w;
     int na, nf, jc, errno, subno, found;
@@ -1185,8 +1188,25 @@ RxInterpret(void) {
                 newTraceFlag = CMSGetFlag(TRACEFLAG);
                 if (newTraceFlag != oldTraceFlag) {
                     oldTraceFlag = newTraceFlag;
-                    if (newTraceFlag) (context->interpre__trace) = TRUE;
-                    else (context->interpre__trace) = FALSE;
+              /*    if (newTraceFlag) (context->interpre__trace) = TRUE;*/
+              /*    else (context->interpre__trace) = FALSE;*/
+                   if (newTraceFlag) {
+                      /* Turn on interactive trace */
+                      DEBUGDISPLAY0("TRACEON");
+                      (context->interpre__trace) = TRUE;
+                      LINITSTR(tracestr);
+                      Lscpy(&tracestr, "?A"); /* Set interactive tracing all on */
+                      TraceSet(&tracestr);
+                      LFREESTR(tracestr);
+                   }
+                   else {
+                      DEBUGDISPLAY0("TRACEOFF");
+                      (context->interpre__trace) = FALSE;
+                      LINITSTR(tracestr);
+                      Lscpy(&tracestr, "O"); /* Set interactive tracing all off */
+                      TraceSet(&tracestr);
+                      LFREESTR(tracestr);
+                   }
                 }
 
 #ifdef WCE
@@ -1760,6 +1780,33 @@ RxInterpret(void) {
                 LASCIIZ(*(STACKTOP));
                 RxExecuteCmd(STACKTOP, STACKP(1));
                 (context->interpre_RxStckTop) -= 2;
+
+                /* Check for case where EXECTRAC was set on */
+                newTraceFlag = CMSGetFlag(TRACEFLAG);
+                if (newTraceFlag != oldTraceFlag) {
+                    oldTraceFlag = newTraceFlag;
+              /*    if (newTraceFlag) (context->interpre__trace) = TRUE;*/
+              /*    else (context->interpre__trace) = FALSE;*/
+                   if (newTraceFlag) {
+                      /* Turn on interactive trace */
+                      (context->interpre__trace) = TRUE;
+                      LINITSTR(tracestr);
+                      Lscpy(&tracestr, "?A"); /* Set interactive tracing all on */
+                      TraceSet(&tracestr);
+                      LFREESTR(tracestr);
+                      DEBUGDISPLAY0("TRACEON");
+                      /* Start the trace on the next statement by skipping NEWCLAUSE */
+                      (context->interpreRxcip)++;
+                   }
+                   else {
+                      (context->interpre__trace) = FALSE;
+                      LINITSTR(tracestr);
+                      Lscpy(&tracestr, "O"); /* Set interactive tracing all off */
+                      TraceSet(&tracestr);
+                      LFREESTR(tracestr);
+                      DEBUGDISPLAY0("TRACEOFF");
+                   }
+                }
                 goto main_loop;
 
                 /* EXIT   */
