@@ -1,6 +1,9 @@
 BREXX CMS Change LOG
 ====================
 
+F0048 - Make ASSEMBLER files LRECL 80 in the source tapes
+      - Add SYSPROFB EXEC
+
 0.9.12- 14 March 2021
 F0047 - Interactive Trace and Trace on/off fixes
 F0046 - Intercept GCCLIB 0.8.4
