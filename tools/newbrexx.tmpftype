@@ -1,0 +1,29 @@
+*                                 Destination      Source MAINTC minidisk
+DISK                              MAINT    19E     191
+FILE       GCCLIB     TXTLIB
+FILE       GCCRES     TXTLIB
+FILE       GCCLIB     TEXT
+FILE       BREXX      TEXT
+*
+DISK                              MAINT    19E     393
+FILE       SYSPROFB   EXEC
+FILE       REXXTRY    EXEC
+*
+DISK                              MAINT    19E     19C
+FILE       YATA       MODULE
+*
+DISK                              GCCCMS   202     394
+FILE       *          H
+FILE       GCC        PARM
+*
+DISK                              GCCCMS   202     194
+FILE       GCCLIB     MACLIB
+*
+DISK                              MAINT    19D     394
+FILE       GCCLIB     MEMO
+FILE       GCCLIB     HELPCMD
+FILE       GCCLIB     HELPCMD2
+*
+DISK                              MAINT    19D     393
+FILE       REXX       HELPCMD
+FILE       REXX       HELPCMD2

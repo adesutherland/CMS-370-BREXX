@@ -1,0 +1,16 @@
+GCCSRCH  EXEC      Establish a disk search order for GCCLIB code
+
+GCCGENM  EXEC      Generate a GCCLIB MACLIB file used in assembling
+                      GCC and BREXX ASSEMBLE programs.
+GCCASM   EXEC      Assemble a GCCLIB assembler program
+GCCCOMP  EXEC      Compile a GCCLIB C program
+GCCGEN   EXEC      Generate GCCLIB System disk files
+
+BRXSRCH  EXEC      Establish a disk search order for BREXX code
+BRXSRCHT EXEC      Establish a disk search order for a test version of BREXX
+
+BRXASM   EXEC      Assemble a BREXX assembler program
+BRXCOMP  EXEC      Compile a BREXX C program
+BRXGEN   EXEC      Generate BREXX System disk files
+
+EXPLOIT  EXEC      Utility program on Y disk for generating system components
