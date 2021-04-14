@@ -6,15 +6,11 @@ set -e
 
 # Get the latest gccbrx.cckd disk image
 herccontrol "detach 09F0"
-
-apt-get update
-apt-get install --no-install-recommends -y wget ca-certificates
-wget -nv https://github.com/adesutherland/CMS-370-GCCLIB/releases/download/f0054.3/GCCLIB.zip
+wget -nv https://github.com/adesutherland/CMS-370-GCCLIB/releases/download/v1.0.0/GCCLIB.zip
 unzip GCCLIB.zip
 cp GCCLIB/gccbrx.cckd ..
 rm GCCLIB.zip
 rm -r GCCLIB
-
 herccontrol "attach 09F0 3350 gccbrx.cckd"
 
 # IPL
@@ -22,7 +18,7 @@ herccontrol "ipl 141" -w "USER DSC LOGOFF AS AUTOLOG1"
 herccontrol "/cp start c" -w "RDR"
 herccontrol "/cp start d class a" -w "PUN"
 
-# LOGON maintc
+# LOGON MAINTC
 herccontrol "/cp disc" -w "^VM/370 Online"
 herccontrol "/logon maintc maintc" -w "^CMS"
 herccontrol "/" -w "^Ready;"
@@ -164,12 +160,12 @@ herccontrol "/define storage 16m"  -w "CP ENTERED"
 herccontrol "/ipl 190 clear" -w "^CMS"
 herccontrol "/savesys cms" -w "^CMS"
 herccontrol "/" -w "^Ready;"
+herccontrol "/logoff" -w "^VM/370 Online"
 
 # Test suite
 # herccontrol "/runtest_" -w "^Ready;"
 
 # SHUTDOWN
-herccontrol "/logoff" -w "^VM/370 Online"
 herccontrol "/logon operator operator" -w "RECONNECTED AT"
 herccontrol "/shutdown" -w "^HHCCP011I"
 herccontrol "detach 09F0"

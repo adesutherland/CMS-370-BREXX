@@ -48,3 +48,7 @@ docker exec vm370 bash -c "cd /opt/hercules/vm370/io && chmod +x cmsbuild.sh && 
 #docker cp cmsdebug.sh vm370:/opt/hercules/vm370/io
 #docker exec vm370 dos2unix /opt/hercules/vm370/io/cmsdebug.sh
 #docker exec vm370 bash -c "cd /opt/hercules/vm370/io && chmod +x cmsdebug.sh && ./cmsdebug.sh"
+
+# IPL VM
+herccontrol "attach 09F0 3350 gccbrx.cckd"
+herccontrol "ipl 141" -w "USER DSC LOGOFF AS AUTOLOG1"
