@@ -1,0 +1,45 @@
+&CONTROL OFF
+* Build the BRX executibles from the source on the MAINTC 393
+*
+&TYPE ******** ********
+&TYPE Setup the BRX disk search order
+EXEC BRXSRCH
+&TYPE ******** ********
+&TYPE Access the compiler output disk as A and erase all the files there
+ACCESS 193 A ( ERASE
+&TYPE ******** ********
+&TYPE Create a CMS EXEC file with the names of all
+&TYPE the ASSEMBLE files
+LISTFILE * ASSEMBLE F ( EXEC
+&TYPE ******** ********
+&TYPE Run the ASSEMBLE command to compile the files from source
+EXEC EXPLOIT EXEC BRXASM &LITERAL &FN
+&TYPE ******** ********
+&TYPE Create a CMS EXEC file with the names of all the C files
+LISTFILE * C F ( EXEC
+&TYPE ******** ********
+&TYPE Run the GCC command to compile the files from source
+EXEC EXPLOIT EXEC BRXCOMP &LITERAL &FN
+&TYPE ******** ********
+&TYPE Cleanup
+ERASE CMS EXEC
+ACCESS 191 A
+****************************************************************
+* Build the BRX debug executibles from the source on the MAINTC 393
+*
+&TYPE ******** ********
+&TYPE Setup the BRX disk search order for debug version
+EXEC BRXSRCHD
+&TYPE ******** ********
+&TYPE Access the compiler output disk as A and erase all the files there
+ACCESS 293 A ( ERASE
+&TYPE ******** ********
+&TYPE Create a CMS EXEC file with the names of all the C files
+LISTFILE * C G ( EXEC
+&TYPE ******** ********
+&TYPE Run the GCC command to compile the files from source
+EXEC EXPLOIT EXEC BRXCOMPD &LITERAL &FN
+&TYPE ******** ********
+&TYPE Cleanup and exit
+ERASE CMS EXEC
+ACCESS 191 A
