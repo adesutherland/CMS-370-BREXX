@@ -51,11 +51,6 @@ Lequal(const PLstr A, const PLstr B) {
             return -1;
     }
 
-    /* Are A & B both strings? - Don't do any conversions */
-    if (LTYPE(*A) == LSTRING_TY && LTYPE(*B) == LSTRING_TY) {
-        goto eq_str;
-    }
-
     /* OK Now go through the logic of comparing integers/floats/strings */
     Context *context = (Context *) CMSGetPG();
 
